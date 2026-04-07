@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 4. Lint (ESLint via next lint)
+      # 4. Lint (ESLint — next lint supprimé dans Next.js 16)
       - name: Lint
         run: npm run lint
 
