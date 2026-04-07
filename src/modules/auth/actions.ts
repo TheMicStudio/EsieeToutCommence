@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import type {
   ActionState,
   AdminProfile,
@@ -162,57 +163,60 @@ export async function signOut(): Promise<void> {
 // ─── Get Current User Profile (API publique pour tous les modules) ────────────
 
 export async function getCurrentUserProfile(): Promise<UserProfile | null> {
+  // 1. Vérifier l'identité via le client anon (valide le JWT auprès d'Auth)
   const supabase = await createClient();
-
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) return null;
 
-  const { data: userRole } = await supabase
+  // 2. Lire les données avec le client admin (bypass RLS — safe car identité vérifiée)
+  const admin = createAdminClient();
+
+  const { data: userRole } = await admin
     .from('user_roles')
     .select('role')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
 
   if (!userRole) return null;
 
   const role = userRole.role as RolePrincipal;
 
   if (role === 'eleve') {
-    const { data } = await supabase
+    const { data } = await admin
       .from('student_profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
     if (!data) return null;
     return { role: 'eleve', profile: data as StudentProfile };
   }
 
   if (role === 'professeur') {
-    const { data } = await supabase
+    const { data } = await admin
       .from('teacher_profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
     if (!data) return null;
     return { role: 'professeur', profile: data as TeacherProfile };
   }
 
   if (role === 'admin') {
-    const { data } = await supabase
+    const { data } = await admin
       .from('admin_profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
     if (!data) return null;
     return { role: 'admin', profile: data as AdminProfile };
   }
 
   if (role === 'entreprise') {
-    const { data } = await supabase
+    const { data } = await admin
       .from('company_profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
     if (!data) return null;
     return { role: 'entreprise', profile: data as CompanyProfile };
   }
