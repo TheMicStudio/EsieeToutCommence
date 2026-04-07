@@ -21,6 +21,8 @@ export function LoginForm() {
           placeholder="vous@exemple.fr"
           required
           autoComplete="email"
+          autoCapitalize="none"
+          autoCorrect="off"
         />
       </div>
 
@@ -52,6 +54,17 @@ export function LoginForm() {
           Créer un compte
         </Link>
       </p>
+
+      {/* Comptes de test */}
+      <details className="rounded-lg border border-dashed p-3 text-xs text-muted-foreground">
+        <summary className="cursor-pointer font-medium">Comptes de test</summary>
+        <ul className="mt-2 space-y-1 font-mono">
+          <li>etudiant@hub-ecole.dev / Test1234!</li>
+          <li>prof@hub-ecole.dev / Test1234!</li>
+          <li>admin@hub-ecole.dev / Test1234!</li>
+          <li>entreprise@hub-ecole.dev / Test1234!</li>
+        </ul>
+      </details>
     </form>
   );
 }

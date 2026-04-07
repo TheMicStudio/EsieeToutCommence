@@ -15,6 +15,37 @@ const ROLES: { value: RolePrincipal; label: string; description: string }[] = [
   { value: 'entreprise', label: 'Entreprise', description: 'Suivi des alternants' },
 ];
 
+const MATIERES = [
+  'Mathématiques',
+  'Physique',
+  'Chimie',
+  'Informatique',
+  'Algorithmique',
+  'Réseaux & Systèmes',
+  'Développement Web',
+  'Bases de données',
+  'Anglais',
+  'Français',
+  'Management',
+  'Économie',
+  'Droit',
+  'SIO',
+  'Électronique',
+];
+
+const FONCTIONS = [
+  'Directeur·trice',
+  'Directeur·trice adjoint·e',
+  'Responsable pédagogique',
+  'Responsable administratif·ve',
+  'Secrétariat',
+  'Comptabilité',
+  'Ressources humaines',
+  'Chargé·e de communication',
+  'Référent·e numérique',
+  'Autre',
+];
+
 interface Step1Data {
   prenom: string;
   nom: string;
@@ -29,6 +60,7 @@ export function RegisterForm() {
   const [step1, setStep1] = useState<Step1Data>({
     prenom: '', nom: '', email: '', password: '', role: '',
   });
+  const [selectedMatieres, setSelectedMatieres] = useState<string[]>([]);
 
   function handleStep1(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -43,6 +75,12 @@ export function RegisterForm() {
     setStep(2);
   }
 
+  function toggleMatiere(m: string) {
+    setSelectedMatieres((prev) =>
+      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]
+    );
+  }
+
   const selectedRoleLabel = ROLES.find((r) => r.value === step1.role)?.label;
 
   return (
@@ -53,22 +91,54 @@ export function RegisterForm() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="prenom">Prénom</Label>
-              <Input id="prenom" name="prenom" defaultValue={step1.prenom} placeholder="Jean" required />
+              <Input
+                id="prenom"
+                name="prenom"
+                defaultValue={step1.prenom}
+                placeholder="Jean"
+                required
+                autoComplete="given-name"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="nom">Nom</Label>
-              <Input id="nom" name="nom" defaultValue={step1.nom} placeholder="Dupont" required />
+              <Input
+                id="nom"
+                name="nom"
+                defaultValue={step1.nom}
+                placeholder="Dupont"
+                required
+                autoComplete="family-name"
+              />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="email">Adresse email</Label>
-            <Input id="email" name="email" type="email" defaultValue={step1.email} placeholder="vous@exemple.fr" required />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              defaultValue={step1.email}
+              placeholder="vous@exemple.fr"
+              required
+              autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="password">Mot de passe</Label>
-            <Input id="password" name="password" type="password" placeholder="8 caractères minimum" minLength={8} required />
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="8 caractères minimum"
+              minLength={8}
+              required
+              autoComplete="new-password"
+            />
           </div>
 
           <div className="space-y-3">
@@ -85,7 +155,7 @@ export function RegisterForm() {
                     value={r.value}
                     defaultChecked={step1.role === r.value}
                     required
-                    className="h-4 w-4 accent-primary"
+                    className="h-4 w-4 accent-primary shrink-0"
                   />
                   <div className="min-w-0">
                     <p className="text-sm font-medium">{r.label}</p>
@@ -96,7 +166,7 @@ export function RegisterForm() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full">Continuer</Button>
+          <Button type="submit" className="w-full">Continuer →</Button>
 
           <p className="text-center text-sm text-muted-foreground">
             Déjà un compte ?{' '}
@@ -110,33 +180,35 @@ export function RegisterForm() {
       {/* ── Étape 2 — Profil selon le rôle ── */}
       {step === 2 && (
         <form action={action} className="space-y-5">
-          {/* Réinjection de toutes les données étape 1 */}
+          {/* Réinjection données étape 1 */}
           <input type="hidden" name="prenom" value={step1.prenom} />
           <input type="hidden" name="nom" value={step1.nom} />
           <input type="hidden" name="email" value={step1.email} />
           <input type="hidden" name="password" value={step1.password} />
           <input type="hidden" name="role" value={step1.role} />
+          {/* Matières sélectionnées */}
+          <input type="hidden" name="matieres_enseignees" value={selectedMatieres.join(', ')} />
 
           <button
             type="button"
             onClick={() => setStep(1)}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
           >
             ← Retour
           </button>
 
-          <p className="text-sm text-muted-foreground">
-            Rôle sélectionné :{' '}
-            <span className="font-medium text-foreground">{selectedRoleLabel}</span>
-          </p>
+          <div className="rounded-lg bg-muted/50 px-4 py-2 text-sm">
+            Rôle : <span className="font-medium">{selectedRoleLabel}</span>
+          </div>
 
+          {/* ── Élève ── */}
           {step1.role === 'eleve' && (
             <div className="space-y-2">
               <Label>Type de parcours</Label>
               <div className="flex flex-col gap-2">
                 {[
-                  { value: 'temps_plein', label: 'Temps plein' },
-                  { value: 'alternant', label: 'Alternant' },
+                  { value: 'temps_plein', label: 'Temps plein', desc: 'Formation initiale classique' },
+                  { value: 'alternant', label: 'Alternant', desc: 'En entreprise en alternance' },
                 ].map((p) => (
                   <label
                     key={p.value}
@@ -147,43 +219,84 @@ export function RegisterForm() {
                       name="type_parcours"
                       value={p.value}
                       defaultChecked={p.value === 'temps_plein'}
-                      className="h-4 w-4 accent-primary"
+                      className="h-4 w-4 accent-primary shrink-0"
                     />
-                    <span className="text-sm font-medium">{p.label}</span>
+                    <div>
+                      <p className="text-sm font-medium">{p.label}</p>
+                      <p className="text-xs text-muted-foreground">{p.desc}</p>
+                    </div>
                   </label>
                 ))}
               </div>
             </div>
           )}
 
+          {/* ── Professeur ── */}
           {step1.role === 'professeur' && (
-            <div className="space-y-2">
-              <Label htmlFor="matieres_enseignees">Matières enseignées</Label>
-              <Input
-                id="matieres_enseignees"
-                name="matieres_enseignees"
-                placeholder="Mathématiques, Physique, Informatique"
-              />
-              <p className="text-xs text-muted-foreground">Séparées par des virgules</p>
+            <div className="space-y-3">
+              <Label>Matières enseignées</Label>
+              <div className="flex flex-col gap-2 max-h-64 overflow-y-auto rounded-lg border p-3">
+                {MATIERES.map((m) => (
+                  <label
+                    key={m}
+                    className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-muted/60"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedMatieres.includes(m)}
+                      onChange={() => toggleMatiere(m)}
+                      className="h-4 w-4 rounded accent-primary shrink-0"
+                    />
+                    <span className="text-sm">{m}</span>
+                  </label>
+                ))}
+              </div>
+              {selectedMatieres.length > 0 && (
+                <p className="text-xs text-primary">
+                  {selectedMatieres.length} matière{selectedMatieres.length > 1 ? 's' : ''} sélectionnée{selectedMatieres.length > 1 ? 's' : ''}
+                </p>
+              )}
             </div>
           )}
 
+          {/* ── Admin ── */}
           {step1.role === 'admin' && (
             <div className="space-y-2">
               <Label htmlFor="fonction">Fonction</Label>
-              <Input id="fonction" name="fonction" placeholder="Référent pédagogique, Commercial…" />
+              <select
+                id="fonction"
+                name="fonction"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <option value="">Sélectionner une fonction</option>
+                {FONCTIONS.map((f) => (
+                  <option key={f} value={f}>{f}</option>
+                ))}
+              </select>
             </div>
           )}
 
+          {/* ── Entreprise ── */}
           {step1.role === 'entreprise' && (
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="entreprise_nom">Nom de l&apos;entreprise</Label>
-                <Input id="entreprise_nom" name="entreprise" placeholder="Acme Corp" required />
+                <Input
+                  id="entreprise_nom"
+                  name="entreprise"
+                  placeholder="Acme Corp"
+                  required
+                  autoComplete="organization"
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="poste">Poste</Label>
-                <Input id="poste" name="poste" placeholder="Maître d'apprentissage" />
+                <Label htmlFor="poste">Votre poste</Label>
+                <Input
+                  id="poste"
+                  name="poste"
+                  placeholder="Maître d'apprentissage, RH…"
+                  autoComplete="organization-title"
+                />
               </div>
             </div>
           )}
