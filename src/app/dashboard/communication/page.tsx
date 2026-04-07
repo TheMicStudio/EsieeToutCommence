@@ -4,7 +4,8 @@ import { getStaffChannels } from '@/modules/communication/actions';
 
 export default async function CommunicationPage() {
   const profile = await getCurrentUserProfile();
-  if (!profile) redirect('/auth/login');
+  if (!profile) return null;
+  
   if (profile.role !== 'admin' && profile.role !== 'professeur') redirect('/dashboard');
 
   const channels = await getStaffChannels();

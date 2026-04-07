@@ -7,7 +7,8 @@ import { buttonVariants } from '@/components/ui/button';
 
 export default async function SupportPage() {
   const profile = await getCurrentUserProfile();
-  if (!profile) redirect('/auth/login');
+  if (!profile) return null;
+  
 
   const isAdmin = profile.role === 'admin';
   const tickets = isAdmin ? await getAllTickets() : await getMyTickets();

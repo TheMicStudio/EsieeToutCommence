@@ -11,7 +11,8 @@ interface RetroPageProps {
 export default async function RetroPage({ params }: RetroPageProps) {
   const { weekId } = await params;
   const profile = await getCurrentUserProfile();
-  if (!profile) redirect('/auth/login');
+  if (!profile) return null;
+  
   if (profile.role !== 'eleve' && profile.role !== 'professeur') redirect('/dashboard');
 
   const supabase = await createClient();

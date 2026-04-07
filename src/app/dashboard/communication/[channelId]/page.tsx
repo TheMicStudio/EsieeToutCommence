@@ -13,7 +13,8 @@ interface ChannelPageProps {
 export default async function ChannelPage({ params }: ChannelPageProps) {
   const { channelId } = await params;
   const profile = await getCurrentUserProfile();
-  if (!profile) redirect('/auth/login');
+  if (!profile) return null;
+  
   if (profile.role !== 'admin' && profile.role !== 'professeur') redirect('/dashboard');
 
   const [channels, messages, directory] = await Promise.all([

@@ -4,7 +4,8 @@ import { QrScanner } from '@/modules/attendance/components/QrScanner';
 
 export default async function ScanPage() {
   const profile = await getCurrentUserProfile();
-  if (!profile) redirect('/auth/login');
+  if (!profile) return null;
+  
   if (profile.role !== 'eleve') redirect('/dashboard');
 
   return (

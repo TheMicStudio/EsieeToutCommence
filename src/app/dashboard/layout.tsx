@@ -1,5 +1,4 @@
-import { redirect } from 'next/navigation';
-import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { getCurrentUserProfile, signOut } from '@/modules/auth/actions';
 import { DashboardSidebar } from '@/modules/auth/components/DashboardSidebar';
 
 export default async function DashboardLayout({
@@ -9,12 +8,25 @@ export default async function DashboardLayout({
 }) {
   const userProfile = await getCurrentUserProfile();
 
-  // Le middleware protège déjà /dashboard — si on arrive ici sans profil,
-  // l'utilisateur est authentifié mais son profil n'existe pas encore.
-  // On redirige vers /auth/login sans risque de boucle (middleware ne
-  // redirige que /auth/login et /auth/register, pas /auth/setup).
+  // Si authentifié mais pas de profil : afficher une erreur avec déconnexion.
+  // NE PAS rediriger vers /auth/* — le middleware renverrait vers /dashboard → boucle.
   if (!userProfile) {
-    redirect('/auth/login?error=no_profile');
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-4 text-center">
+        <p className="text-lg font-semibold">Profil introuvable</p>
+        <p className="text-sm text-muted-foreground">
+          Votre compte existe mais votre profil est incomplet.
+        </p>
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="mt-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Se déconnecter
+          </button>
+        </form>
+      </div>
+    );
   }
 
   return (

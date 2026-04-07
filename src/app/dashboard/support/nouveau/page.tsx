@@ -4,7 +4,8 @@ import { TicketForm } from '@/modules/support/components/TicketForm';
 
 export default async function NouveauTicketPage() {
   const profile = await getCurrentUserProfile();
-  if (!profile) redirect('/auth/login');
+  if (!profile) return null;
+  
 
   const isDelegue = profile.role === 'eleve' && 'est_delegue' in profile && profile.est_delegue === true;
 

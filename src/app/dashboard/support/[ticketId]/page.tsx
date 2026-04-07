@@ -12,7 +12,8 @@ interface TicketPageProps {
 export default async function TicketPage({ params }: TicketPageProps) {
   const { ticketId } = await params;
   const profile = await getCurrentUserProfile();
-  if (!profile) redirect('/auth/login');
+  if (!profile) return null;
+  
 
   const ticket = await getTicketById(ticketId);
   if (!ticket) notFound();

@@ -7,6 +7,7 @@ import { buttonVariants } from '@/components/ui/button';
 
 export default async function AdminSupportPage() {
   const profile = await getCurrentUserProfile();
+  if (!profile) return null;
   if (!profile || profile.role !== 'admin') redirect('/dashboard/support');
 
   const tickets = await getAllTickets();
