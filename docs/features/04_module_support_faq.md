@@ -6,6 +6,20 @@
 
 ---
 
+## Design & Templates
+
+> **Avant de coder toute page ou composant**, consulter :
+> - [`docs/templates/README.md`](../templates/README.md) — charte graphique, palette, typographie Outfit, règles responsive
+> - [`docs/templates/support/`](../templates/support/) — maquettes liste tickets, formulaire ticket, FAQ accordéon
+> - [`docs/templates/global/`](../templates/global/) — layout dashboard (sidebar + header)
+> - [`docs/technical/ui_guidelines.md`](../technical/ui_guidelines.md) — tokens shadcn, composants, états UI
+
+**Exigences responsive :**
+- Mobile : formulaire ticket pleine largeur, FAQ en accordéon empilé
+- Tablet/Desktop : liste tickets à gauche, détail à droite (`grid-cols-[1fr_2fr]`)
+
+---
+
 ## 1. Objectifs & Backlog
 
 Basé sur `base.md` (Section 4) et `backlog.md` (US22, US24, US25, US26) :

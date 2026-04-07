@@ -6,6 +6,21 @@
 
 ---
 
+## Design & Templates
+
+> **Avant de coder toute page ou composant**, consulter :
+> - [`docs/templates/README.md`](../templates/README.md) — charte graphique, palette, typographie Outfit, règles responsive
+> - [`docs/templates/pedagogie/`](../templates/pedagogie/) — maquettes liste cours, détail cours, espace classe
+> - [`docs/templates/global/`](../templates/global/) — layout dashboard (sidebar + header)
+> - [`docs/technical/ui_guidelines.md`](../technical/ui_guidelines.md) — tokens shadcn, composants, états UI
+
+**Exigences responsive :**
+- Mobile : liste cours en cartes pleine largeur, 1 colonne
+- Tablet : grille 2 colonnes (`grid-cols-2`)
+- Desktop : grille 3 colonnes (`grid-cols-3`), sidebar fixe
+
+---
+
 ## 1. Objectifs & Backlog
 
 Basé sur `base.md` (Section 2) et `backlog.md` (US22, US23, US24, US25) :

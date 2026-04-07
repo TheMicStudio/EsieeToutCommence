@@ -2,6 +2,9 @@
 
 **Ref :** US09, US25
 **Library de composants :** shadcn/ui (installée, composants dans `src/components/ui/`)
+**Templates & maquettes :** [`docs/templates/`](../templates/README.md) — consulter avant de coder toute page ou composant.
+
+> **Règle fondamentale :** Tout écran doit être **responsive mobile-first** et visuellement conforme aux templates déposés dans `docs/templates/`. En l'absence de template, s'inspirer de la structure décrite dans ce document.
 
 ---
 
@@ -19,7 +22,96 @@
 
 ---
 
-## 2. Composants shadcn à installer par module
+## 2. Typographie
+
+### Font : Outfit (Google Fonts)
+
+Chargée via `next/font/google` dans `src/app/layout.tsx` — auto-hébergée, aucune requête externe au runtime.
+
+```tsx
+import { Outfit } from "next/font/google"
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans" })
+```
+
+| Usage | Classe Tailwind | Poids recommandé |
+|-------|----------------|-----------------|
+| Titres H1 | `text-4xl font-bold` | 700 |
+| Titres H2 | `text-2xl font-semibold` | 600 |
+| Titres H3 | `text-xl font-medium` | 500 |
+| Corps | `text-base font-normal` | 400 |
+| Labels / Badges | `text-sm font-medium` | 500 |
+| Texte secondaire | `text-sm text-muted-foreground` | 400 |
+
+> **Règle :** Ne jamais importer d'autres fonts. Toute l'UI utilise Outfit via `font-sans`.
+
+---
+
+## 3. Palette de couleurs
+
+### Couleurs de la marque
+
+| Nom | Hex | Rôle dans l'UI |
+|-----|-----|----------------|
+| **Bright Teal Blue** | `#0471a6` | Primary — CTA, liens actifs, focus |
+| **Ocean Blue** | `#3685b5` | Ring / outline, hover states |
+| **Wisteria Blue** | `#89aae6` | Secondary — tags, éléments informatifs |
+| **Dusty Mauve** | `#ac80a0` | Accent — éléments décoratifs, rétro |
+| **Ink Black** | `#061826` | Fond dark mode, texte sur fond clair |
+
+### Tokens shadcn → couleurs projet
+
+| Token CSS | Light | Dark |
+|-----------|-------|------|
+| `--primary` | Bright Teal Blue `#0471a6` | Wisteria Blue `#89aae6` |
+| `--secondary` | Wisteria Blue `#89aae6` | Bright Teal Blue `#0471a6` |
+| `--accent` | Dusty Mauve `#ac80a0` | Dusty Mauve `#ac80a0` |
+| `--ring` | Ocean Blue `#3685b5` | Wisteria Blue |
+| `--background` (dark) | white | Ink Black `#061826` |
+| `--chart-1..5` | Les 5 couleurs dans l'ordre | idem |
+
+### Règle d'usage
+
+**Toujours utiliser les tokens shadcn, jamais de couleurs Tailwind hardcodées.**
+
+```tsx
+// ✅ Correct
+<div className="bg-primary text-primary-foreground">
+<div className="border-border text-muted-foreground">
+
+// ❌ Interdit
+<div className="bg-blue-500 text-white">
+<div className="border-gray-200 text-gray-500">
+```
+
+### Tokens courants
+
+| Token | Usage |
+|-------|-------|
+| `bg-background` | Fond général |
+| `bg-card` | Fond des cartes |
+| `text-foreground` | Texte principal |
+| `text-muted-foreground` | Texte secondaire |
+| `bg-primary` | Actions principales (Bright Teal Blue) |
+| `bg-secondary` | Éléments informatifs (Wisteria Blue) |
+| `bg-accent` | Accents décoratifs (Dusty Mauve) |
+| `bg-destructive` | Danger / Supprimer |
+| `border-border` | Bordures |
+| `ring` | Focus ring (Ocean Blue) |
+
+### Couleurs sémantiques projet (rétro)
+
+Définies dans `src/app/globals.css` :
+```css
+:root {
+  --color-retro-positive: oklch(0.96 0.05 142);
+  --color-retro-negative: oklch(0.96 0.05 27);
+  --color-retro-idea:     oklch(0.98 0.07 90);
+}
+```
+
+---
+
+## 4. Composants shadcn à installer par module
 
 ### Tous les modules (base commune — à installer en premier)
 ```bash
@@ -46,32 +138,7 @@ npx shadcn@latest add alert
 
 ---
 
-## 3. Palette de couleurs (tokens shadcn)
-
-Utiliser les tokens CSS shadcn, jamais des couleurs Tailwind hardcodées :
-
-| Token | Usage |
-|-------|-------|
-| `bg-background` | Fond général |
-| `bg-card` | Fond des cartes |
-| `text-foreground` | Texte principal |
-| `text-muted-foreground` | Texte secondaire |
-| `bg-primary` | Actions principales |
-| `bg-destructive` | Danger / Supprimer |
-| `border` | Bordures |
-
-**Couleurs sémantiques projet** (à ajouter dans `src/app/globals.css`) :
-```css
-:root {
-  --color-retro-positive: oklch(0.96 0.05 142);
-  --color-retro-negative: oklch(0.96 0.05 27);
-  --color-retro-idea:     oklch(0.98 0.07 90);
-}
-```
-
----
-
-## 4. Conventions d'utilisation shadcn
+## 5. Conventions d'utilisation shadcn
 
 ### Boutons
 ```tsx
@@ -119,7 +186,7 @@ import { Label } from "@/components/ui/label"
 
 ---
 
-## 5. Layout dashboard
+## 6. Layout dashboard
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -136,7 +203,7 @@ Sidebar mobile → composant `Sheet` de shadcn.
 
 ---
 
-## 6. États UI
+## 7. États UI
 
 | État | Solution shadcn |
 |------|----------------|

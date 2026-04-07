@@ -7,6 +7,21 @@
 
 ---
 
+## Design & Templates
+
+> **Avant de coder toute page ou composant**, consulter :
+> - [`docs/templates/README.md`](../templates/README.md) — charte graphique, palette, typographie Outfit, règles responsive
+> - [`docs/templates/projets/`](../templates/projets/) — maquettes liste groupes, board rétro (3 colonnes), grille soutenances
+> - [`docs/templates/global/`](../templates/global/) — layout dashboard (sidebar + header)
+> - [`docs/technical/ui_guidelines.md`](../technical/ui_guidelines.md) — tokens shadcn, composants, états UI
+
+**Exigences responsive :**
+- Mobile : board rétro en colonnes empilées verticalement (scroll vertical), 1 colonne par type
+- Tablet : 2 colonnes visibles (scroll horizontal pour la 3ème)
+- Desktop : 3 colonnes côte à côte en pleine largeur (`grid-cols-3`)
+
+---
+
 ## 1. Objectifs & Backlog
 
 Basé sur `base.md` et `backlog.md` (US22, US24, US25, US26) :
@@ -191,7 +206,7 @@ export interface RetroPostit {
   - Charger les post-its initiaux côté serveur (passés en props depuis la page).
   - S'abonner via `supabase.channel('retro-[boardId]').on('postgres_changes', { event: '*', table: 'retro_postits', filter: 'board_id=eq.[boardId]' }, callback)`.
   - Gérer les 3 events : `INSERT` (ajouter le post-it dans la colonne), `DELETE` (retirer), `UPDATE` (mettre à jour).
-  - `RetroBoardColumn.tsx` — colonnes colorées : `POSITIVE` → `bg-green-100`, `NEGATIVE` → `bg-red-100`, `IDEA` → `bg-yellow-100`.
+  - `RetroBoardColumn.tsx` — colonnes colorées via les tokens CSS sémantiques définis dans `globals.css` : `POSITIVE` → `bg-[var(--color-retro-positive)]`, `NEGATIVE` → `bg-[var(--color-retro-negative)]`, `IDEA` → `bg-[var(--color-retro-idea)]`. Ne jamais utiliser de couleurs Tailwind hardcodées (`bg-green-100` etc.).
   - `PostitCard.tsx` — si `is_anonymous = true`, afficher "Anonyme" à la place du nom. Bouton suppression visible uniquement si `author_id = currentUser.id`.
   - `AddPostitForm.tsx` — select type + textarea contenu + checkbox "Anonyme". Désactivé si `board.is_open = false`. Appel `addPostit()`.
   - Bouton "Ouvrir/Fermer le board" visible uniquement si rôle `professeur`. Appel `toggleRetroBoard()`.

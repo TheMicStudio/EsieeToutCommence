@@ -107,17 +107,26 @@
 
 ---
 
-## DEC-007 — Tailwind CSS v4 (pas de composants library externe)
+## DEC-007 — Tailwind CSS v4 + shadcn/ui + Outfit + palette projet
 
 **Date :** 2026-04-07
-**Contexte :** Choix du système de styles UI.
+**Contexte :** Choix du système de styles UI, de la typographie et de la palette de couleurs.
 **Options envisagées :**
-- Tailwind CSS seul
+- Tailwind CSS seul + composants maison
 - shadcn/ui (composants Tailwind)
 - MUI / Ant Design
 
-**Choix retenu :** Tailwind CSS v4 avec composants maison (définis dans `docs/technical/ui_guidelines.md`)
+**Choix retenu :** Tailwind CSS v4 + **shadcn/ui** pour les composants, **Outfit** (Google Fonts) comme font unique, palette de 5 couleurs projet mappée sur les tokens shadcn.
 
-**Raison :** Évite la dépendance à une librairie tierce pour des composants basiques. Contrôle total sur le design. shadcn/ui peut être ajouté plus tard si nécessaire.
+**Palette :**
+| Nom | Hex | Token |
+|-----|-----|-------|
+| Bright Teal Blue | `#0471a6` | `--primary` |
+| Ocean Blue | `#3685b5` | `--ring` |
+| Wisteria Blue | `#89aae6` | `--secondary` |
+| Dusty Mauve | `#ac80a0` | `--accent` |
+| Ink Black | `#061826` | `--background` (dark) |
 
-**Compromis accepté :** Chaque développeur doit respecter les guidelines UI pour garder la cohérence. Plus de code à écrire pour les composants de base.
+**Raison :** shadcn/ui donne des composants accessibles prêts à l'emploi sans surcharge de dépendances. Outfit est lisible et moderne pour une plateforme scolaire. La palette volontairement restreinte garantit la cohérence visuelle entre les 4 développeurs.
+
+**Compromis accepté :** Respecter les tokens shadcn (jamais de couleurs Tailwind hardcodées). Voir `docs/technical/ui_guidelines.md`.

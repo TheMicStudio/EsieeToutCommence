@@ -6,6 +6,21 @@
 
 ---
 
+## Design & Templates
+
+> **Avant de coder toute page ou composant**, consulter :
+> - [`docs/templates/README.md`](../templates/README.md) — charte graphique, palette, typographie Outfit, règles responsive
+> - [`docs/templates/carriere/`](../templates/carriere/) — maquettes liste offres, fiche offre, livret alternance
+> - [`docs/templates/global/`](../templates/global/) — layout dashboard (sidebar + header)
+> - [`docs/technical/ui_guidelines.md`](../technical/ui_guidelines.md) — tokens shadcn, composants, états UI
+
+**Exigences responsive :**
+- Mobile : offres en cartes empilées, filtres dans un `Sheet` coulissant
+- Tablet : 2 colonnes offres + panneau latéral de détail
+- Desktop : liste + détail côte à côte (`grid-cols-[1fr_2fr]`)
+
+---
+
 ## 1. Objectifs & Backlog
 
 Basé sur `base.md` (Section 3A & 3B) et `backlog.md` (US22, US23, US24) :

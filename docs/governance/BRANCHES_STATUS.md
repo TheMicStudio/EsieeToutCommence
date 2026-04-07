@@ -5,7 +5,7 @@
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
 **Dernière mise à jour :** 2026-04-07
-**Mis à jour par :** Tech Lead (initialisation)
+**Mis à jour par :** Claude (implémentation Module 01)
 
 ---
 
@@ -13,7 +13,7 @@
 
 ```
 main
-├── feat/T01-auth-profiles-identite       [Dev 1] 🔴 PAS COMMENCÉ
+├── feat/T01-auth-profiles-identite       [Dev 1] 🟡 EN COURS (code complet, SQL à exécuter)
 ├── feat/T02-pedagogy-espace-classe       [Dev 2] 🔴 PAS COMMENCÉ
 ├── feat/T03-career-alternance            [Dev 3] 🔴 PAS COMMENCÉ
 ├── feat/T04-support-faq-communication   [Dev 4] 🔴 PAS COMMENCÉ
@@ -31,27 +31,48 @@ main
 ### `feat/T01-auth-profiles-identite` — Dev 1
 
 **Modules couverts :** Auth & Profils (`docs/features/01_module_auth_profils.md`)
-**Statut :** 🔴 PAS COMMENCÉ
+**Statut :** 🟡 EN COURS — Code complet, SQL à exécuter dans Supabase
 
 #### Fichiers modifiés (vs main)
-_Aucun pour l'instant_
+- `src/middleware.ts` — Protection routes `/dashboard/*` et `/auth/*`
+- `src/app/page.tsx` — Redirect vers dashboard ou login
+- `src/app/auth/login/page.tsx` — Page de connexion
+- `src/app/auth/register/page.tsx` — Page d'inscription multi-étapes
+- `src/app/auth/callback/route.ts` — Handler OAuth/Magic Link
+- `src/app/dashboard/layout.tsx` — Layout avec sidebar responsive
+- `src/app/dashboard/page.tsx` — Tableau de bord dynamique par rôle
+- `src/app/dashboard/profile/page.tsx` — Page profil (lecture + édition)
+- `src/app/dashboard/annuaire/page.tsx` — Trombinoscope filtrable
+- `src/modules/auth/types/index.ts` — Types TypeScript complets
+- `src/modules/auth/actions.ts` — signIn / signUp / signOut / getCurrentUserProfile / updateProfile
+- `src/modules/auth/components/LoginForm.tsx`
+- `src/modules/auth/components/RegisterForm.tsx`
+- `src/modules/auth/components/ProfileCard.tsx`
+- `src/modules/auth/components/ProfileEditForm.tsx`
+- `src/modules/auth/components/AnnuaireGrid.tsx`
+- `src/modules/auth/components/RoleGuard.tsx`
+- `src/modules/auth/components/DashboardSidebar.tsx`
+- `src/components/ui/input.tsx`, `label.tsx`, `card.tsx`, `badge.tsx`, `avatar.tsx`, `separator.tsx`, `tabs.tsx`
 
 #### Checklist de progression
-- [ ] SQL exécuté dans Supabase (tables `user_roles`, profils, RLS)
-- [ ] `src/modules/auth/types/index.ts` créé
-- [ ] `src/middleware.ts` créé
-- [ ] Actions `signIn` / `signOut` / `signUp`
-- [ ] `getCurrentUserProfile()` exportée et fonctionnelle ← **BLOQUANT pour tous les autres modules**
-- [ ] Pages `/auth/login` et `/auth/register`
-- [ ] Page `/dashboard` avec routage dynamique par rôle
-- [ ] Annuaire filtrable
+- [ ] SQL exécuté dans Supabase (tables `user_roles`, profils, RLS) ← **À FAIRE MANUELLEMENT**
+- [x] `src/modules/auth/types/index.ts` créé
+- [x] `src/middleware.ts` créé
+- [x] Actions `signIn` / `signOut` / `signUp`
+- [x] `getCurrentUserProfile()` exportée et fonctionnelle ← **DÉBLOQUÉ pour tous les modules**
+- [x] Pages `/auth/login` et `/auth/register`
+- [x] Page `/dashboard` avec routage dynamique par rôle
+- [x] Annuaire filtrable
+- [ ] Tests manuels post-déploiement SQL
 
 #### Dépendances
 - **Bloque :** TOUS les autres modules (ils ont besoin de `getCurrentUserProfile`)
-- **Bloqué par :** Rien
+- **Bloqué par :** Exécution du SQL dans Supabase Studio
 
 #### Notes
-_Aucune pour l'instant_
+- `getCurrentUserProfile()` est opérationnelle dès que le SQL est exécuté.
+- La sidebar est responsive : fixe `w-64` sur desktop, slide-in sur mobile.
+- Design : font Outfit, palette Teal Blue / Wisteria / Dusty Mauve.
 
 ---
 

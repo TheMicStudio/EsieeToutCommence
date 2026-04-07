@@ -6,6 +6,20 @@
 
 ---
 
+## Design & Templates
+
+> **Avant de coder toute page ou composant**, consulter :
+> - [`docs/templates/README.md`](../templates/README.md) — charte graphique, palette, typographie Outfit, règles responsive
+> - [`docs/templates/emargement/`](../templates/emargement/) — maquettes affichage QR code, liste présences, tableau de bord émargement
+> - [`docs/templates/global/`](../templates/global/) — layout dashboard (sidebar + header)
+> - [`docs/technical/ui_guidelines.md`](../technical/ui_guidelines.md) — tokens shadcn, composants, états UI
+
+**Exigences responsive :**
+- Mobile : QR code centré pleine largeur, grand et lisible (min `256×256px`)
+- Tablet/Desktop : QR code à gauche, liste présences à droite en temps réel
+
+---
+
 ## 1. Objectifs & Backlog
 
 Basé sur `base.md` (Pôle Présence & Émargement Numérique) et `backlog.md` (US22, US24) :

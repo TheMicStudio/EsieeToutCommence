@@ -6,6 +6,20 @@
 
 ---
 
+## Design & Templates
+
+> **Avant de coder toute page ou composant**, consulter :
+> - [`docs/templates/README.md`](../templates/README.md) — charte graphique, palette, typographie Outfit, règles responsive
+> - [`docs/templates/com_interne/`](../templates/com_interne/) — maquettes fil d'actualité, formulaire annonce, badges rôles
+> - [`docs/templates/global/`](../templates/global/) — layout dashboard (sidebar + header)
+> - [`docs/technical/ui_guidelines.md`](../technical/ui_guidelines.md) — tokens shadcn, composants, états UI
+
+**Exigences responsive :**
+- Mobile : fil d'annonces en liste pleine largeur, bouton flottant "+" pour créer
+- Desktop : fil centré `max-w-2xl`, éditeur de texte en modale (`Dialog`)
+
+---
+
 ## 1. Objectifs & Backlog
 
 Basé sur `base.md` (Section 5) et `backlog.md` (US22, US24) :

@@ -6,6 +6,21 @@
 
 ---
 
+## Design & Templates
+
+> **Avant de coder toute page ou composant**, consulter :
+> - [`docs/templates/README.md`](../templates/README.md) — charte graphique, palette, typographie Outfit, règles responsive
+> - [`docs/templates/auth/`](../templates/auth/) — maquettes login, inscription, page profil
+> - [`docs/templates/global/`](../templates/global/) — layout dashboard (sidebar + header)
+> - [`docs/technical/ui_guidelines.md`](../technical/ui_guidelines.md) — tokens shadcn, composants, états UI
+
+**Exigences responsive :**
+- Mobile `< 640px` : formulaire pleine largeur, logo centré, pas de sidebar
+- Tablet `640–1024px` : layout colonne unique avec padding adapté
+- Desktop `> 1024px` : page centrée `max-w-md`, card avec ombre légère
+
+---
+
 ## 1. Objectifs & Backlog
 
 Basé sur `base.md` (Section 1) et `backlog.md` (US22, US23, US14, US13) :
