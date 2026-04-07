@@ -30,11 +30,14 @@ export async function middleware(request: NextRequest) {
 
   // Redirige vers /auth/login si non connecté et accès à /dashboard
   if (!user && pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
+    const loginUrl = new URL('/auth/login', request.url);
+    loginUrl.searchParams.set('next', pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Redirige vers /dashboard si déjà connecté et accès à /auth/*
-  if (user && pathname.startsWith('/auth')) {
+  // Redirige vers /dashboard si déjà connecté et accès à /auth/login ou /auth/register
+  // Ne pas rediriger /auth/callback (échange de code OAuth)
+  if (user && (pathname === '/auth/login' || pathname === '/auth/register')) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
@@ -42,5 +45,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/auth/:path*'],
+  matcher: ['/dashboard/:path*', '/auth/login', '/auth/register', '/auth/callback'],
 };

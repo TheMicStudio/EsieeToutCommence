@@ -9,8 +9,12 @@ export default async function DashboardLayout({
 }) {
   const userProfile = await getCurrentUserProfile();
 
+  // Le middleware protège déjà /dashboard — si on arrive ici sans profil,
+  // l'utilisateur est authentifié mais son profil n'existe pas encore.
+  // On redirige vers /auth/login sans risque de boucle (middleware ne
+  // redirige que /auth/login et /auth/register, pas /auth/setup).
   if (!userProfile) {
-    redirect('/auth/login');
+    redirect('/auth/login?error=no_profile');
   }
 
   return (

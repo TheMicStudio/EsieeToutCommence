@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { GraduationCap } from 'lucide-react';
 import { LoginForm } from '@/modules/auth/components/LoginForm';
 
@@ -21,7 +22,7 @@ export default function LoginPage() {
         {/* Carte formulaire */}
         <div className="rounded-2xl border bg-card p-8 shadow-sm">
           <h2 className="mb-6 text-xl font-semibold">Connexion</h2>
-          <LoginForm />
+          <Suspense><LoginForm /></Suspense>
         </div>
       </div>
     </main>

@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { signIn } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,8 @@ import { Label } from '@/components/ui/label';
 
 export function LoginForm() {
   const [state, action, pending] = useActionState(signIn, null);
+  const searchParams = useSearchParams();
+  const errorParam = searchParams.get('error');
 
   return (
     <form action={action} className="space-y-5">
@@ -37,6 +40,12 @@ export function LoginForm() {
           autoComplete="current-password"
         />
       </div>
+
+      {errorParam === 'no_profile' && (
+        <p className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          Votre compte existe mais votre profil est incomplet. Reconnectez-vous ou contactez un administrateur.
+        </p>
+      )}
 
       {state?.error && (
         <p className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
