@@ -116,7 +116,7 @@
 - shadcn/ui (composants Tailwind)
 - MUI / Ant Design
 
-**Choix retenu :** Tailwind CSS v4 avec composants maison (définis dans `docs/ui_guidelines.md`)
+**Choix retenu :** Tailwind CSS v4 avec composants maison (définis dans `docs/technical/ui_guidelines.md`)
 
 **Raison :** Évite la dépendance à une librairie tierce pour des composants basiques. Contrôle total sur le design. shadcn/ui peut être ajouté plus tard si nécessaire.
 

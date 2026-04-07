@@ -216,7 +216,7 @@ Ouvrir `docs/features/0X_module_ton_module.md` et lire :
 
 **Gemini (Google IDE)** → `GEMINI.md` est lu automatiquement. Rien à faire.
 
-**Autre modèle (ChatGPT, Cursor, Mistral…)** → Copier-coller le contenu de `docs/AI_PROTOCOL.md` comme **system prompt** au début de chaque session.
+**Autre modèle (ChatGPT, Cursor, Mistral…)** → Copier-coller le contenu de `docs/governance/AI_PROTOCOL.md` comme **system prompt** au début de chaque session.
 
 ### 6. Vérifier l'état du projet avant de coder
 
@@ -225,12 +225,12 @@ Ouvrir `docs/features/0X_module_ton_module.md` et lire :
 git log --oneline --all --graph -15
 
 # Lire le suivi des branches
-cat docs/BRANCHES_STATUS.md
+cat docs/governance/BRANCHES_STATUS.md
 ```
 
 ### 7. Mettre à jour le suivi après chaque session
 
-Mettre à jour `docs/BRANCHES_STATUS.md` :
+Mettre à jour `docs/governance/BRANCHES_STATUS.md` :
 - Cocher les étapes terminées
 - Changer l'emoji de statut si nécessaire
 - Noter les blocages éventuels
@@ -254,11 +254,11 @@ docker compose exec app sh     # Ouvrir un shell dans le container
 
 | Document | Description |
 |----------|-------------|
-| `docs/base.md` | Architecture fonctionnelle détaillée |
-| `docs/Backlog.md` | Toutes les user stories |
-| `docs/AI_RULES.md` | Règles de collaboration équipe |
-| `docs/AI_PROTOCOL.md` | Protocole IA universel |
-| `docs/BRANCHES_STATUS.md` | État en temps réel du projet |
+| `docs/technical/base.md` | Architecture fonctionnelle détaillée |
+| `docs/product/Backlog.md` | Toutes les user stories |
+| `docs/governance/AI_RULES.md` | Règles de collaboration équipe |
+| `docs/governance/AI_PROTOCOL.md` | Protocole IA universel |
+| `docs/governance/BRANCHES_STATUS.md` | État en temps réel du projet |
 | `docs/features/01_*.md` … `07_*.md` | Specs techniques par module |
 
 ---

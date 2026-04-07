@@ -7,10 +7,10 @@
 
 ## ÉTAPE 1 — Lire le contexte projet (obligatoire, dans cet ordre)
 
-1. `docs/base.md` — Architecture fonctionnelle et séparation des modules
-2. `docs/AI_RULES.md` — Règles de collaboration et anti-collision
-3. `docs/Backlog.md` — Tâches et exigences du projet
-4. `docs/BRANCHES_STATUS.md` — État en temps réel de toutes les branches
+1. `docs/technical/base.md` — Architecture fonctionnelle et séparation des modules
+2. `docs/governance/AI_RULES.md` — Règles de collaboration et anti-collision
+3. `docs/product/Backlog.md` — Tâches et exigences du projet
+4. `docs/governance/BRANCHES_STATUS.md` — État en temps réel de toutes les branches
 
 ---
 
@@ -62,7 +62,7 @@ git log --oneline --all -- src/modules/<nom_du_module>/
 3. Jamais de merge de branche — c'est le Tech Lead humain qui valide.
 4. 1 fonctionnalité = 1 commit.
 5. Jamais de secret en dur — uniquement `.env.local`.
-6. Si la demande sort du périmètre ou contredit `docs/base.md` → stop, demande confirmation.
+6. Si la demande sort du périmètre ou contredit `docs/technical/base.md` → stop, demande confirmation.
 
 ---
 
@@ -79,7 +79,7 @@ chore(scope): tâche technique
 
 ## Mise à jour obligatoire après chaque session
 
-Mettre à jour `docs/BRANCHES_STATUS.md` :
+Mettre à jour `docs/governance/BRANCHES_STATUS.md` :
 - Statut de la branche (🔴 / 🟡 / 🟢 / ✅)
 - Fichiers modifiés
 - Checklist cochée

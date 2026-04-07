@@ -1,7 +1,7 @@
 # Audit Backlog — Couverture du projet
 
 **Date :** 2026-04-07
-**Périmètre :** Comparaison exhaustive entre `docs/Backlog.md` (40 US) et l'ensemble des livrables actuels du projet.
+**Périmètre :** Comparaison exhaustive entre `docs/product/Backlog.md` (40 US) et l'ensemble des livrables actuels du projet.
 
 ---
 
@@ -38,7 +38,7 @@
 | US | Titre | Statut | Couvert par | Manque |
 |----|-------|--------|-------------|--------|
 | US07 | Concevoir la landing page de présentation | 🔴 Non couvert | — | Page `src/app/page.tsx` (placeholder vide actuellement) |
-| US09 | Concevoir les écrans clés et règles d'interface | 🔴 Non couvert | — | Maquettes + mini guide UI (`docs/ui_guidelines.md`) |
+| US09 | Concevoir les écrans clés et règles d'interface | 🔴 Non couvert | — | Maquettes + mini guide UI (`docs/technical/ui_guidelines.md`) |
 
 ---
 
@@ -46,13 +46,13 @@
 
 | US | Titre | Statut | Couvert par | Manque |
 |----|-------|--------|-------------|--------|
-| US10 | Définir l'architecture globale et ses responsabilités | 🟡 Partiel | `docs/base.md` couvre les modules fonctionnels | Schéma d'architecture technique (diagramme blocs) |
+| US10 | Définir l'architecture globale et ses responsabilités | 🟡 Partiel | `docs/technical/base.md` couvre les modules fonctionnels | Schéma d'architecture technique (diagramme blocs) |
 | US11 | Justifier les choix techniques et de stack | 🔴 Non couvert | — | Document `docs/architecture_decisions.md` (Next.js vs autres, Supabase vs autres…) |
 | US12 | Produire le diagramme de séquence du parcours principal | 🔴 Non couvert | — | Diagramme Mermaid ou image dans `docs/` |
 | US13 | Produire le modèle de domaine et la modélisation des données | ✅ Couvert | `docs/features/01_module_auth_profils.md` + SQL dans chaque spec module | — |
 | US14 | Définir les rôles, permissions et stratégie de gestion des erreurs | ✅ Couvert | `docs/features/01_module_auth_profils.md` + RLS dans chaque module | — |
-| US15 | Documenter le contrat des routes API | 🔴 Non couvert | — | Fichier `docs/api_contract.md` avec méthodes, entrées, sorties, codes HTTP |
-| US16 | Tenir un journal des décisions produit et techniques | 🔴 Non couvert | — | Fichier `docs/decision_log.md` |
+| US15 | Documenter le contrat des routes API | 🔴 Non couvert | — | Fichier `docs/technical/api_contract.md` avec méthodes, entrées, sorties, codes HTTP |
+| US16 | Tenir un journal des décisions produit et techniques | 🔴 Non couvert | — | Fichier `docs/product/decision_log.md` |
 
 ---
 
@@ -60,8 +60,8 @@
 
 | US | Titre | Statut | Couvert par | Manque |
 |----|-------|--------|-------------|--------|
-| US17 | Définir la stratégie Git, branches et règles d'intégration | ✅ Couvert | `README.md` (section Workflow Git) + branches créées + `docs/AI_RULES.md` | — |
-| US18 | Définir la convention de commits et le découpage atomique | ✅ Couvert | `README.md` + `docs/AI_PROTOCOL.md` + `docs/AI_RULES.md` | — |
+| US17 | Définir la stratégie Git, branches et règles d'intégration | ✅ Couvert | `README.md` (section Workflow Git) + branches créées + `docs/governance/AI_RULES.md` | — |
+| US18 | Définir la convention de commits et le découpage atomique | ✅ Couvert | `README.md` + `docs/governance/AI_PROTOCOL.md` + `docs/governance/AI_RULES.md` | — |
 
 ---
 
@@ -69,9 +69,9 @@
 
 | US | Titre | Statut | Couvert par | Manque |
 |----|-------|--------|-------------|--------|
-| US19 | Configurer Antigravity pour imposer les règles projet | ✅ Couvert | `CLAUDE.md`, `GEMINI.md`, `docs/AI_PROTOCOL.md`, `docs/AI_RULES.md` | — |
-| US20 | Définir les règles de travail communes des agents IA | ✅ Couvert | `docs/AI_PROTOCOL.md`, `docs/AI_RULES.md` | — |
-| US21 | Mettre en place les garde-fous qualité et sécurité des agents | ✅ Couvert | `docs/AI_RULES.md` (règles anti-collision, non-hallucination, sécurité) | — |
+| US19 | Configurer Antigravity pour imposer les règles projet | ✅ Couvert | `CLAUDE.md`, `GEMINI.md`, `docs/governance/AI_PROTOCOL.md`, `docs/governance/AI_RULES.md` | — |
+| US20 | Définir les règles de travail communes des agents IA | ✅ Couvert | `docs/governance/AI_PROTOCOL.md`, `docs/governance/AI_RULES.md` | — |
+| US21 | Mettre en place les garde-fous qualité et sécurité des agents | ✅ Couvert | `docs/governance/AI_RULES.md` (règles anti-collision, non-hallucination, sécurité) | — |
 
 ---
 
@@ -99,7 +99,7 @@
 
 | US | Titre | Statut | Couvert par | Manque |
 |----|-------|--------|-------------|--------|
-| US28 | Définir les règles de qualité de code et commentaires | 🔴 Non couvert | `docs/AI_RULES.md` effleure le sujet | Fichier dédié `docs/quality_rules.md` + config ESLint stricte |
+| US28 | Définir les règles de qualité de code et commentaires | 🔴 Non couvert | `docs/governance/AI_RULES.md` effleure le sujet | Fichier dédié `docs/quality_rules.md` + config ESLint stricte |
 | US29 | Mettre en place les tests unitaires prioritaires | 🔴 Non couvert | — | Config Jest/Vitest + premiers tests sur `getCurrentUserProfile`, calcul moyenne, RLS |
 | US30 | Mettre en place les tests d'intégration ou de parcours | 🔴 Non couvert | — | Config Playwright ou Cypress + scénario de connexion → dashboard |
 
@@ -145,7 +145,7 @@
 | US | Titre | Statut | Couvert par | Manque |
 |----|-------|--------|-------------|--------|
 | US38 | Préparer une version démontrable et stable | 🔴 Non couvert | — | Tag Git de release + script de démo + données de démo chargées |
-| US39 | Justifier les arbitrages, compromis et priorités du backlog | 🔴 Non couvert | — | Document `docs/decision_log.md` avec 5+ arbitrages argumentés |
+| US39 | Justifier les arbitrages, compromis et priorités du backlog | 🔴 Non couvert | — | Document `docs/product/decision_log.md` avec 5+ arbitrages argumentés |
 | US40 | Préparer les preuves de crédibilité professionnalisante | 🔴 Non couvert | — | Consolidation de tous les livrables (pipeline, tests, sécurité, Git, doc) |
 
 ---
@@ -157,8 +157,8 @@
 | US | Action | Livrable à créer |
 |----|--------|-----------------|
 | US11 | Justifier la stack technique | `docs/architecture_decisions.md` |
-| US15 | Documenter les routes API | `docs/api_contract.md` |
-| US16 | Journal des décisions | `docs/decision_log.md` |
+| US15 | Documenter les routes API | `docs/technical/api_contract.md` |
+| US16 | Journal des décisions | `docs/product/decision_log.md` |
 | US28 | Règles qualité de code | `docs/quality_rules.md` + ESLint config |
 | US29 | Tests unitaires | Config Vitest + tests sur fonctions critiques |
 | US31 | Pipeline CI/CD | `.github/workflows/ci.yml` |
@@ -171,7 +171,7 @@
 | US01 | Problème + proposition de valeur | `docs/product_decisions.md` |
 | US02 | Personas | `docs/personas.md` |
 | US04 | MVP défini | Section dans `docs/product_decisions.md` |
-| US09 | Maquettes + guide UI | `docs/ui_guidelines.md` |
+| US09 | Maquettes + guide UI | `docs/technical/ui_guidelines.md` |
 | US12 | Diagramme de séquence | Diagramme Mermaid dans `docs/` |
 | US27 | Seed data de démo | `docs/sql/99_seed_demo.sql` |
 | US33 | Analyse sécurité | `docs/security_analysis.md` |
@@ -189,5 +189,5 @@
 | US32 | SonarQube | Config + intégration CI |
 | US34 | SBOM | `npm audit` + `cyclonedx-npm` |
 | US38 | Version de démo | Tag Git + script de démo |
-| US39 | Arbitrages soutenance | Dans `docs/decision_log.md` |
+| US39 | Arbitrages soutenance | Dans `docs/product/decision_log.md` |
 | US40 | Preuves crédibilité | Consolidation finale |
