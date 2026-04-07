@@ -1,7 +1,7 @@
 # Hub École — Plateforme de gestion scolaire
 
 Projet étudiant développé en **Full Vibe Coding** par une équipe de 4 développeurs.
-Stack : **Next.js 16 · TypeScript · Tailwind CSS v4 · Supabase**
+Stack : **Next.js 16 · TypeScript · Tailwind CSS v4 · Supabase · Docker**
 
 ---
 
@@ -22,38 +22,47 @@ Chaque module est **isolé** : un développeur = une branche = un module. Zéro 
 
 ## Prérequis
 
-- Node.js 22+
-- npm 10+
-- Docker & Docker Compose (optionnel, pour le déploiement)
+- Docker & Docker Compose
+- Git
 - Un compte Supabase avec un projet créé
+
+> Node.js n'est nécessaire qu'en local sans Docker (développement avancé).
 
 ---
 
-## Installation
+## Démarrage rapide
 
 ```bash
 # 1. Cloner le repo
 git clone <url-du-repo>
 cd EsieeToutCommence
 
-# 2. Installer les dépendances
-npm install
+# 2. Configurer les variables d'environnement
+cp .env.example .env
+# Remplir les valeurs dans .env (voir section ci-dessous)
 
-# 3. Configurer les variables d'environnement
-cp .env.local.example .env.local
-# Remplir les valeurs dans .env.local (voir section ci-dessous)
-
-# 4. Lancer en développement
-npm run dev
+# 3. Lancer avec Docker
+docker compose up --build
 ```
 
 L'application est disponible sur [http://localhost:3000](http://localhost:3000).
+
+```bash
+# Arrêter
+docker compose down
+
+# Relancer sans rebuilder
+docker compose up
+
+# Voir les logs
+docker compose logs -f app
+```
 
 ---
 
 ## Variables d'environnement
 
-Créer un fichier `.env.local` à la racine avec :
+Copier `.env.example` en `.env` et remplir les valeurs :
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://<ton-projet>.supabase.co
@@ -63,20 +72,7 @@ SUPABASE_SERVICE_ROLE_KEY=<ta-clé-service-role>
 
 Ces valeurs se trouvent dans ton dashboard Supabase → **Settings → API**.
 
----
-
-## Lancer avec Docker
-
-```bash
-# Build et démarrage
-docker compose up --build
-
-# En arrière-plan
-docker compose up --build -d
-
-# Arrêt
-docker compose down
-```
+> Le fichier `.env` est dans le `.gitignore` — ne jamais le commiter. Demander les clés au Tech Lead.
 
 ---
 
@@ -122,12 +118,13 @@ EsieeToutCommence/
 │       ├── 01_init_schema.sql      # Migration 1 : Auth & Profils
 │       └── 02_projets_groupes_retro.sql  # Migration 2 : Projets
 ├── public/
-├── CLAUDE.md                       # Config IA pour Claude Code
-├── GEMINI.md                       # Config IA pour Google Gemini
+├── CLAUDE.md                       # Config IA pour Claude Code (auto-lu)
+├── GEMINI.md                       # Config IA pour Google Gemini (auto-lu)
+├── .env                            # Variables d'environnement (non commité)
+├── .env.example                    # Template des variables (commité)
 ├── Dockerfile
 ├── docker-compose.yml
 ├── next.config.ts
-├── tailwind.config.ts
 └── tsconfig.json
 ```
 
@@ -135,7 +132,7 @@ EsieeToutCommence/
 
 ## Base de données (Supabase)
 
-Les migrations SQL sont dans `docs/sql/`. Elles doivent être exécutées **dans l'ordre** dans le **SQL Editor** de Supabase Studio.
+Les migrations SQL doivent être exécutées **dans l'ordre** dans le **SQL Editor** de Supabase Studio.
 
 | Ordre | Fichier | Contenu |
 |-------|---------|---------|
@@ -184,31 +181,30 @@ git push
 
 ## Comment démarrer sur un module (guide rapide)
 
-### 1. Récupérer le projet
+### 1. Récupérer le projet et configurer l'environnement
 
 ```bash
 git clone <url-du-repo>
 cd EsieeToutCommence
-npm install
+cp .env.example .env
+# Remplir .env avec les clés Supabase fournies par le Tech Lead
 ```
 
-### 2. Configurer son environnement
+### 2. Se placer sur sa branche
 
 ```bash
-cp .env.local.example .env.local
-# Remplir avec les clés Supabase fournies par le Tech Lead
-```
-
-### 3. Se placer sur sa branche
-
-```bash
-# Remplacer T0X par ton numéro de module
 git checkout feat/T0X-nom-de-ta-branche
+```
+
+### 3. Lancer le projet
+
+```bash
+docker compose up --build
 ```
 
 ### 4. Lire sa spec avant de toucher au code
 
-Ouvrir le fichier `docs/features/0X_module_ton_module.md` et lire :
+Ouvrir `docs/features/0X_module_ton_module.md` et lire :
 - Les tables SQL à créer
 - Les Server Actions à implémenter
 - Les composants à créer
@@ -216,16 +212,11 @@ Ouvrir le fichier `docs/features/0X_module_ton_module.md` et lire :
 
 ### 5. Configurer son modèle IA
 
-Le modèle IA utilisé **doit** lire `docs/AI_PROTOCOL.md` avant de commencer.
+**Claude Code** → `CLAUDE.md` est lu automatiquement. Rien à faire.
 
-**Si tu utilises Claude Code :**
-Le fichier `CLAUDE.md` est lu automatiquement. Rien à faire.
+**Gemini (Google IDE)** → `GEMINI.md` est lu automatiquement. Rien à faire.
 
-**Si tu utilises Gemini (Google IDE) :**
-Le fichier `GEMINI.md` est lu automatiquement. Rien à faire.
-
-**Si tu utilises un autre modèle (ChatGPT, Mistral, Cursor…) :**
-Copier-coller le contenu de `docs/AI_PROTOCOL.md` comme **premier message** ou **system prompt** de ta session.
+**Autre modèle (ChatGPT, Cursor, Mistral…)** → Copier-coller le contenu de `docs/AI_PROTOCOL.md` comme **system prompt** au début de chaque session.
 
 ### 6. Vérifier l'état du projet avant de coder
 
@@ -239,24 +230,22 @@ cat docs/BRANCHES_STATUS.md
 
 ### 7. Mettre à jour le suivi après chaque session
 
-Après chaque session de travail, mettre à jour `docs/BRANCHES_STATUS.md` :
+Mettre à jour `docs/BRANCHES_STATUS.md` :
 - Cocher les étapes terminées
 - Changer l'emoji de statut si nécessaire
 - Noter les blocages éventuels
 
 ---
 
-## Commandes utiles
+## Commandes Docker utiles
 
 ```bash
-npm run dev          # Lancer en développement
-npm run build        # Builder le projet
-npm run lint         # Vérifier le code
-
-# Git
-git log --all --graph --oneline        # Vue globale de toutes les branches
-git diff main..feat/T0X-ta-branche     # Voir tes changements vs main
-git stash                              # Sauvegarder sans commiter
+docker compose up --build      # Premier lancement (ou après changement de dépendances)
+docker compose up              # Relancer sans rebuilder
+docker compose up -d           # En arrière-plan
+docker compose down            # Arrêter
+docker compose logs -f app     # Suivre les logs en temps réel
+docker compose exec app sh     # Ouvrir un shell dans le container
 ```
 
 ---
