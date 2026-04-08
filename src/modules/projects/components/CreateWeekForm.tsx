@@ -3,15 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createProjectWeek } from '../actions';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { CalendarDays, Plus } from 'lucide-react';
 
-interface CreateWeekFormProps {
-  classId: string;
-}
+const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
+const labelCls = 'block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5';
 
-export function CreateWeekForm({ classId }: CreateWeekFormProps) {
+export function CreateWeekForm({ classId }: { classId: string }) {
   const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,34 +26,51 @@ export function CreateWeekForm({ classId }: CreateWeekFormProps) {
     setLoading(false);
 
     if (result.error) setError(result.error);
-    else if (result.week) router.push(`/dashboard/projets/${result.week.id}`);
+    else if (result.week) router.push(`/dashboard/pedagogie/projets/${result.week.id}`);
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border bg-card p-6">
-      <h2 className="text-lg font-semibold">Nouvelle semaine projet</h2>
+    <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm space-y-5">
+      <div className="flex items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0471a6]/10">
+          <CalendarDays className="h-4.5 w-4.5 text-[#0471a6]" />
+        </div>
+        <p className="font-semibold text-[#061826]">Nouvelle semaine projet</p>
+      </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="title">Titre</Label>
-        <Input id="title" name="title" placeholder="ex: Semaine Intelligence Artificielle" required />
+      <div>
+        <label className={labelCls}>Titre *</label>
+        <input
+          name="title"
+          placeholder="ex: Semaine Intelligence Artificielle"
+          required
+          className={inputCls}
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="start_date">Début</Label>
-          <Input id="start_date" name="start_date" type="date" required />
+        <div>
+          <label className={labelCls}>Date de début *</label>
+          <input name="start_date" type="date" required className={inputCls} />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="end_date">Fin</Label>
-          <Input id="end_date" name="end_date" type="date" required />
+        <div>
+          <label className={labelCls}>Date de fin *</label>
+          <input name="end_date" type="date" required className={inputCls} />
         </div>
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p className="rounded-xl bg-red-50 px-4 py-2 text-sm text-red-600">{error}</p>
+      )}
 
-      <Button type="submit" disabled={loading} className="w-full">
+      <button
+        type="submit"
+        disabled={loading}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 disabled:opacity-50 transition-all"
+      >
+        <Plus className="h-4 w-4" />
         {loading ? 'Création…' : 'Créer la semaine'}
-      </Button>
+      </button>
     </form>
   );
 }

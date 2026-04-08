@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { joinGroup, leaveGroup } from '../actions';
-import { Button } from '@/components/ui/button';
+import { UserPlus, UserMinus } from 'lucide-react';
 
 interface JoinGroupButtonProps {
   groupId: string;
@@ -27,23 +27,31 @@ export function JoinGroupButton({ groupId, weekId, isMember, isFull }: JoinGroup
 
     setLoading(false);
     if (result.error) {
-      setOptimisticMember(optimisticMember); // rollback
+      setOptimisticMember(optimisticMember);
       setError(result.error);
     }
   }
 
   return (
-    <div className="space-y-1">
-      <Button
-        size="sm"
-        variant={optimisticMember ? 'outline' : 'default'}
+    <div className="space-y-1.5">
+      <button
+        type="button"
         disabled={loading || (!optimisticMember && isFull)}
         onClick={handleToggle}
-        className="w-full"
+        className={[
+          'inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all',
+          optimisticMember
+            ? 'border border-slate-200 text-slate-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
+            : 'bg-[#0471a6] text-white hover:bg-[#0471a6]/90',
+          (loading || (!optimisticMember && isFull)) ? 'opacity-50 cursor-not-allowed' : '',
+        ].join(' ')}
       >
-        {loading ? '…' : optimisticMember ? 'Quitter le groupe' : 'Rejoindre'}
-      </Button>
-      {error && <p className="text-xs text-destructive">{error}</p>}
+        {optimisticMember
+          ? <><UserMinus className="h-4 w-4" />{loading ? '…' : 'Quitter le groupe'}</>
+          : <><UserPlus className="h-4 w-4" />{loading ? '…' : isFull ? 'Groupe complet' : 'Rejoindre'}</>
+        }
+      </button>
+      {error && <p className="text-xs text-red-500 text-center">{error}</p>}
     </div>
   );
 }

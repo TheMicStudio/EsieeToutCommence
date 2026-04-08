@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import type {
   ProjectWeek, ProjectGroup, GroupMember,
   SoutenanceSlot, RetroBoard, RetroPostit, PostitType,
@@ -36,10 +37,11 @@ export async function createProjectWeek(
 
   if (error) return { error: error.message };
 
-  // Créer le board de rétro associé
-  await supabase.from('retro_boards').insert({ week_id: data.id });
+  // Créer le board de rétro via admin (bypass RLS)
+  const admin = createAdminClient();
+  await admin.from('retro_boards').insert({ week_id: data.id });
 
-  revalidatePath('/dashboard/projets');
+  revalidatePath('/dashboard/pedagogie/projets');
   return { week: data };
 }
 
@@ -53,15 +55,26 @@ export async function getGroups(weekId: string): Promise<ProjectGroup[]> {
     .order('created_at');
   if (!groups) return [];
 
-  // Fetch members + profiles
-  const { data: members } = await supabase
+  // Fetch members (admin pour bypass RLS + résoudre les noms via deux requêtes séparées)
+  const admin = createAdminClient();
+  const groupIds = groups.map((g) => g.id);
+
+  const { data: members } = await admin
     .from('group_members')
-    .select('group_id, student_id, joined_at, student_profiles(nom, prenom)')
-    .in('group_id', groups.map((g) => g.id));
+    .select('group_id, student_id, joined_at')
+    .in('group_id', groupIds);
+
+  const studentIds = [...new Set((members ?? []).map((m) => m.student_id as string))];
+  const { data: profiles } = studentIds.length > 0
+    ? await admin.from('student_profiles').select('id, nom, prenom').in('id', studentIds)
+    : { data: [] };
+
+  const profileMap = new Map<string, { nom: string; prenom: string }>();
+  for (const p of profiles ?? []) profileMap.set(p.id, { nom: p.nom, prenom: p.prenom });
 
   const membersMap: Record<string, GroupMember[]> = {};
   for (const m of members ?? []) {
-    const profile = m.student_profiles as unknown as { nom: string; prenom: string } | null;
+    const profile = profileMap.get(m.student_id as string);
     const member: GroupMember = {
       group_id: m.group_id,
       student_id: m.student_id,
@@ -96,7 +109,7 @@ export async function createGroup(
   // Auto-rejoindre le groupe créé
   await supabase.from('group_members').insert({ group_id: data.id, student_id: user.id });
 
-  revalidatePath(`/dashboard/projets/${weekId}/groupes`);
+  revalidatePath(`/dashboard/pedagogie/projets/${weekId}/groupes`);
   return { group: data };
 }
 
@@ -124,7 +137,7 @@ export async function joinGroup(
   const { error } = await supabase.from('group_members').insert({ group_id: groupId, student_id: user.id });
   if (error) return { error: error.message };
 
-  revalidatePath(`/dashboard/projets/${weekId}/groupes`);
+  revalidatePath(`/dashboard/pedagogie/projets/${weekId}/groupes`);
   return {};
 }
 
@@ -143,7 +156,7 @@ export async function leaveGroup(
     .eq('student_id', user.id);
 
   if (error) return { error: error.message };
-  revalidatePath(`/dashboard/projets/${weekId}/groupes`);
+  revalidatePath(`/dashboard/pedagogie/projets/${weekId}/groupes`);
   return {};
 }
 
@@ -152,14 +165,15 @@ export async function updateGroupLinks(
   repoUrl: string,
   slidesUrl: string,
 ): Promise<{ error?: string }> {
-  const supabase = await createClient();
-  const { error } = await supabase
+  // Admin client pour éviter la récursion RLS (UPDATE project_groups → group_members → project_groups)
+  const admin = createAdminClient();
+  const { error } = await admin
     .from('project_groups')
     .update({ repo_url: repoUrl || null, slides_url: slidesUrl || null })
     .eq('id', groupId);
 
   if (error) return { error: error.message };
-  revalidatePath('/dashboard/projets');
+  revalidatePath('/dashboard/pedagogie/projets');
   return {};
 }
 
@@ -172,13 +186,15 @@ export async function gradeGroup(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Non authentifié' };
 
-  const { error } = await supabase
+  // Admin client pour la même raison (récursion RLS sur project_groups UPDATE)
+  const admin = createAdminClient();
+  const { error } = await admin
     .from('project_groups')
     .update({ note, feedback_prof: feedbackProf, note_par: user.id })
     .eq('id', groupId);
 
   if (error) return { error: error.message };
-  revalidatePath('/dashboard/projets');
+  revalidatePath('/dashboard/pedagogie/projets');
   return {};
 }
 
@@ -201,11 +217,70 @@ export async function createSoutenanceSlots(
   weekId: string,
   slots: { heure_debut: string; heure_fin: string }[],
 ): Promise<{ error?: string }> {
-  const supabase = await createClient();
+  const admin = createAdminClient();
   const rows = slots.map((s) => ({ week_id: weekId, ...s }));
-  const { error } = await supabase.from('soutenance_slots').insert(rows);
+  const { error } = await admin.from('soutenance_slots').insert(rows);
   if (error) return { error: error.message };
-  revalidatePath('/dashboard/projets');
+  revalidatePath(`/dashboard/pedagogie/projets`);
+  return {};
+}
+
+export async function clearSoutenanceSlots(weekId: string): Promise<{ error?: string }> {
+  const admin = createAdminClient();
+  const { error } = await admin.from('soutenance_slots').delete().eq('week_id', weekId);
+  if (error) return { error: error.message };
+  revalidatePath(`/dashboard/pedagogie/projets`);
+  return {};
+}
+
+export async function randomizeSlots(weekId: string): Promise<{ error?: string }> {
+  const admin = createAdminClient();
+
+  // Récupérer créneaux libres + groupes
+  const [{ data: slots }, { data: groups }] = await Promise.all([
+    admin.from('soutenance_slots').select('id').eq('week_id', weekId).order('heure_debut'),
+    admin.from('project_groups').select('id').eq('week_id', weekId),
+  ]);
+
+  if (!slots || !groups) return { error: 'Données introuvables' };
+
+  // Reset toutes les assignations
+  await admin.from('soutenance_slots').update({ group_id: null }).eq('week_id', weekId);
+
+  // Mélanger les groupes (Fisher-Yates)
+  const shuffled = [...groups];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  // Assigner chaque groupe à un créneau
+  const updates = slots.slice(0, shuffled.length).map((slot, i) => ({
+    id: slot.id,
+    group_id: shuffled[i].id,
+  }));
+
+  for (const u of updates) {
+    await admin.from('soutenance_slots').update({ group_id: u.group_id }).eq('id', u.id);
+  }
+
+  revalidatePath(`/dashboard/pedagogie/projets`);
+  return {};
+}
+
+export async function updateSlot(
+  slotId: string,
+  heureDebut: string,
+  heureFin: string,
+  weekId: string,
+): Promise<{ error?: string }> {
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from('soutenance_slots')
+    .update({ heure_debut: heureDebut, heure_fin: heureFin })
+    .eq('id', slotId);
+  if (error) return { error: error.message };
+  revalidatePath(`/dashboard/pedagogie/projets/${weekId}/soutenances`);
   return {};
 }
 
@@ -214,14 +289,27 @@ export async function bookSlot(
   groupId: string,
   weekId: string,
 ): Promise<{ error?: string }> {
-  const supabase = await createClient();
-  const { error } = await supabase
+  const admin = createAdminClient();
+
+  // Vérifier que le créneau est libre
+  const { data: slot } = await admin.from('soutenance_slots').select('group_id').eq('id', slotId).single();
+  if (slot?.group_id) return { error: 'Ce créneau vient d\'être pris.' };
+
+  // Vérifier que le groupe n'a pas déjà réservé un autre créneau sur cette semaine
+  const { data: existingBooking } = await admin
+    .from('soutenance_slots')
+    .select('id')
+    .eq('week_id', weekId)
+    .eq('group_id', groupId)
+    .maybeSingle();
+  if (existingBooking) return { error: 'Votre groupe a déjà réservé un créneau pour cette semaine.' };
+
+  const { error } = await admin
     .from('soutenance_slots')
     .update({ group_id: groupId })
-    .eq('id', slotId)
-    .is('group_id', null);
+    .eq('id', slotId);
 
-  if (error) return { error: 'Ce créneau vient d\'être pris' };
+  if (error) return { error: error.message };
   revalidatePath(`/dashboard/projets/${weekId}/soutenances`);
   return {};
 }
@@ -234,7 +322,17 @@ export async function getRetroBoard(weekId: string): Promise<RetroBoard | null> 
     .select()
     .eq('week_id', weekId)
     .maybeSingle();
-  return data ?? null;
+
+  if (data) return data;
+
+  // Auto-création si absent (semaines créées avant le fix RLS)
+  const admin = createAdminClient();
+  const { data: created } = await admin
+    .from('retro_boards')
+    .insert({ week_id: weekId })
+    .select()
+    .single();
+  return created ?? null;
 }
 
 export async function toggleRetroBoard(
@@ -247,25 +345,37 @@ export async function toggleRetroBoard(
     .update({ is_open: isOpen })
     .eq('id', boardId);
   if (error) return { error: error.message };
-  revalidatePath('/dashboard/projets');
+  revalidatePath('/dashboard/pedagogie/projets');
   return {};
 }
 
 export async function getRetroPostits(boardId: string): Promise<RetroPostit[]> {
-  const supabase = await createClient();
-  const { data } = await supabase
+  const admin = createAdminClient();
+
+  const { data: postits } = await admin
     .from('retro_postits')
-    .select('*, student_profiles(nom, prenom)')
+    .select()
     .eq('board_id', boardId)
     .order('created_at');
 
-  return (data ?? []).map((p) => {
-    const profile = p.student_profiles as unknown as { nom: string; prenom: string } | null;
-    return {
-      ...p,
-      author_name: p.is_anonymous ? 'Anonyme' : profile ? `${profile.prenom} ${profile.nom}` : 'Inconnu',
-    };
-  });
+  if (!postits || postits.length === 0) return [];
+
+  // Récupérer les noms via student_profiles et teacher_profiles
+  const authorIds = [...new Set(postits.map((p) => p.author_id as string))];
+
+  const [{ data: students }, { data: teachers }] = await Promise.all([
+    admin.from('student_profiles').select('id, nom, prenom').in('id', authorIds),
+    admin.from('teacher_profiles').select('id, nom, prenom').in('id', authorIds),
+  ]);
+
+  const nameMap = new Map<string, string>();
+  for (const s of students ?? []) nameMap.set(s.id, `${s.prenom} ${s.nom}`);
+  for (const t of teachers ?? []) nameMap.set(t.id, `${t.prenom} ${t.nom}`);
+
+  return postits.map((p) => ({
+    ...p,
+    author_name: p.is_anonymous ? 'Anonyme' : (nameMap.get(p.author_id) ?? 'Inconnu'),
+  }));
 }
 
 export async function addPostit(
@@ -273,16 +383,19 @@ export async function addPostit(
   type: PostitType,
   content: string,
   isAnonymous: boolean,
-): Promise<{ error?: string }> {
+): Promise<{ postit?: RetroPostit; error?: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Non authentifié' };
 
-  const { error } = await supabase.from('retro_postits').insert({
-    board_id: boardId, type, content, is_anonymous: isAnonymous, author_id: user.id,
-  });
+  const { data, error } = await supabase
+    .from('retro_postits')
+    .insert({ board_id: boardId, type, content, is_anonymous: isAnonymous, author_id: user.id })
+    .select()
+    .single();
+
   if (error) return { error: error.message };
-  return {};
+  return { postit: data as RetroPostit };
 }
 
 export async function deletePostit(postitId: string): Promise<{ error?: string }> {

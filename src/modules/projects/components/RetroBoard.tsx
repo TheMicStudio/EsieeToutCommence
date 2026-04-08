@@ -5,7 +5,9 @@ import { createClient } from '@/lib/supabase/client';
 import { toggleRetroBoard } from '../actions';
 import { RetroBoardColumn } from './RetroBoardColumn';
 import { AddPostitForm } from './AddPostitForm';
+import { ExportRetroButton } from './ExportRetroButton';
 import type { RetroBoard as RetroBoardType, RetroPostit, PostitType } from '../types';
+import { Lock, Unlock } from 'lucide-react';
 
 const TYPES: PostitType[] = ['POSITIVE', 'NEGATIVE', 'IDEA'];
 
@@ -13,10 +15,11 @@ interface RetroBoardProps {
   board: RetroBoardType;
   initialPostits: RetroPostit[];
   currentUserId: string;
+  currentUserName: string;
   isProf: boolean;
 }
 
-export function RetroBoard({ board, initialPostits, currentUserId, isProf }: RetroBoardProps) {
+export function RetroBoard({ board, initialPostits, currentUserId, currentUserName, isProf }: RetroBoardProps) {
   const [postits, setPostits] = useState<RetroPostit[]>(initialPostits);
   const [isOpen, setIsOpen] = useState(board.is_open);
   const [toggling, setToggling] = useState(false);
@@ -33,7 +36,12 @@ export function RetroBoard({ board, initialPostits, currentUserId, isProf }: Ret
       }, (payload) => {
         if (payload.eventType === 'INSERT') {
           const p = payload.new as RetroPostit;
-          setPostits((prev) => [...prev, { ...p, author_name: p.is_anonymous ? 'Anonyme' : 'Nouveau' }]);
+          // Ignorer ses propres posts (déjà ajoutés par l'update optimiste)
+          if (p.author_id === currentUserId) return;
+          setPostits((prev) => {
+            if (prev.some((x) => x.id === p.id)) return prev;
+            return [...prev, { ...p, author_name: p.is_anonymous ? 'Anonyme' : 'Nouveau' }];
+          });
         } else if (payload.eventType === 'DELETE') {
           setPostits((prev) => prev.filter((p) => p.id !== payload.old.id));
         } else if (payload.eventType === 'UPDATE') {
@@ -58,11 +66,11 @@ export function RetroBoard({ board, initialPostits, currentUserId, isProf }: Ret
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className={`inline-flex h-2.5 w-2.5 rounded-full ${isOpen ? 'bg-primary' : 'bg-muted-foreground'}`} />
-          <span className="text-sm font-medium text-muted-foreground">
-            {isOpen ? 'Mur ouvert' : 'Mur fermé'}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/60 bg-white px-4 py-3 shadow-sm">
+        <div className="flex items-center gap-2.5">
+          <span className={`inline-flex h-2.5 w-2.5 rounded-full ${isOpen ? 'bg-emerald-400' : 'bg-slate-300'}`} />
+          <span className="text-sm font-medium text-slate-600">
+            {isOpen ? 'Mur ouvert — les étudiants peuvent poster' : 'Mur fermé'}
           </span>
         </div>
         {isProf && (
@@ -70,12 +78,14 @@ export function RetroBoard({ board, initialPostits, currentUserId, isProf }: Ret
             type="button"
             onClick={handleToggle}
             disabled={toggling}
-            className={`rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors ${
+            className={[
+              'inline-flex items-center gap-2 rounded-xl border px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50',
               isOpen
-                ? 'border-destructive/30 text-destructive hover:bg-destructive/10'
-                : 'border-primary/30 text-primary hover:bg-primary/10'
-            }`}
+                ? 'border-red-200 text-red-600 hover:bg-red-50'
+                : 'border-[#89aae6]/40 text-[#0471a6] hover:bg-[#89aae6]/10',
+            ].join(' ')}
           >
+            {isOpen ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
             {toggling ? '…' : isOpen ? 'Fermer le board' : 'Ouvrir le board'}
           </button>
         )}
@@ -93,7 +103,19 @@ export function RetroBoard({ board, initialPostits, currentUserId, isProf }: Ret
         ))}
       </div>
 
-      <AddPostitForm boardId={board.id} isOpen={isOpen} onAdd={(p) => setPostits((prev) => [...prev, p as RetroPostit])} />
+      <AddPostitForm
+        boardId={board.id}
+        isOpen={isOpen}
+        authorName={currentUserName}
+        currentUserId={currentUserId}
+        onAdd={(p) => setPostits((prev) => [...prev, p as RetroPostit])}
+      />
+
+      {isProf && (
+        <div className="flex justify-end">
+          <ExportRetroButton postits={postits} />
+        </div>
+      )}
     </div>
   );
 }

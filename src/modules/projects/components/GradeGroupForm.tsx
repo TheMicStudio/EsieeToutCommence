@@ -2,17 +2,16 @@
 
 import { useState } from 'react';
 import { gradeGroup } from '../actions';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Star, Check } from 'lucide-react';
 
-interface GradeGroupFormProps {
+const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
+const labelCls = 'block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5';
+
+export function GradeGroupForm({ groupId, initialNote, initialFeedback }: {
   groupId: string;
   initialNote?: number;
   initialFeedback?: string;
-}
-
-export function GradeGroupForm({ groupId, initialNote, initialFeedback }: GradeGroupFormProps) {
+}) {
   const [note, setNote] = useState(String(initialNote ?? ''));
   const [feedback, setFeedback] = useState(initialFeedback ?? '');
   const [loading, setLoading] = useState(false);
@@ -22,47 +21,51 @@ export function GradeGroupForm({ groupId, initialNote, initialFeedback }: GradeG
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const n = parseFloat(note);
-    if (isNaN(n) || n < 0 || n > 20) { setError('Note entre 0 et 20'); return; }
+    if (isNaN(n) || n < 0 || n > 20) { setError('La note doit être entre 0 et 20'); return; }
     setLoading(true);
     setError('');
     const result = await gradeGroup(groupId, n, feedback);
     setLoading(false);
     if (result.error) setError(result.error);
-    else setSuccess(true);
+    else { setSuccess(true); setTimeout(() => setSuccess(false), 3000); }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Notation</h4>
+      <p className={labelCls}>Notation</p>
       <div className="flex gap-3">
-        <div className="w-24 space-y-1.5">
-          <Label htmlFor={`note-${groupId}`} className="text-xs">Note /20</Label>
-          <Input
-            id={`note-${groupId}`}
+        <div className="w-28">
+          <label className="mb-1 flex items-center gap-1.5 text-xs text-slate-500">
+            <Star className="h-3.5 w-3.5" /> Note /20
+          </label>
+          <input
             type="number"
             min={0} max={20} step={0.5}
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            className="text-sm"
+            placeholder="0–20"
+            className={inputCls}
           />
         </div>
-        <div className="flex-1 space-y-1.5">
-          <Label htmlFor={`fb-${groupId}`} className="text-xs">Feedback</Label>
+        <div className="flex-1">
+          <label className="mb-1 block text-xs text-slate-500">Feedback</label>
           <textarea
-            id={`fb-${groupId}`}
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
             rows={2}
             placeholder="Points forts, axes d'amélioration…"
-            className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            className="flex w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all resize-none"
           />
         </div>
       </div>
-      {error && <p className="text-xs text-destructive">{error}</p>}
-      {success && <p className="text-xs text-primary">Note enregistrée !</p>}
-      <Button type="submit" size="sm" disabled={loading} className="w-full">
-        {loading ? 'Enregistrement…' : 'Enregistrer la note'}
-      </Button>
+      {error && <p className="text-xs text-red-500">{error}</p>}
+      <button
+        type="submit"
+        disabled={loading}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 disabled:opacity-50 transition-all"
+      >
+        {success ? <><Check className="h-4 w-4" /> Note enregistrée !</> : loading ? 'Enregistrement…' : 'Enregistrer la note'}
+      </button>
     </form>
   );
 }
