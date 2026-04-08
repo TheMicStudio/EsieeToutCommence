@@ -89,6 +89,7 @@ _Aucun pour l'instant_
 - [ ] `src/modules/pedagogy/types/index.ts` créé
 - [ ] Actions pédagogie (cours, notes, chat)
 - [x] Page notes — redesign vue élève : accordéons collapsibles, badges #0471a6, sidebar droite 280px (moyenne générale + progress bars)
+- [x] Page cours — redesign complet : CourseGrid (filter/sort/grid-list toggle), cards gradient thumbnail + category badge, sidebar droite (Active Courses 4 statuts, Quick Stats progress bar, Recent Activity), fix bug requirePermission misplacé
 - [ ] Chat temps réel Supabase Realtime
 
 **Module Émargement**
