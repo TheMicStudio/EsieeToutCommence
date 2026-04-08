@@ -143,10 +143,10 @@ export async function assignStudentToClass(
   if (!studentId || !classId) return { error: 'Données manquantes.' };
 
   const admin = createAdminClient();
-  // Retirer l'ancienne affectation si existe
-  await admin.from('class_members').delete().eq('student_id', studentId);
-  // Insérer la nouvelle
-  const { error } = await admin.from('class_members').insert({ class_id: classId, student_id: studentId });
+  // Archiver l'ancienne affectation (is_current = false) pour garder l'historique
+  await admin.from('class_members').update({ is_current: false }).eq('student_id', studentId).eq('is_current', true);
+  // Insérer la nouvelle affectation comme classe courante
+  const { error } = await admin.from('class_members').insert({ class_id: classId, student_id: studentId, is_current: true });
 
   if (error) return { error: 'Erreur lors de l\'affectation.' };
   revalidatePath('/dashboard/admin');

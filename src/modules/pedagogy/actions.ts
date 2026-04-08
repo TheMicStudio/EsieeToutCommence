@@ -24,9 +24,29 @@ export async function getMyClass(): Promise<Class | null> {
     .from('class_members')
     .select('classes(*)')
     .eq('student_id', userProfile.profile.id)
-    .single();
+    .eq('is_current', true)
+    .maybeSingle();
 
   return (data?.classes as unknown as Class) ?? null;
+}
+
+// ─── Toutes les classes de l'élève (courante + passées) ──────────────────────
+
+export async function getMyAllClasses(): Promise<(Class & { is_current: boolean })[]> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'eleve') return [];
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('class_members')
+    .select('is_current, classes(*)')
+    .eq('student_id', userProfile.profile.id)
+    .order('is_current', { ascending: false });
+
+  if (!data) return [];
+  return data
+    .filter((d) => d.classes)
+    .map((d) => ({ ...(d.classes as unknown as Class), is_current: d.is_current }));
 }
 
 // ─── Classes du prof connecté ─────────────────────────────────────────────────

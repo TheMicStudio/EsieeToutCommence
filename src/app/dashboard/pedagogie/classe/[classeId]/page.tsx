@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowLeft, BookOpen, FolderKanban, GraduationCap, MessageSquare, QrCode, Star } from 'lucide-react';
+import { ArrowLeft, BookOpen, FolderKanban, GraduationCap, History, MessageSquare, QrCode, Star } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import { getMyClass, getMyTeacherClasses } from '@/modules/pedagogy/actions';
+import { getMyAllClasses, getMyTeacherClasses } from '@/modules/pedagogy/actions';
 
 const MODULE_ITEMS = [
   { key: 'cours',       label: 'Supports de cours',  description: 'Ressources et documents pédagogiques',     icon: BookOpen,     gradient: 'from-[#89aae6]/10 to-[#3685b5]/5', iconBg: 'bg-[#89aae6]/20 text-[#3685b5]',  profOnly: false },
@@ -25,13 +25,18 @@ export default async function ClasseDetailPage({ params }: ClasseDetailPageProps
 
   // Vérifier que la classe appartient bien à l'utilisateur
   let activeClass: { id: string; nom: string; annee: string | number } | null = null;
+  let isPastClass = false;
 
   if (isProf) {
     const classes = await getMyTeacherClasses();
     activeClass = classes.find((c) => c.id === classeId) ?? null;
   } else {
-    const myClass = await getMyClass();
-    if (myClass?.id === classeId) activeClass = myClass;
+    const allClasses = await getMyAllClasses();
+    const found = allClasses.find((c) => c.id === classeId);
+    if (found) {
+      activeClass = found;
+      isPastClass = !found.is_current;
+    }
   }
 
   if (!activeClass) redirect('/dashboard/pedagogie');
@@ -48,12 +53,20 @@ export default async function ClasseDetailPage({ params }: ClasseDetailPageProps
         >
           <ArrowLeft className="h-4 w-4" />
         </Link>
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0471a6]/15">
-            <GraduationCap className="h-5 w-5 text-[#0471a6]" />
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className={['flex h-11 w-11 shrink-0 items-center justify-center rounded-xl', isPastClass ? 'bg-slate-100' : 'bg-[#0471a6]/15'].join(' ')}>
+            <GraduationCap className={['h-5 w-5', isPastClass ? 'text-slate-400' : 'text-[#0471a6]'].join(' ')} />
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-[#061826]">{activeClass.nom}</h1>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-[#061826] truncate">{activeClass.nom}</h1>
+              {isPastClass && (
+                <span className="shrink-0 flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">
+                  <History className="h-3 w-3" />
+                  Archivée
+                </span>
+              )}
+            </div>
             <p className="text-sm text-slate-500">Promotion {activeClass.annee}</p>
           </div>
         </div>
