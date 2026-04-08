@@ -83,7 +83,10 @@ export async function publishCareerEvent(
   formData: FormData
 ): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+  if (!userProfile) return { error: 'Accès refusé.' };
+  const { getUserPermissions } = await import('@/lib/permissions');
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('career_event.manage')) return { error: 'Accès refusé.' };
 
   const titre = formData.get('titre') as string;
   const date_debut = formData.get('date_debut') as string;
