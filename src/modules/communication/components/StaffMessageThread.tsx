@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/client';
 import { sendStaffMessage } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import type { StaffMessage } from '../types';
 
 interface StaffMessageThreadProps {
@@ -52,7 +51,7 @@ export function StaffMessageThread({
         <span className="font-medium"># {channelName}</span>
       </div>
 
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4">
         {messages.length === 0 ? (
           <p className="mt-8 text-center text-sm text-muted-foreground">Aucun message. Commencez la discussion !</p>
         ) : (
@@ -77,7 +76,7 @@ export function StaffMessageThread({
             })}
           </div>
         )}
-      </ScrollArea>
+      </div>
 
       <form action={action} className="flex items-center gap-2 border-t p-3">
         <input type="hidden" name="channel_id" value={channelId} />

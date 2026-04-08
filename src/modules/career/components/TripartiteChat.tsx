@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/client';
 import { sendTripartiteMessage } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import type { TripartiteChat as TChat, TripartiteMessage } from '../types';
 
 const ROLE_COLORS: Record<string, { bubble: string; badge: string; label: string }> = {
@@ -70,7 +69,7 @@ export function TripartiteChat({
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4">
         {messages.length === 0 ? (
           <p className="mt-8 text-center text-sm text-slate-400">Démarrez la conversation…</p>
         ) : (
@@ -98,7 +97,7 @@ export function TripartiteChat({
             })}
           </div>
         )}
-      </ScrollArea>
+      </div>
 
       {/* Input */}
       <form action={action} className="flex items-center gap-2 border-t border-slate-100 p-3">
