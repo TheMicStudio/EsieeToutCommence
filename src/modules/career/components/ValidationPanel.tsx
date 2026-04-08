@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { validateEntry } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +15,7 @@ interface ValidationPanelProps {
 }
 
 export function ValidationPanel({ entries }: ValidationPanelProps) {
+  const router = useRouter();
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Record<string, string>>({});
@@ -26,6 +28,7 @@ export function ValidationPanel({ entries }: ValidationPanelProps) {
     const result = await validateEntry(entryId, isNaN(note as number) ? null : note, statut);
     setFeedback((prev) => ({ ...prev, [entryId]: result.error ?? 'Mis à jour.' }));
     setLoading(null);
+    if (!result.error) router.refresh();
   }
 
   if (pending.length === 0) {

@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import type {
@@ -48,6 +49,8 @@ export async function publishJobOffer(
   });
 
   if (error) return { error: 'Erreur lors de la publication.' };
+  revalidatePath('/dashboard/admin');
+  revalidatePath('/dashboard/carriere/job-board');
   return { success: true };
 }
 
@@ -59,6 +62,8 @@ export async function toggleJobOffer(offerId: string, actif: boolean): Promise<A
   const { error } = await supabase
     .from('job_offers').update({ actif }).eq('id', offerId);
   if (error) return { error: 'Erreur lors de la mise à jour.' };
+  revalidatePath('/dashboard/admin');
+  revalidatePath('/dashboard/carriere/job-board');
   return { success: true };
 }
 
@@ -96,6 +101,8 @@ export async function publishCareerEvent(
   });
 
   if (error) return { error: 'Erreur lors de la publication.' };
+  revalidatePath('/dashboard/admin');
+  revalidatePath('/dashboard/carriere/evenements');
   return { success: true };
 }
 
@@ -118,9 +125,8 @@ export async function deleteJobOffer(offerId: string): Promise<ActionState> {
   const supabase = await createClient();
   const { error } = await supabase.from('job_offers').delete().eq('id', offerId);
   if (error) return { error: 'Erreur lors de la suppression.' };
-
-  const { revalidatePath } = await import('next/cache');
   revalidatePath('/dashboard/admin');
+  revalidatePath('/dashboard/carriere/job-board');
   return { success: true };
 }
 
@@ -143,9 +149,8 @@ export async function deleteCareerEvent(eventId: string): Promise<ActionState> {
   const supabase = await createClient();
   const { error } = await supabase.from('career_events').delete().eq('id', eventId);
   if (error) return { error: 'Erreur lors de la suppression.' };
-
-  const { revalidatePath } = await import('next/cache');
   revalidatePath('/dashboard/admin');
+  revalidatePath('/dashboard/carriere/evenements');
   return { success: true };
 }
 
@@ -160,6 +165,7 @@ export async function registerToEvent(eventId: string): Promise<ActionState> {
 
   if (error?.code === '23505') return { error: 'Déjà inscrit.' };
   if (error) return { error: 'Erreur lors de l\'inscription.' };
+  revalidatePath('/dashboard/carriere/evenements');
   return { success: true };
 }
 
@@ -174,6 +180,7 @@ export async function unregisterFromEvent(eventId: string): Promise<ActionState>
     .eq('student_id', userProfile.profile.id);
 
   if (error) return { error: 'Erreur lors de la désinscription.' };
+  revalidatePath('/dashboard/carriere/evenements');
   return { success: true };
 }
 
@@ -301,6 +308,7 @@ export async function uploadApprenticeshipEntry(
   });
 
   if (error) return { error: 'Erreur lors de l\'enregistrement.' };
+  revalidatePath('/dashboard/carriere/livret');
   return { success: true };
 }
 
@@ -321,5 +329,6 @@ export async function validateEntry(
     .eq('id', entryId);
 
   if (error) return { error: 'Erreur lors de la validation.' };
+  revalidatePath('/dashboard/carriere/livret');
   return { success: true };
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Calendar, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, isRegistered, isEleve }: EventCardProps) {
+  const router = useRouter();
   const dateDebut = new Date(event.date_debut);
   const isPast = dateDebut < new Date();
 
@@ -23,6 +25,7 @@ export function EventCard({ event, isRegistered, isEleve }: EventCardProps) {
     } else {
       await registerToEvent(event.id);
     }
+    router.refresh();
   }
 
   return (
