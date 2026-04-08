@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { addTicketMessage, updateTicketStatus, convertTicketToFaq } from '../actions';
 import { TicketStatusBadge } from './TicketStatusBadge';
 import { Button } from '@/components/ui/button';
@@ -22,13 +23,24 @@ const STATUT_ACTIONS: { statut: TicketStatut; label: string }[] = [
 
 export function TicketThread({ ticket, messages, authorNames, currentUserId, isAdmin }: TicketThreadProps) {
   const [msgState, msgAction, msgPending] = useActionState(addTicketMessage, null);
+  const [isPending, startTransition] = useTransition();
+  const [convertDone, setConvertDone] = useState(false);
+  const [currentStatut, setCurrentStatut] = useState<TicketStatut>(ticket.statut);
+  const router = useRouter();
 
-  async function handleStatusChange(statut: TicketStatut) {
-    await updateTicketStatus(ticket.id, statut);
+  function handleStatusChange(statut: TicketStatut) {
+    startTransition(async () => {
+      await updateTicketStatus(ticket.id, statut);
+      setCurrentStatut(statut);
+      router.refresh();
+    });
   }
 
-  async function handleConvert() {
-    await convertTicketToFaq(ticket.id);
+  function handleConvert() {
+    startTransition(async () => {
+      const result = await convertTicketToFaq(ticket.id);
+      if (!result?.error) setConvertDone(true);
+    });
   }
 
   return (
@@ -39,28 +51,31 @@ export function TicketThread({ ticket, messages, authorNames, currentUserId, isA
           <div>
             <h2 className="text-xl font-semibold">{ticket.sujet}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {CATEGORIE_LABELS[ticket.categorie]} ·{' '}
+              {CATEGORIE_LABELS[ticket.categorie] ?? ticket.categorie} ·{' '}
               {new Date(ticket.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
               {ticket.au_nom_de_classe && ' · Au nom de la classe'}
             </p>
           </div>
-          <TicketStatusBadge statut={ticket.statut} />
+          <TicketStatusBadge statut={currentStatut} />
         </div>
         <p className="text-sm text-muted-foreground whitespace-pre-wrap">{ticket.description}</p>
 
         {/* Actions admin */}
         {isAdmin && (
           <div className="flex flex-wrap gap-2 pt-2 border-t">
-            {STATUT_ACTIONS.filter((a) => a.statut !== ticket.statut).map((a) => (
-              <Button key={a.statut} size="sm" variant="outline"
+            {STATUT_ACTIONS.filter((a) => a.statut !== currentStatut).map((a) => (
+              <Button key={a.statut} size="sm" variant="outline" disabled={isPending}
                 onClick={() => handleStatusChange(a.statut)}>
                 {a.label}
               </Button>
             ))}
-            {ticket.statut === 'resolu' && (
-              <Button size="sm" variant="secondary" onClick={handleConvert}>
-                → Convertir en FAQ
+            {currentStatut === 'resolu' && !convertDone && (
+              <Button size="sm" variant="secondary" disabled={isPending} onClick={handleConvert}>
+                {isPending ? 'Conversion…' : '→ Convertir en FAQ'}
               </Button>
+            )}
+            {convertDone && (
+              <span className="text-xs text-primary font-medium">✓ Ajouté à la FAQ</span>
             )}
           </div>
         )}
@@ -91,7 +106,7 @@ export function TicketThread({ ticket, messages, authorNames, currentUserId, isA
       </div>
 
       {/* Répondre */}
-      {ticket.statut !== 'ferme' && (
+      {currentStatut !== 'ferme' && (
         <form action={msgAction} className="flex gap-2">
           <input type="hidden" name="ticket_id" value={ticket.id} />
           <textarea name="contenu" rows={2} placeholder="Votre réponse…" required
@@ -101,6 +116,11 @@ export function TicketThread({ ticket, messages, authorNames, currentUserId, isA
             Envoyer
           </Button>
         </form>
+      )}
+      {currentStatut === 'ferme' && (
+        <p className="text-sm text-muted-foreground text-center rounded-lg border border-dashed py-3">
+          Ce ticket est fermé. Aucune nouvelle réponse ne peut être ajoutée.
+        </p>
       )}
       {msgState?.error && <p className="text-sm text-destructive">{msgState.error}</p>}
     </div>

@@ -48,6 +48,13 @@ export const STATUT_LABELS: Record<TicketStatut, string> = {
   ferme: 'Fermé',
 };
 
+export interface AdminContact {
+  id: string;
+  nom: string;
+  prenom: string;
+  fonction?: string;
+}
+
 export interface ActionState {
   error?: string;
   success?: boolean;

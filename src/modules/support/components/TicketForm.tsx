@@ -5,6 +5,7 @@ import { createTicket, searchFaqArticles } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { TICKET_CATEGORIES } from '@/lib/constants';
 import type { FaqArticle } from '../types';
 
 interface TicketFormProps {
@@ -50,10 +51,9 @@ export function TicketForm({ isDelegue = false }: TicketFormProps) {
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             <option value="">Sélectionner…</option>
-            <option value="pedagogie">Pédagogie</option>
-            <option value="batiment">Bâtiment</option>
-            <option value="informatique">Informatique</option>
-            <option value="autre">Autre</option>
+            {TICKET_CATEGORIES.map((cat) => (
+              <option key={cat.value} value={cat.value}>{cat.label}</option>
+            ))}
           </select>
         </div>
 

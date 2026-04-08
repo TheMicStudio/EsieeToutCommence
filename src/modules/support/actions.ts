@@ -2,8 +2,9 @@
 
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import type { ActionState, FaqArticle, Ticket, TicketCategorie, TicketMessage, TicketStatut } from './types';
+import type { ActionState, AdminContact, FaqArticle, Ticket, TicketCategorie, TicketMessage, TicketStatut } from './types';
 
 // ─── Tickets ──────────────────────────────────────────────────────────────────
 
@@ -23,7 +24,6 @@ export async function createTicket(
     return { error: 'Tous les champs sont requis.' };
   }
 
-  // Vérif délégué si ticket au nom de la classe
   if (auNomDeLaClasse) {
     if (userProfile.role !== 'eleve' || userProfile.profile.role_secondaire !== 'delegue') {
       return { error: 'Seuls les délégués peuvent ouvrir un ticket au nom de la classe.' };
@@ -164,6 +164,31 @@ export async function createFaqArticle(
   return { success: true };
 }
 
+export async function assignTicket(ticketId: string, adminId: string): Promise<ActionState> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('tickets')
+    .update({ assigne_a: adminId || null })
+    .eq('id', ticketId);
+
+  if (error) return { error: 'Erreur lors de l\'assignation.' };
+  return { success: true };
+}
+
+export async function getAdminList(): Promise<AdminContact[]> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'admin') return [];
+
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('admin_profiles')
+    .select('id, nom, prenom, fonction');
+  return (data as AdminContact[]) ?? [];
+}
+
 export async function convertTicketToFaq(ticketId: string): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
   if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
@@ -175,9 +200,27 @@ export async function convertTicketToFaq(ticketId: string): Promise<ActionState>
   if (!ticket) return { error: 'Ticket introuvable.' };
   if (ticket.statut !== 'resolu') return { error: 'Seuls les tickets résolus peuvent être convertis.' };
 
+  // Chercher la dernière réponse d'un admin dans le fil de messages
+  const { data: messages } = await supabase
+    .from('ticket_messages')
+    .select('author_id, contenu')
+    .eq('ticket_id', ticketId)
+    .order('created_at', { ascending: false });
+
+  // Identifier les admins
+  const adminClient = createAdminClient();
+  const { data: adminProfiles } = await adminClient.from('admin_profiles').select('id');
+  const adminIds = new Set((adminProfiles ?? []).map((a: { id: string }) => a.id));
+
+  // Utiliser la dernière réponse admin comme réponse FAQ, sinon la description du ticket
+  const lastAdminMessage = (messages ?? []).find((m: { author_id: string; contenu: string }) =>
+    adminIds.has(m.author_id)
+  );
+  const reponse = lastAdminMessage?.contenu ?? ticket.description;
+
   const { error } = await supabase.from('faq_articles').insert({
     question: ticket.sujet,
-    reponse: ticket.description,
+    reponse,
     categorie: ticket.categorie,
     auteur_id: userProfile.profile.id,
     source_ticket_id: ticketId,

@@ -1,40 +1,75 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { Plus } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import { getMyTickets, getAllTickets } from '@/modules/support/actions';
+import { getMyTickets } from '@/modules/support/actions';
 import { TicketList } from '@/modules/support/components/TicketList';
-import { buttonVariants } from '@/components/ui/button';
 
 export default async function SupportPage() {
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-  
 
-  const isAdmin = profile.role === 'admin';
-  const tickets = isAdmin ? await getAllTickets() : await getMyTickets();
+  if (profile.role === 'admin') redirect('/dashboard/support/admin');
+
+  const tickets = await getMyTickets();
+
+  const open = tickets.filter((t) => t.statut !== 'ferme').length;
+  const closed = tickets.filter((t) => t.statut === 'ferme').length;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Support</h1>
-          <p className="text-muted-foreground">
-            {isAdmin ? 'Tous les tickets de support' : 'Vos demandes de support'}
-          </p>
+          <h1 className="text-2xl font-bold text-[#061826]">Support</h1>
+          <p className="mt-1 text-sm text-slate-500">Vos demandes et tickets d&apos;assistance</p>
         </div>
-        <div className="flex gap-2">
-          {isAdmin && (
-            <Link href="/dashboard/support/admin" className={buttonVariants({ variant: 'outline' })}>
-              Vue Kanban
-            </Link>
-          )}
-          <Link href="/dashboard/support/nouveau" className={buttonVariants({})}>
-            Nouveau ticket
-          </Link>
-        </div>
+        <Link
+          href="/dashboard/support/nouveau"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 transition-all hover:shadow-sm"
+        >
+          <Plus className="h-4 w-4" />
+          Nouveau ticket
+        </Link>
       </div>
 
-      <TicketList tickets={tickets} />
+      {/* Stats rapides */}
+      {tickets.length > 0 && (
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: 'Total', value: tickets.length, color: 'bg-slate-100 text-slate-600' },
+            { label: 'En cours', value: open, color: 'bg-[#89aae6]/20 text-[#3685b5]' },
+            { label: 'Fermés', value: closed, color: 'bg-emerald-100 text-emerald-600' },
+          ].map((s) => (
+            <div key={s.label} className="rounded-2xl border border-slate-200/60 bg-white p-4 text-center shadow-sm">
+              <p className="text-2xl font-bold text-[#061826]">{s.value}</p>
+              <p className={['mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold', s.color].join(' ')}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Liste des tickets */}
+      <div className="rounded-2xl border border-slate-200/60 bg-white shadow-sm overflow-hidden">
+        {tickets.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
+              <Plus className="h-6 w-6 text-slate-400" />
+            </div>
+            <p className="font-semibold text-slate-700">Aucun ticket</p>
+            <p className="text-sm text-slate-500">Créez votre premier ticket si vous avez une demande.</p>
+            <Link
+              href="/dashboard/support/nouveau"
+              className="mt-1 inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0471a6]/90 transition-colors"
+            >
+              <Plus className="h-4 w-4" /> Nouveau ticket
+            </Link>
+          </div>
+        ) : (
+          <div className="p-4">
+            <TicketList tickets={tickets} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
