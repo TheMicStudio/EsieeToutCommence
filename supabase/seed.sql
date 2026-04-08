@@ -70,21 +70,25 @@ BEGIN
   SET LOCAL search_path TO public, extensions;
   h := crypt('Test1234!', gen_salt('bf'));
 
+  -- GoTrue exige : instance_id = '00000000-...' et hash bcrypt $2b$ (pas $2a$)
+  -- On hash en $2b$ en remplaçant le préfixe après génération
+  h := REPLACE(h, '$2a$', '$2b$');
+
   INSERT INTO auth.users (
-    id, email, encrypted_password, email_confirmed_at,
+    id, instance_id, email, encrypted_password, email_confirmed_at,
     raw_app_meta_data, raw_user_meta_data,
     created_at, updated_at, aud, role
   ) VALUES
-    ('11111111-1111-1111-1111-111111111111', 'etudiant@hub-ecole.dev',      h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
-    ('77777777-7777-7777-7777-777777777777', 'etudiant2@hub-ecole.dev',     h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
-    ('88888888-8888-8888-8888-888888888888', 'etudiant3@hub-ecole.dev',     h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
-    ('22222222-2222-2222-2222-222222222222', 'prof@hub-ecole.dev',          h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
-    ('99999999-9999-9999-9999-999999999999', 'prof2@hub-ecole.dev',         h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
-    ('33333333-3333-3333-3333-333333333333', 'admin@hub-ecole.dev',         h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
-    ('55555555-5555-5555-5555-555555555555', 'coordinateur@hub-ecole.dev',  h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
-    ('66666666-6666-6666-6666-666666666666', 'staff@hub-ecole.dev',         h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
-    ('44444444-4444-4444-4444-444444444444', 'entreprise@hub-ecole.dev',    h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
-    ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'entreprise2@hub-ecole.dev',   h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated');
+    ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-000000000000', 'etudiant@hub-ecole.dev',      h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('77777777-7777-7777-7777-777777777777', '00000000-0000-0000-0000-000000000000', 'etudiant2@hub-ecole.dev',     h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('88888888-8888-8888-8888-888888888888', '00000000-0000-0000-0000-000000000000', 'etudiant3@hub-ecole.dev',     h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('22222222-2222-2222-2222-222222222222', '00000000-0000-0000-0000-000000000000', 'prof@hub-ecole.dev',          h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('99999999-9999-9999-9999-999999999999', '00000000-0000-0000-0000-000000000000', 'prof2@hub-ecole.dev',         h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('33333333-3333-3333-3333-333333333333', '00000000-0000-0000-0000-000000000000', 'admin@hub-ecole.dev',         h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('55555555-5555-5555-5555-555555555555', '00000000-0000-0000-0000-000000000000', 'coordinateur@hub-ecole.dev',  h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('66666666-6666-6666-6666-666666666666', '00000000-0000-0000-0000-000000000000', 'staff@hub-ecole.dev',         h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('44444444-4444-4444-4444-444444444444', '00000000-0000-0000-0000-000000000000', 'entreprise@hub-ecole.dev',    h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', '00000000-0000-0000-0000-000000000000', 'entreprise2@hub-ecole.dev',   h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated');
 
   INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at) VALUES
     (gen_random_uuid(), '11111111-1111-1111-1111-111111111111', '{"sub":"11111111-1111-1111-1111-111111111111","email":"etudiant@hub-ecole.dev","email_verified":true}',      'email', '11111111-1111-1111-1111-111111111111', NOW(), NOW(), NOW()),
