@@ -49,16 +49,14 @@ export async function createProjectWeek(
 
 // ── Groupes ──────────────────────────────────────────────────
 export async function getGroups(weekId: string): Promise<ProjectGroup[]> {
-  const supabase = await createClient();
-  const { data: groups } = await supabase
+  const admin = createAdminClient();
+  const { data: groups } = await admin
     .from('project_groups')
     .select()
     .eq('week_id', weekId)
     .order('created_at');
   if (!groups) return [];
 
-  // Fetch members (admin pour bypass RLS + résoudre les noms via deux requêtes séparées)
-  const admin = createAdminClient();
   const groupIds = groups.map((g) => g.id);
 
   const { data: members } = await admin
