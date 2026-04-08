@@ -4,7 +4,7 @@ import { ArrowRight, GraduationCap, History } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getMyAllClasses, getMyTeacherClasses } from '@/modules/pedagogy/actions';
 
-export const metadata = { title: 'Espace pédagogique — Hub École' };
+export const metadata = { title: 'Espace pédagogique — EsieeToutCommence' };
 
 export default async function PedagogiePage() {
   const userProfile = await getCurrentUserProfile();

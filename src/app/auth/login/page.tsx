@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { GraduationCap } from 'lucide-react';
 import { LoginForm } from '@/modules/auth/components/LoginForm';
 
-export const metadata = { title: 'Connexion — Hub École' };
+export const metadata = { title: 'Connexion — EsieeToutCommence' };
 
 export default function LoginPage() {
   return (
@@ -13,7 +13,7 @@ export default function LoginPage() {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary shadow-lg">
             <GraduationCap className="h-8 w-8 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Hub École</h1>
+          <h1 className="text-3xl font-bold tracking-tight">EsieeToutCommence</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Connectez-vous à votre espace
           </p>

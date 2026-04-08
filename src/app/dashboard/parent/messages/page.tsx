@@ -6,7 +6,7 @@ import { getMyLinks, getParentMessages } from '@/modules/parent/actions';
 import { ParentMessageThread } from '@/modules/parent/components/ParentMessageThread';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-export const metadata = { title: 'Messages — Hub École' };
+export const metadata = { title: 'Messages — EsieeToutCommence' };
 
 interface ParentMessagesPageProps {
   searchParams: Promise<{ lien?: string }>;

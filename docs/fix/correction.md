@@ -46,4 +46,4 @@ Ce document liste les correctifs et les nouvelles fonctionnalités à implément
 ## 8. Audit des Sélecteurs (Configuration Dynamique)
 **Objectif :** Centraliser la gestion des listes (Matières, etc.).
 - [ ] **Matières :** Remplacer les listes "hardcodées" dans les formulaires par un appel à la table `subjects` définie par les admins.
-- [ ] **Généralisation :** Appliquer cette logique à tous les menus déroulants de configuration (niveaux, types de contrats, etc.) pour que tout soit pilotable depuis le panel admin.
+- [ ] **Généralisation :** Appliquer cette logique à tous les menus déroulants de configuration (niveaux, types de contrats, etc.) pour que tout soit pilotable depuis le panel admin.I

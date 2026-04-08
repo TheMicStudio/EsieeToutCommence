@@ -70,7 +70,7 @@ export function ExportRetroButton({ postits, weekTitle = 'Rétro' }: ExportRetro
     <div class="stat"><strong>${postits.length}</strong><span>Total</span></div>
   </div>
   ${sections}
-  <footer>Hub École · Généré automatiquement</footer>
+  <footer>EsieeToutCommence · Généré automatiquement</footer>
   <script>window.onload = () => { window.print(); }</script>
 </body>
 </html>`;

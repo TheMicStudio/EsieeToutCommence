@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { UserRound } from 'lucide-react';
 import Link from 'next/link';
 
-export const metadata = { title: 'Messages parents — Hub École' };
+export const metadata = { title: 'Messages parents — EsieeToutCommence' };
 
 interface ParentsPageProps {
   searchParams: Promise<{ lien?: string }>;

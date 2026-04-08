@@ -347,7 +347,7 @@ export async function requestEmailChange(
   }
 
   // Utilise le client admin pour éviter le flow SMTP de confirmation
-  // (les adresses de test type hub-ecole.dev sont invalides pour Supabase Auth SMTP)
+  // (les adresses de test type esiee-tout-commence.dev sont invalides pour Supabase Auth SMTP)
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.updateUserById(user.id, { email: newEmail });
 

@@ -9,7 +9,7 @@ import { AddCourseMaterialForm } from '@/modules/pedagogy/components/AddCourseMa
 import { ClassSelector } from '@/modules/pedagogy/components/ClassSelector';
 import { getSubjects } from '@/modules/admin/config-actions';
 
-export const metadata = { title: 'Supports de cours — Hub École' };
+export const metadata = { title: 'Supports de cours — EsieeToutCommence' };
 
 export default async function CoursPage({
   searchParams,

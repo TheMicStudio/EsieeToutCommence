@@ -5,7 +5,7 @@ import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getMyLinks, getChildGrades, getChildAttendance } from '@/modules/parent/actions';
 import { LinkChildForm } from '@/modules/parent/components/LinkChildForm';
 
-export const metadata = { title: 'Mon enfant — Hub École' };
+export const metadata = { title: 'Mon enfant — EsieeToutCommence' };
 
 export default async function EnfantPage() {
   const profile = await getCurrentUserProfile();

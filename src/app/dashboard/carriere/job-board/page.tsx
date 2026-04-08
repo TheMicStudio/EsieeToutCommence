@@ -4,7 +4,7 @@ import { JobBoard } from '@/modules/career/components/JobBoard';
 import { PublishJobForm } from '@/modules/career/components/PublishJobForm';
 import { Separator } from '@/components/ui/separator';
 
-export const metadata = { title: 'Job Board — Hub École' };
+export const metadata = { title: 'Job Board — EsieeToutCommence' };
 
 export default async function JobBoardPage() {
   const userProfile = await getCurrentUserProfile();

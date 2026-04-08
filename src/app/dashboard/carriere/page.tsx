@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Briefcase, Calendar, GraduationCap, MessageSquare } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 
-export const metadata = { title: 'Carrière — Hub École' };
+export const metadata = { title: 'Carrière — EsieeToutCommence' };
 
 export default async function CarrierePage() {
   const userProfile = await getCurrentUserProfile();

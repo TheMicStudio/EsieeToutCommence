@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Hub École",
+  title: "EsieeToutCommence",
   description: "Plateforme de gestion scolaire",
 };
 

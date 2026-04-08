@@ -2,7 +2,7 @@ import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getCareerEvents, getMyEventRegistrations } from '@/modules/career/actions';
 import { EventCard } from '@/modules/career/components/EventCard';
 
-export const metadata = { title: 'Événements — Hub École' };
+export const metadata = { title: 'Événements — EsieeToutCommence' };
 
 export default async function EvenementsPage() {
   const userProfile = await getCurrentUserProfile();

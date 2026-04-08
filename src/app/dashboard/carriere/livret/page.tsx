@@ -6,7 +6,7 @@ import { UploadEntryForm } from '@/modules/career/components/UploadEntryForm';
 import { ValidationPanel } from '@/modules/career/components/ValidationPanel';
 import { Separator } from '@/components/ui/separator';
 
-export const metadata = { title: 'Livret d\'apprentissage — Hub École' };
+export const metadata = { title: 'Livret d\'apprentissage — EsieeToutCommence' };
 
 export default async function LivretPage() {
   const userProfile = await getCurrentUserProfile();

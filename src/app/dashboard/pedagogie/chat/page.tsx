@@ -9,7 +9,7 @@ import { ClassChat } from '@/modules/pedagogy/components/ClassChat';
 import { ClassSelector } from '@/modules/pedagogy/components/ClassSelector';
 import { createClient } from '@/lib/supabase/server';
 
-export const metadata = { title: 'Chat de classe — Hub École' };
+export const metadata = { title: 'Chat de classe — EsieeToutCommence' };
 
 export default async function ChatPage({
   searchParams,

@@ -7,7 +7,7 @@ import { PostCard } from '@/modules/news/components/PostCard';
 import type { PostCategory } from '@/modules/news/types';
 import { CATEGORY_LABELS } from '@/modules/news/types';
 
-export const metadata = { title: 'Actualités — Hub École' };
+export const metadata = { title: 'Actualités — EsieeToutCommence' };
 
 const ALL_CATEGORIES = ['annonce', 'actu', 'evenement'] as PostCategory[];
 

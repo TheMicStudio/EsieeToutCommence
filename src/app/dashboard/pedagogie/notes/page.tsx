@@ -17,7 +17,7 @@ import { GradeTableView } from '@/modules/pedagogy/components/GradeTableView';
 import { getProjectWeeks, getGroups } from '@/modules/projects/actions';
 import { getSubjects } from '@/modules/admin/config-actions';
 
-export const metadata = { title: 'Notes — Hub École' };
+export const metadata = { title: 'Notes — EsieeToutCommence' };
 
 interface NotesPageProps {
   searchParams: Promise<{ classe?: string; tab?: string }>;

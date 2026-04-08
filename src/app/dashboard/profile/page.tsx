@@ -3,7 +3,7 @@ import { ProfileCard } from '@/modules/auth/components/ProfileCard';
 import { ProfileEditForm } from '@/modules/auth/components/ProfileEditForm';
 import { getSubjects, getAdminFunctions } from '@/modules/admin/config-actions';
 
-export const metadata = { title: 'Mon profil — Hub École' };
+export const metadata = { title: 'Mon profil — EsieeToutCommence' };
 
 export default async function ProfilePage() {
   const userProfile = await getCurrentUserProfile();

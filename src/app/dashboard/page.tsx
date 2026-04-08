@@ -39,7 +39,7 @@ import { CATEGORY_COLORS, CATEGORY_LABELS } from '@/modules/news/types';
 // Actions parent
 import { getMyLinks } from '@/modules/parent/actions';
 
-export const metadata = { title: 'Tableau de bord — Hub École' };
+export const metadata = { title: 'Tableau de bord — EsieeToutCommence' };
 
 // ── Visuels ──────────────────────────────────────────────────────────────────
 

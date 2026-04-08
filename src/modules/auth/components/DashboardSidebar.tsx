@@ -225,7 +225,7 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
               <GraduationCap className="h-[18px] w-[18px] text-white" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold leading-tight text-[#061826] truncate">Hub École</p>
+              <p className="text-sm font-bold leading-tight text-[#061826] truncate">EsieeToutCommence</p>
               <p className="text-[11px] text-slate-400 leading-tight truncate">{ROLE_LABELS[role]}</p>
             </div>
           </div>
@@ -380,7 +380,7 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0471a6]">
             <GraduationCap className="h-4 w-4 text-white" />
           </div>
-          <span className="font-bold text-[#061826]">Hub École</span>
+          <span className="font-bold text-[#061826]">EsieeToutCommence</span>
         </div>
         <button
           type="button"

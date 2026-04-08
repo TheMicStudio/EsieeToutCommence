@@ -1,7 +1,7 @@
 import { GraduationCap } from 'lucide-react';
 import { RegisterForm } from '@/modules/auth/components/RegisterForm';
 
-export const metadata = { title: 'Inscription — Hub École' };
+export const metadata = { title: 'Inscription — EsieeToutCommence' };
 
 export default function RegisterPage() {
   return (
@@ -12,7 +12,7 @@ export default function RegisterPage() {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary shadow-lg">
             <GraduationCap className="h-8 w-8 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Hub École</h1>
+          <h1 className="text-3xl font-bold tracking-tight">EsieeToutCommence</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Créez votre compte en quelques étapes
           </p>

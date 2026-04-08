@@ -16,7 +16,7 @@ import { ConfigPanel } from './ConfigPanel';
 import { CareerPanel } from './CareerPanel';
 import { AdminTabs } from './AdminTabs';
 
-export const metadata = { title: 'Administration — Hub École' };
+export const metadata = { title: 'Administration — EsieeToutCommence' };
 
 export default async function AdminPage({
   searchParams,

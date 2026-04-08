@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { CreatePostForm } from '@/modules/news/components/CreatePostForm';
 
-export const metadata = { title: 'Nouvelle publication — Hub École' };
+export const metadata = { title: 'Nouvelle publication — EsieeToutCommence' };
 
 export default async function NouvellePublicationPage() {
   const profile = await getCurrentUserProfile();

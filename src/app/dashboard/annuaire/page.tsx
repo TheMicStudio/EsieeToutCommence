@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { AnnuaireGrid } from '@/modules/auth/components/AnnuaireGrid';
 import type { StudentProfile, TeacherProfile } from '@/modules/auth/types';
 
-export const metadata = { title: 'Annuaire — Hub École' };
+export const metadata = { title: 'Annuaire — EsieeToutCommence' };
 
 export default async function AnnuairePage() {
   const supabase = await createClient();

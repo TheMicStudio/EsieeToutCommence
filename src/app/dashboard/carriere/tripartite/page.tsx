@@ -4,7 +4,7 @@ import { getMyTripartiteChat, getTripartiteMessages } from '@/modules/career/act
 import { TripartiteChat } from '@/modules/career/components/TripartiteChat';
 import { createClient } from '@/lib/supabase/server';
 
-export const metadata = { title: 'Espace tripartite — Hub École' };
+export const metadata = { title: 'Espace tripartite — EsieeToutCommence' };
 
 export default async function TripartitePage() {
   const userProfile = await getCurrentUserProfile();
