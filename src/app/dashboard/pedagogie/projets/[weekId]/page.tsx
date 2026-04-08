@@ -1,10 +1,8 @@
 import { redirect, notFound } from 'next/navigation';
-import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import {
   getGroups, getSoutenanceSlots, getWeekCourseMaterials,
-  getRetroBoard, getRetroPostits, getGroupMessages, getGroupWhiteboard,
+  getRetroBoard, getRetroPostits,
 } from '@/modules/projects/actions';
 import { WeekDashboard } from '@/modules/projects/components/WeekDashboard';
 import { createClient } from '@/lib/supabase/server';
@@ -42,35 +40,19 @@ export default async function WeekPage({ params }: WeekPageProps) {
   const retroBoard = await getRetroBoard(weekId);
   const retroPostits = retroBoard ? await getRetroPostits(retroBoard.id) : [];
 
-  const [messages, whiteboard] = myGroup
-    ? await Promise.all([getGroupMessages(myGroup.id), getGroupWhiteboard(myGroup.id)])
-    : [[], null];
-
   return (
-    <div className="space-y-6">
-      <Link
-        href="/dashboard/pedagogie/projets"
-        className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors"
-      >
-        <ChevronLeft className="h-3.5 w-3.5" />
-        Retour aux semaines
-      </Link>
-
-      <WeekDashboard
-        weekId={weekId}
-        week={week}
-        groups={groups}
-        myGroup={myGroup}
-        messages={messages}
-        whiteboard={whiteboard}
-        materials={materials}
-        slots={slots}
-        retroBoard={retroBoard}
-        retroPostits={retroPostits}
-        currentUserId={currentUserId}
-        currentUserName={currentUserName}
-        isProf={isProf}
-      />
-    </div>
+    <WeekDashboard
+      weekId={weekId}
+      week={week}
+      groups={groups}
+      myGroup={myGroup}
+      materials={materials}
+      slots={slots}
+      retroBoard={retroBoard}
+      retroPostits={retroPostits}
+      currentUserId={currentUserId}
+      currentUserName={currentUserName}
+      isProf={isProf}
+    />
   );
 }

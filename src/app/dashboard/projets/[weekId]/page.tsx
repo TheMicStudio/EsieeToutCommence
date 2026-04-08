@@ -2,7 +2,7 @@ import { redirect, notFound } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import {
   getGroups, getSoutenanceSlots, getWeekCourseMaterials,
-  getRetroBoard, getRetroPostits, getGroupMessages, getGroupWhiteboard,
+  getRetroBoard, getRetroPostits,
 } from '@/modules/projects/actions';
 import { WeekDashboard } from '@/modules/projects/components/WeekDashboard';
 import { createClient } from '@/lib/supabase/server';
@@ -27,29 +27,18 @@ export default async function WeekPage({ params }: WeekPageProps) {
     .from('project_weeks').select().eq('id', weekId).single();
   if (!week) notFound();
 
-  // Données de base en parallèle
   const [groups, materials, slots] = await Promise.all([
     getGroups(weekId),
     getWeekCourseMaterials(weekId),
     getSoutenanceSlots(weekId),
   ]);
 
-  // Groupe de l'utilisateur courant
   const myGroup = !isProf
     ? (groups.find((g) => g.members?.some((m) => m.student_id === currentUserId)) ?? null)
     : null;
 
-  // Rétro board
   const retroBoard = await getRetroBoard(weekId);
   const retroPostits = retroBoard ? await getRetroPostits(retroBoard.id) : [];
-
-  // Workspace du groupe (si membre)
-  const [messages, whiteboard] = myGroup
-    ? await Promise.all([
-        getGroupMessages(myGroup.id),
-        getGroupWhiteboard(myGroup.id),
-      ])
-    : [[], null];
 
   return (
     <WeekDashboard
@@ -57,8 +46,6 @@ export default async function WeekPage({ params }: WeekPageProps) {
       week={week}
       groups={groups}
       myGroup={myGroup}
-      messages={messages}
-      whiteboard={whiteboard}
       materials={materials}
       slots={slots}
       retroBoard={retroBoard}
