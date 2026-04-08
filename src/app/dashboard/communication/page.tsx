@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import { requirePermission } from '@/lib/permissions';
+import { requirePermission, getRequestPermissions } from '@/lib/permissions';
 import { getStaffChannels } from '@/modules/communication/actions';
 import { CreateChannelForm } from '@/modules/communication/components/CreateChannelForm';
 
@@ -9,12 +9,13 @@ export default async function CommunicationPage() {
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
 
+  const perms = await getRequestPermissions();
+  const canManageChannels = perms.has('staff_channel.manage');
+
   const channels = await getStaffChannels();
   if (channels.length > 0) {
     redirect(`/dashboard/communication/${channels[0].id}`);
   }
-
-  const isAdmin = profile.role === 'admin';
 
   return (
     <div className="space-y-6">
@@ -29,12 +30,12 @@ export default async function CommunicationPage() {
         <div className="text-center">
           <p className="font-semibold text-slate-700">Aucun canal de communication</p>
           <p className="mt-1 text-sm text-slate-500">
-            {isAdmin
+            {canManageChannels
               ? "Créez le premier canal pour commencer à échanger avec l'équipe."
               : 'Aucun canal disponible pour le moment. Contactez l\'administration.'}
           </p>
         </div>
-        {isAdmin && (
+        {canManageChannels && (
           <div className="w-full max-w-sm px-6">
             <CreateChannelForm />
           </div>

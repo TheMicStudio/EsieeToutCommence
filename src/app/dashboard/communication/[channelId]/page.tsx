@@ -1,7 +1,7 @@
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import { requirePermission } from '@/lib/permissions';
+import { requirePermission, getRequestPermissions } from '@/lib/permissions';
 import { getStaffChannels, getChannelMessages, getStaffDirectory } from '@/modules/communication/actions';
 import { StaffMessageThread } from '@/modules/communication/components/StaffMessageThread';
 import { CreateChannelForm } from '@/modules/communication/components/CreateChannelForm';
@@ -35,7 +35,8 @@ export default async function ChannelPage({ params }: ChannelPageProps) {
     authorNames[contact.id] = `${contact.prenom} ${contact.nom}`;
   }
 
-  const isAdmin = profile.role === 'admin';
+  const perms = await getRequestPermissions();
+  const canManageChannels = perms.has('staff_channel.manage');
 
   return (
     <div
@@ -63,7 +64,7 @@ export default async function ChannelPage({ params }: ChannelPageProps) {
             </Link>
           ))}
         </nav>
-        {isAdmin && (
+        {canManageChannels && (
           <div className="border-t border-slate-100 p-3">
             <CreateChannelForm />
           </div>

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, Briefcase, Plus } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import { requirePermission } from '@/lib/permissions';
+import { requirePermission, getRequestPermissions } from '@/lib/permissions';
 import { getJobOffers } from '@/modules/career/actions';
 import { JobBoard } from '@/modules/career/components/JobBoard';
 import { PublishJobForm } from '@/modules/career/components/PublishJobForm';
@@ -10,11 +10,12 @@ export const metadata = { title: 'Job Board — EsieeToutCommence' };
 
 export default async function JobBoardPage() {
   await requirePermission('job.read');
+  const perms = await getRequestPermissions();
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) return null;
 
   const offers = await getJobOffers();
-  const isAdmin = userProfile.role === 'admin';
+  const canManage = perms.has('job.manage');
 
   return (
     <div className="space-y-6">
@@ -43,7 +44,7 @@ export default async function JobBoardPage() {
         </div>
       </div>
 
-      {isAdmin && (
+      {canManage && (
         <div className="rounded-3xl border border-slate-200/70 bg-white shadow-card px-6 py-5">
           <div className="flex items-center gap-2 mb-4">
             <Plus className="h-4 w-4 text-[#0471a6]" />
