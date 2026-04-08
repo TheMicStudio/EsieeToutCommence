@@ -9,10 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const QUICK_ACCOUNTS = [
-  { label: 'Élève',      email: 'etudiant@esiee-tout-commence.dev',  color: 'bg-[#89aae6]/15 text-[#3685b5] hover:bg-[#89aae6]/30 border-[#89aae6]/30' },
-  { label: 'Prof',       email: 'prof@esiee-tout-commence.dev',       color: 'bg-[#ac80a0]/15 text-[#ac80a0] hover:bg-[#ac80a0]/25 border-[#ac80a0]/30' },
-  { label: 'Admin',      email: 'admin@esiee-tout-commence.dev',      color: 'bg-[#0471a6]/10 text-[#0471a6] hover:bg-[#0471a6]/20 border-[#0471a6]/30' },
-  { label: 'Entreprise', email: 'entreprise@esiee-tout-commence.dev', color: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200' },
+  { label: 'Élève',      email: 'etudiant@hub-ecole.dev',  color: 'bg-[#89aae6]/15 text-[#3685b5] hover:bg-[#89aae6]/30 border-[#89aae6]/30' },
+  { label: 'Prof',       email: 'prof@hub-ecole.dev',       color: 'bg-[#ac80a0]/15 text-[#ac80a0] hover:bg-[#ac80a0]/25 border-[#ac80a0]/30' },
+  { label: 'Admin',      email: 'admin@hub-ecole.dev',      color: 'bg-[#0471a6]/10 text-[#0471a6] hover:bg-[#0471a6]/20 border-[#0471a6]/30' },
+  { label: 'Entreprise', email: 'entreprise@hub-ecole.dev', color: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200' },
 ];
 
 export function LoginForm() {
