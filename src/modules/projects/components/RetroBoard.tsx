@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import { toggleRetroBoard } from '../actions';
 import { RetroBoardColumn } from './RetroBoardColumn';
@@ -24,31 +25,26 @@ export function RetroBoard({ board, initialPostits, currentUserId, currentUserNa
   const [isOpen, setIsOpen] = useState(board.is_open);
   const [toggling, setToggling] = useState(false);
   const supabase = useMemo(() => createClient(), []);
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
     const channel = supabase
       .channel(`retro-${board.id}`)
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'retro_postits',
-        filter: `board_id=eq.${board.id}`,
-      }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          const p = payload.new as RetroPostit;
-          // Ignorer ses propres posts (déjà ajoutés par l'update optimiste)
-          if (p.author_id === currentUserId) return;
-          setPostits((prev) => {
-            if (prev.some((x) => x.id === p.id)) return prev;
-            return [...prev, { ...p, author_name: p.is_anonymous ? 'Anonyme' : 'Nouveau' }];
-          });
-        } else if (payload.eventType === 'DELETE') {
-          setPostits((prev) => prev.filter((p) => p.id !== payload.old.id));
-        } else if (payload.eventType === 'UPDATE') {
-          setPostits((prev) => prev.map((p) => p.id === payload.new.id ? { ...p, ...payload.new } : p));
-        }
+      .on('broadcast', { event: 'postit-added' }, ({ payload }) => {
+        const p = payload as RetroPostit;
+        setPostits((prev) => {
+          // Dédoublonnage par ID (le sender a déjà ajouté via handleAdd)
+          if (prev.some((x) => x.id === p.id)) return prev;
+          return [...prev, p];
+        });
+      })
+      .on('broadcast', { event: 'postit-deleted' }, ({ payload }) => {
+        const { id } = payload as { id: string };
+        setPostits((prev) => prev.filter((p) => p.id !== id));
       })
       .subscribe();
+
+    channelRef.current = channel;
     return () => { supabase.removeChannel(channel); };
   }, [board.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -60,8 +56,26 @@ export function RetroBoard({ board, initialPostits, currentUserId, currentUserNa
     setToggling(false);
   }
 
+  function handleAdd(postit: RetroPostit) {
+    // Mise à jour optimiste locale
+    setPostits((prev) => [...prev, postit]);
+    // Broadcast aux autres utilisateurs
+    channelRef.current?.send({
+      type: 'broadcast',
+      event: 'postit-added',
+      payload: postit,
+    });
+  }
+
   function handleDelete(id: string) {
+    // Suppression locale immédiate
     setPostits((prev) => prev.filter((p) => p.id !== id));
+    // Broadcast aux autres utilisateurs
+    channelRef.current?.send({
+      type: 'broadcast',
+      event: 'postit-deleted',
+      payload: { id },
+    });
   }
 
   return (
@@ -108,7 +122,7 @@ export function RetroBoard({ board, initialPostits, currentUserId, currentUserNa
         isOpen={isOpen}
         authorName={currentUserName}
         currentUserId={currentUserId}
-        onAdd={(p) => setPostits((prev) => [...prev, p as RetroPostit])}
+        onAdd={handleAdd}
       />
 
       {isProf && (
