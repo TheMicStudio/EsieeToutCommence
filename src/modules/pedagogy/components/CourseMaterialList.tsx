@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { ExternalLink, FileText, Trash2, Video } from 'lucide-react';
 import { deleteCourseMaterial } from '../actions';
@@ -28,7 +28,7 @@ interface CourseMaterialListProps {
 export function CourseMaterialList({ materials: initialMaterials, classId, canDelete = false }: CourseMaterialListProps) {
   const [materials, setMaterials] = useState<CourseMaterial[]>(initialMaterials);
   const [isPending, startTransition] = useTransition();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   // Synchroniser si les props changent (changement de classe côté prof)
   useEffect(() => {
