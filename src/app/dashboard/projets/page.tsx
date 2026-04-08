@@ -1,14 +1,15 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import { requirePermission } from '@/lib/permissions';
+import { requirePermission, getRequestPermissions } from '@/lib/permissions';
 import { getProjectWeeks, getGroups } from '@/modules/projects/actions';
 import { ProjectWeekCard } from '@/modules/projects/components/ProjectWeekCard';
+import { NewWeekModal } from '@/modules/projects/components/NewWeekModal';
 import { createClient } from '@/lib/supabase/server';
-import { CalendarPlus } from 'lucide-react';
 
 export default async function ProjetsPage() {
   await requirePermission('project_week.read');
+  const perms = await getRequestPermissions();
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
 
@@ -20,7 +21,8 @@ export default async function ProjetsPage() {
     const { data } = await supabase.from('class_members').select('class_id').eq('student_id', user?.id ?? '').eq('is_current', true).maybeSingle();
     classId = data?.class_id ?? '';
   } else {
-    const { data } = await supabase.from('teacher_classes').select('class_id').eq('teacher_id', user?.id ?? '').maybeSingle();
+    // maybeSingle() échoue si le prof a plusieurs matières → on prend le premier résultat
+    const { data } = await supabase.from('teacher_classes').select('class_id').eq('teacher_id', user?.id ?? '').limit(1).maybeSingle();
     classId = data?.class_id ?? '';
   }
 
@@ -41,14 +43,8 @@ export default async function ProjetsPage() {
           <h1 className="text-2xl font-bold text-[#061826]">Projets</h1>
           <p className="text-sm text-slate-500">Semaines projets de votre classe</p>
         </div>
-        {profile.role === 'professeur' && classId && (
-          <Link
-            href="/dashboard/projets/nouveau"
-            className="inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 transition-all"
-          >
-            <CalendarPlus className="h-4 w-4" />
-            Créer une semaine
-          </Link>
+        {perms.has('project_week.manage') && classId && (
+          <NewWeekModal classId={classId} />
         )}
       </div>
 
