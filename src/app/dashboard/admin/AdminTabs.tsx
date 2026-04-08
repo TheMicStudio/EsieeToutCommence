@@ -1,18 +1,26 @@
 import Link from 'next/link';
-import { GraduationCap, Users, Briefcase, Settings2, Building2 } from 'lucide-react';
+import { GraduationCap, Users, Briefcase, Settings2, Building2, ShieldCheck } from 'lucide-react';
 
-const TABS = [
-  { id: 'classes', label: 'Classes', icon: GraduationCap },
-  { id: 'users', label: 'Utilisateurs', icon: Users },
-  { id: 'alternance', label: 'Alternance', icon: Briefcase },
-  { id: 'career', label: 'Carrière', icon: Building2 },
-  { id: 'config', label: 'Configuration', icon: Settings2 },
+const ALL_TABS = [
+  { id: 'classes',     label: 'Classes',        icon: GraduationCap, permission: 'class.manage' },
+  { id: 'users',       label: 'Utilisateurs',   icon: Users,         permission: 'user.manage' },
+  { id: 'alternance',  label: 'Alternance',     icon: Briefcase,     permission: 'alternance.validate' },
+  { id: 'career',      label: 'Carrière',       icon: Building2,     permission: 'career_event.manage' },
+  { id: 'config',      label: 'Configuration',  icon: Settings2,     permission: 'permission.manage' },
+  { id: 'permissions', label: 'Permissions',    icon: ShieldCheck,   permission: 'permission.manage' },
 ] as const;
 
-export function AdminTabs({ activeTab }: { activeTab: string }) {
+interface AdminTabsProps {
+  activeTab: string;
+  visibleTabs: ReadonlyArray<typeof ALL_TABS[number]['id']>;
+}
+
+export function AdminTabs({ activeTab, visibleTabs }: AdminTabsProps) {
+  const tabs = ALL_TABS.filter((t) => visibleTabs.includes(t.id));
+
   return (
     <div className="flex gap-1 rounded-2xl border border-slate-200/60 bg-slate-50/80 p-1 overflow-x-auto">
-      {TABS.map((tab) => {
+      {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;
         return (
