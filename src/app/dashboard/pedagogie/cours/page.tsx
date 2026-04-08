@@ -7,7 +7,7 @@ import {
 import { CourseMaterialList } from '@/modules/pedagogy/components/CourseMaterialList';
 import { AddCourseMaterialForm } from '@/modules/pedagogy/components/AddCourseMaterialForm';
 import { ClassSelector } from '@/modules/pedagogy/components/ClassSelector';
-import { createClient } from '@/lib/supabase/server';
+import { getSubjects } from '@/modules/admin/config-actions';
 
 export const metadata = { title: 'Supports de cours — Hub École' };
 
@@ -37,15 +37,11 @@ export default async function CoursPage({
     }
 
     const activeClass = teacherClasses.find((c) => c.id === classeParam) ?? teacherClasses[0];
-    const materials = await getCourseMaterials(activeClass.id);
-
-    const supabase = await createClient();
-    const { data: tc } = await supabase
-      .from('teacher_classes')
-      .select('matiere')
-      .eq('class_id', activeClass.id)
-      .eq('teacher_id', userProfile.profile.id);
-    const matieres = (tc ?? []).map((t) => t.matiere as string);
+    const [materials, subjects] = await Promise.all([
+      getCourseMaterials(activeClass.id),
+      getSubjects(),
+    ]);
+    const matieres = subjects.map((s) => s.nom);
 
     return (
       <div className="space-y-6">

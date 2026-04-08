@@ -14,8 +14,8 @@ import { AverageWidget } from '@/modules/pedagogy/components/AverageWidget';
 import { GradeBook } from '@/modules/pedagogy/components/GradeBook';
 import { BulkGradeForm } from '@/modules/pedagogy/components/BulkGradeForm';
 import { GradeTableView } from '@/modules/pedagogy/components/GradeTableView';
-import { createAdminClient } from '@/lib/supabase/admin';
 import { getProjectWeeks, getGroups } from '@/modules/projects/actions';
+import { getSubjects } from '@/modules/admin/config-actions';
 
 export const metadata = { title: 'Notes — Hub École' };
 
@@ -68,15 +68,14 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
   const activeClass = teacherClasses.find((c) => c.id === classeParam) ?? teacherClasses[0];
 
   // Données en parallèle
-  const admin = createAdminClient();
-  const [students, grades, tcData, projectWeeksList] = await Promise.all([
+  const [students, grades, subjectsData, projectWeeksList] = await Promise.all([
     getClassStudents(activeClass.id),
     getClassGrades(activeClass.id),
-    admin.from('teacher_classes').select('matiere').eq('class_id', activeClass.id).eq('teacher_id', userProfile.profile.id),
+    getSubjects(),
     getProjectWeeks(activeClass.id),
   ]);
 
-  const matieres = (tcData.data ?? []).map((t) => t.matiere as string);
+  const matieres = subjectsData.map((s) => s.nom);
 
   // Charger les groupes de chaque semaine projet
   const projectWeeks = await Promise.all(
