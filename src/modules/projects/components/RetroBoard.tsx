@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toggleRetroBoard } from '../actions';
 import { RetroBoardColumn } from './RetroBoardColumn';
@@ -23,7 +23,7 @@ export function RetroBoard({ board, initialPostits, currentUserId, currentUserNa
   const [postits, setPostits] = useState<RetroPostit[]>(initialPostits);
   const [isOpen, setIsOpen] = useState(board.is_open);
   const [toggling, setToggling] = useState(false);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     const channel = supabase
@@ -50,7 +50,7 @@ export function RetroBoard({ board, initialPostits, currentUserId, currentUserNa
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [board.id, supabase]);
+  }, [board.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleToggle() {
     setToggling(true);
