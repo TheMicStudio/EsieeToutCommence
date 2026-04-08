@@ -8,10 +8,10 @@ import type { CareerEvent } from '../types';
 interface EventCardProps {
   event: CareerEvent;
   isRegistered: boolean;
-  isEleve: boolean;
+  canParticipate: boolean;
 }
 
-export function EventCard({ event, isRegistered, isEleve }: EventCardProps) {
+export function EventCard({ event, isRegistered, canParticipate }: EventCardProps) {
   const router = useRouter();
   const dateDebut = new Date(event.date_debut);
   const isPast = dateDebut < new Date();
@@ -58,7 +58,7 @@ export function EventCard({ event, isRegistered, isEleve }: EventCardProps) {
         <p className="mt-3 flex-1 line-clamp-2 text-sm text-slate-500 leading-relaxed">{event.description}</p>
       )}
 
-      {isEleve && !isPast && (
+      {canParticipate && !isPast && (
         <div className="mt-4 pt-4 border-t border-slate-100">
           <button
             type="button"

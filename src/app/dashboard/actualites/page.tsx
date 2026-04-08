@@ -34,7 +34,7 @@ export default async function ActualitesPage({ searchParams }: ActualitesPagePro
     : allPosts;
 
   const canCreate = perms.has('news.write');
-  const isAdmin = profile.role === 'admin';
+  const isAdmin = perms.has('news.moderate');
 
   return (
     <div className="space-y-6">

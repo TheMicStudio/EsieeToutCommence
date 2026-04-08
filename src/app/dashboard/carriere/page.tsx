@@ -16,7 +16,7 @@ export default async function CarrierePage() {
 
   const isEleve = userProfile.role === 'eleve';
   const isAlternant = isEleve && userProfile.profile.type_parcours === 'alternant';
-  const isAdmin = userProfile.role === 'admin';
+  const isAdmin = perms.has('job.manage');
   const isEntreprise = userProfile.role === 'entreprise';
 
   type CarriereItem = { href: string; label: string; icon: typeof Briefcase; description: string; gradient: string; iconBg: string };

@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import { requirePermission } from '@/lib/permissions';
+import { requirePermission, getRequestPermissions } from '@/lib/permissions';
 import { CreatePostForm } from '@/modules/news/components/CreatePostForm';
 
 export const metadata = { title: 'Nouvelle publication — EsieeToutCommence' };
 
 export default async function NouvellePublicationPage() {
   await requirePermission('news.write');
+  const perms = await getRequestPermissions();
   const profile = await getCurrentUserProfile();
   if (!profile) redirect('/login');
 
@@ -18,7 +19,7 @@ export default async function NouvellePublicationPage() {
       </div>
 
       <div className="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-        <CreatePostForm isAdmin={profile.role === 'admin'} />
+        <CreatePostForm isAdmin={perms.has('news.moderate')} />
       </div>
     </div>
   );

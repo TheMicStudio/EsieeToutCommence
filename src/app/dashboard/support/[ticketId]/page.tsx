@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import { requirePermission } from '@/lib/permissions';
+import { requirePermission, getRequestPermissions } from '@/lib/permissions';
 import { getTicketById, getTicketMessages } from '@/modules/support/actions';
 import { getStaffDirectory } from '@/modules/communication/actions';
 import { TicketThread } from '@/modules/support/components/TicketThread';
@@ -10,24 +10,24 @@ interface TicketPageProps {
   params: Promise<{ ticketId: string }>;
 }
 
-export default async function TicketPage({
-  await requirePermission('support.use'); params }: TicketPageProps) {
+export default async function TicketPage({ params }: TicketPageProps) {
+  await requirePermission('support.use');
+  const perms = await getRequestPermissions();
   const { ticketId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-  
 
   const ticket = await getTicketById(ticketId);
   if (!ticket) notFound();
 
-  const isAdmin = profile.role === 'admin';
+  const canManage = perms.has('support.manage');
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const currentUserId = user?.id ?? '';
 
   const isOwner = ticket.auteur_id === currentUserId;
-  if (!isAdmin && !isOwner) redirect('/dashboard/support');
+  if (!canManage && !isOwner) redirect('/dashboard/support');
 
   const [messages, directory] = await Promise.all([
     getTicketMessages(ticketId),
@@ -46,7 +46,7 @@ export default async function TicketPage({
         messages={messages}
         authorNames={authorNames}
         currentUserId={currentUserId}
-        isAdmin={isAdmin}
+        isAdmin={canManage}
       />
     </div>
   );

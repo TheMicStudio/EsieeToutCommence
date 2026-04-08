@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import { requirePermission } from '@/lib/permissions';
+import { requirePermission, getRequestPermissions } from '@/lib/permissions';
 import { getCareerEvents, getMyEventRegistrations } from '@/modules/career/actions';
 import { EventCard } from '@/modules/career/components/EventCard';
 
@@ -9,13 +9,14 @@ export const metadata = { title: 'Événements — EsieeToutCommence' };
 
 export default async function EvenementsPage() {
   await requirePermission('career_event.read');
+  const perms = await getRequestPermissions();
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) return null;
 
-  const isEleve = userProfile.role === 'eleve';
+  const canParticipate = perms.has('career_event.participate');
   const [events, registrations] = await Promise.all([
     getCareerEvents(),
-    isEleve ? getMyEventRegistrations() : Promise.resolve([]),
+    canParticipate ? getMyEventRegistrations() : Promise.resolve([]),
   ]);
 
   const upcoming = events.filter((e) => new Date(e.date_debut) >= new Date());
@@ -66,7 +67,7 @@ export default async function EvenementsPage() {
                 key={event.id}
                 event={event}
                 isRegistered={registrations.includes(event.id)}
-                isEleve={isEleve}
+                canParticipate={canParticipate}
               />
             ))}
           </div>
@@ -82,7 +83,7 @@ export default async function EvenementsPage() {
                 key={event.id}
                 event={event}
                 isRegistered={registrations.includes(event.id)}
-                isEleve={isEleve}
+                canParticipate={canParticipate}
               />
             ))}
           </div>
