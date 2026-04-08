@@ -1,9 +1,10 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Bell, ChevronDown, ChevronRight, MessageSquare, Search, Settings } from 'lucide-react';
+import { Bell, ChevronDown, ChevronRight, MessageSquare, Settings } from 'lucide-react';
 import type { UserProfile } from '@/modules/auth/types';
 import Link from 'next/link';
+import { SearchBar } from './SearchBar';
 
 const PAGE_NAMES: Record<string, string> = {
   '/dashboard': 'Accueil',
@@ -52,17 +53,7 @@ export function TopNavbar({ userProfile }: TopNavbarProps) {
       </div>
 
       {/* Search */}
-      <div className="flex flex-1 items-center gap-2 rounded-full bg-slate-100 px-4 py-2 mx-2">
-        <Search className="h-4 w-4 shrink-0 text-slate-400" />
-        <input
-          type="text"
-          placeholder="Rechercher des cours, documents, personnes…"
-          className="flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
-        />
-        <kbd className="hidden sm:flex items-center rounded-md bg-white px-2 py-0.5 text-[11px] font-medium text-slate-400 border border-slate-200 shadow-xs">
-          ⌘K
-        </kbd>
-      </div>
+      <SearchBar />
 
       {/* Actions */}
       <div className="flex shrink-0 items-center gap-1">
