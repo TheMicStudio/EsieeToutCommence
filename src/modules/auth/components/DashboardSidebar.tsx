@@ -57,7 +57,6 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
         items: [
           { href: '/dashboard/pedagogie', label: 'Mes cours', icon: BookOpen },
           { href: '/dashboard/pedagogie/notes', label: 'Mes notes', icon: ClipboardList },
-          { href: '/dashboard/pedagogie/chat', label: 'Chat classe', icon: MessageSquare },
           { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban },
           { href: '/dashboard/emargement', label: 'Émargement', icon: QrCode },
         ],

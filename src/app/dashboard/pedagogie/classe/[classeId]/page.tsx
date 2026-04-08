@@ -1,13 +1,11 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowLeft, BookOpen, FolderKanban, GraduationCap, History, MessageSquare, QrCode, Star } from 'lucide-react';
+import { ArrowLeft, FolderKanban, GraduationCap, History, QrCode, Star } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getMyAllClasses, getMyTeacherClasses } from '@/modules/pedagogy/actions';
 
 const MODULE_ITEMS = [
-  { key: 'cours',       label: 'Supports de cours',  description: 'Ressources et documents pédagogiques',     icon: BookOpen,     gradient: 'from-[#89aae6]/10 to-[#3685b5]/5', iconBg: 'bg-[#89aae6]/20 text-[#3685b5]',  profOnly: false },
   { key: 'notes',       label: 'Notes & moyennes',    description: 'Résultats et progression des élèves',      icon: Star,         gradient: 'from-amber-50 to-amber-50/30',      iconBg: 'bg-amber-100 text-amber-500',      profOnly: false },
-  { key: 'chat',        label: 'Chat de classe',      description: 'Échanges avec la classe',                  icon: MessageSquare,gradient: 'from-[#ac80a0]/10 to-[#ac80a0]/5',  iconBg: 'bg-[#ac80a0]/20 text-[#ac80a0]',  profOnly: false },
   { key: 'projets',     label: 'Semaines projets',    description: 'Semaines projets et groupes',              icon: FolderKanban, gradient: 'from-emerald-50 to-emerald-50/30',   iconBg: 'bg-emerald-100 text-emerald-600',  profOnly: false },
   { key: 'emargement',  label: 'Émargement',          description: 'Lancer et gérer les appels de présence',  icon: QrCode,       gradient: 'from-violet-50 to-violet-50/30',    iconBg: 'bg-violet-100 text-violet-600',    profOnly: true  },
 ];
