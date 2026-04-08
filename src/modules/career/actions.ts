@@ -99,6 +99,56 @@ export async function publishCareerEvent(
   return { success: true };
 }
 
+export async function getAllJobOffers(): Promise<JobOffer[]> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'admin') return [];
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('job_offers')
+    .select('*')
+    .order('created_at', { ascending: false });
+  return (data as JobOffer[]) ?? [];
+}
+
+export async function deleteJobOffer(offerId: string): Promise<ActionState> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from('job_offers').delete().eq('id', offerId);
+  if (error) return { error: 'Erreur lors de la suppression.' };
+
+  const { revalidatePath } = await import('next/cache');
+  revalidatePath('/dashboard/admin');
+  return { success: true };
+}
+
+export async function getAllCareerEvents(): Promise<CareerEvent[]> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'admin') return [];
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('career_events')
+    .select('*')
+    .order('date_debut', { ascending: true });
+  return (data as CareerEvent[]) ?? [];
+}
+
+export async function deleteCareerEvent(eventId: string): Promise<ActionState> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from('career_events').delete().eq('id', eventId);
+  if (error) return { error: 'Erreur lors de la suppression.' };
+
+  const { revalidatePath } = await import('next/cache');
+  revalidatePath('/dashboard/admin');
+  return { success: true };
+}
+
 export async function registerToEvent(eventId: string): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
   if (!userProfile || userProfile.role !== 'eleve') return { error: 'Accès refusé.' };
