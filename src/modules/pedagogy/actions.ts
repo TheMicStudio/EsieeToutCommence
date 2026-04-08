@@ -272,6 +272,25 @@ export async function addBulkGrades(
   return { count: rows.length };
 }
 
+export async function updateGrade(
+  gradeId: string,
+  note: number
+): Promise<{ error?: string }> {
+  if (note < 0 || note > 20) return { error: 'Note invalide (0–20).' };
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'professeur') return { error: 'Accès refusé.' };
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('grades')
+    .update({ note })
+    .eq('id', gradeId)
+    .eq('teacher_id', userProfile.profile.id);
+  if (error) return { error: error.message };
+  const { revalidatePath } = await import('next/cache');
+  revalidatePath('/dashboard/pedagogie/notes');
+  return {};
+}
+
 export async function deleteGrade(gradeId: string): Promise<{ error?: string }> {
   const userProfile = await getCurrentUserProfile();
   if (!userProfile || userProfile.role !== 'professeur') return { error: 'Accès refusé.' };

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
-import { deleteGrade } from '../actions';
+import { useRef, useState } from 'react';
+import { Pencil, Trash2, X, Check } from 'lucide-react';
+import { deleteGrade, updateGrade } from '../actions';
 import type { Grade } from '../types';
 
 interface Student { id: string; nom: string; prenom: string }
@@ -27,12 +27,25 @@ function avg(notes: number[]) {
 export function GradeTableView({ grades, students, canDelete = false }: GradeTableViewProps) {
   const [localGrades, setLocalGrades] = useState(grades);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const editRef = useRef<HTMLInputElement>(null);
 
   async function handleDelete(gradeId: string) {
     setDeleting(gradeId);
     await deleteGrade(gradeId);
     setLocalGrades((prev) => prev.filter((g) => g.id !== gradeId));
     setDeleting(null);
+  }
+
+  async function handleSaveEdit(gradeId: string) {
+    const val = parseFloat(editRef.current?.value ?? '');
+    if (isNaN(val) || val < 0 || val > 20) return;
+    setSaving(true);
+    await updateGrade(gradeId, val);
+    setLocalGrades((prev) => prev.map((g) => g.id === gradeId ? { ...g, note: val } : g));
+    setSaving(false);
+    setEditing(null);
   }
 
   if (students.length === 0) {
@@ -124,21 +137,52 @@ export function GradeTableView({ grades, students, canDelete = false }: GradeTab
                           return (
                             <td key={e.examen} className="px-3 py-2 text-center">
                               {grade ? (
-                                <div className="relative inline-flex items-center gap-1 group/cell">
-                                  <span className={['rounded-lg px-2.5 py-1 text-sm font-bold', noteColor(grade.note)].join(' ')}>
-                                    {grade.note}
-                                  </span>
-                                  {canDelete && (
-                                    <button
-                                      type="button"
-                                      onClick={() => handleDelete(grade.id)}
-                                      disabled={deleting === grade.id}
-                                      className="absolute -right-5 opacity-0 group-hover/cell:opacity-100 flex h-5 w-5 items-center justify-center rounded text-slate-300 hover:text-red-400 transition-all disabled:opacity-50"
-                                    >
-                                      <Trash2 className="h-3 w-3" />
+                                editing === grade.id ? (
+                                  <div className="inline-flex items-center gap-1">
+                                    <input
+                                      ref={editRef}
+                                      type="number"
+                                      min={0}
+                                      max={20}
+                                      step={0.5}
+                                      defaultValue={grade.note}
+                                      className="w-16 rounded-lg border border-[#89aae6] bg-white px-2 py-1 text-center text-sm font-bold focus:outline-none"
+                                      onKeyDown={(e) => { if (e.key === 'Enter') handleSaveEdit(grade.id); if (e.key === 'Escape') setEditing(null); }}
+                                      autoFocus
+                                    />
+                                    <button type="button" onClick={() => handleSaveEdit(grade.id)} disabled={saving} className="flex h-5 w-5 items-center justify-center rounded text-emerald-500 hover:text-emerald-700 disabled:opacity-50">
+                                      <Check className="h-3 w-3" />
                                     </button>
-                                  )}
-                                </div>
+                                    <button type="button" onClick={() => setEditing(null)} className="flex h-5 w-5 items-center justify-center rounded text-slate-400 hover:text-slate-600">
+                                      <X className="h-3 w-3" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="relative inline-flex items-center gap-1 group/cell">
+                                    <span className={['rounded-lg px-2.5 py-1 text-sm font-bold cursor-default', noteColor(grade.note)].join(' ')}>
+                                      {grade.note}
+                                    </span>
+                                    {canDelete && (
+                                      <div className="absolute -right-9 opacity-0 group-hover/cell:opacity-100 flex items-center gap-0.5 transition-all">
+                                        <button
+                                          type="button"
+                                          onClick={() => setEditing(grade.id)}
+                                          className="flex h-5 w-5 items-center justify-center rounded text-slate-300 hover:text-[#0471a6]"
+                                        >
+                                          <Pencil className="h-3 w-3" />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleDelete(grade.id)}
+                                          disabled={deleting === grade.id}
+                                          className="flex h-5 w-5 items-center justify-center rounded text-slate-300 hover:text-red-400 disabled:opacity-50"
+                                        >
+                                          <Trash2 className="h-3 w-3" />
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                )
                               ) : (
                                 <span className="text-slate-200">—</span>
                               )}
