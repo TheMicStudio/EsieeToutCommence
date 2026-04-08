@@ -5,7 +5,7 @@
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
 **Dernière mise à jour :** 2026-04-08
-**Mis à jour par :** Claude (fix.md + redesign page login : layout 2 panneaux 50/50, panneau gauche card login centrée + trust card, panneau droit navy #0F172A + illustration SVG campus + glassmorphism card, inputs avec icônes mail/lock, bouton cyan #00A3E0, OAuth Microsoft+Google, police Outfit)
+**Mis à jour par :** Claude (redesign page notes élève : accordéons collapsibles par matière, badges note #0471a6, sidebar droite 280px avec Moyenne générale + progress bars par matière, fallback data si BDD vide)
 
 ---
 
@@ -88,7 +88,7 @@ _Aucun pour l'instant_
 - [ ] SQL exécuté (classes, course_materials, grades, channels, messages + fonctions RLS)
 - [ ] `src/modules/pedagogy/types/index.ts` créé
 - [ ] Actions pédagogie (cours, notes, chat)
-- [ ] Pages pédagogie
+- [x] Page notes — redesign vue élève : accordéons collapsibles, badges #0471a6, sidebar droite 280px (moyenne générale + progress bars)
 - [ ] Chat temps réel Supabase Realtime
 
 **Module Émargement**
