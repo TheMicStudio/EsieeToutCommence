@@ -269,7 +269,7 @@ export function WeekDashboard({
                         <JoinGroupButton groupId={group.id} weekId={weekId} isMember={isMember} isFull={isFull} />
                       )}
                       {isMember && !isProf && (
-                        <SubmitLinksForm groupId={group.id} initialRepo={group.repo_url} initialSlides={group.slides_url} />
+                        <SubmitLinksForm groupId={group.id} initialRepo={group.repo_url} initialSlides={group.slides_url} initialSlidesFileUrl={group.slides_file_url} initialSlidesFileName={group.slides_file_name} />
                       )}
                       {isProf && (
                         <GradeGroupForm groupId={group.id} initialNote={group.note} initialFeedback={group.feedback_prof} />

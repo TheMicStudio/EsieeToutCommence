@@ -22,6 +22,8 @@ export interface ProjectGroup {
   group_name: string;
   repo_url?: string;
   slides_url?: string;
+  slides_file_url?: string;
+  slides_file_name?: string;
   capacite_max: number;
   note?: number;
   feedback_prof?: string;

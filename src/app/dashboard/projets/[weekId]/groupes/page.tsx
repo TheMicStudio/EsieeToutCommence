@@ -143,7 +143,7 @@ export default async function GroupesPage({ params }: GroupesPageProps) {
                   Ouvrir mon espace →
                 </Link>
                 <JoinGroupButton groupId={myGroup.id} weekId={weekId} isMember={true} isFull={false} />
-                <SubmitLinksForm groupId={myGroup.id} initialRepo={myGroup.repo_url} initialSlides={myGroup.slides_url} />
+                <SubmitLinksForm groupId={myGroup.id} initialRepo={myGroup.repo_url} initialSlides={myGroup.slides_url} initialSlidesFileUrl={myGroup.slides_file_url} initialSlidesFileName={myGroup.slides_file_name} />
               </div>
             </div>
           </div>

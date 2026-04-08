@@ -118,6 +118,8 @@ export function GroupCard({ group, weekId, currentUserId, isProf }: GroupCardPro
               groupId={group.id}
               initialRepo={group.repo_url}
               initialSlides={group.slides_url}
+              initialSlidesFileUrl={group.slides_file_url}
+              initialSlidesFileName={group.slides_file_name}
             />
           )}
           {isProf && (
