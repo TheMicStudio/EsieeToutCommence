@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS public.doc_share_links (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   file_id     UUID REFERENCES public.doc_files(id) ON DELETE CASCADE,
   folder_id   UUID REFERENCES public.doc_folders(id) ON DELETE CASCADE,
-  token       TEXT UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(24), 'base64url'),
+  token       TEXT UNIQUE NOT NULL,  -- généré côté serveur (Node.js crypto.randomBytes)
   label       TEXT,
   expires_at  TIMESTAMPTZ,
   max_uses    INT,

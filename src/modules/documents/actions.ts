@@ -1,5 +1,6 @@
 'use server';
 
+import { randomBytes } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
@@ -375,10 +376,13 @@ export async function createShareLink(
 
   if (!fileId && !folderId) return { error: 'Cible manquante.' };
 
+  const token = randomBytes(24).toString('hex');
+
   const admin = createAdminClient();
   const { error } = await admin.from('doc_share_links').insert({
     file_id: fileId,
     folder_id: folderId,
+    token,
     label,
     expires_at: expiresAt ? new Date(expiresAt).toISOString() : null,
     max_uses: maxUses,
