@@ -65,23 +65,23 @@ INSERT INTO public.user_roles (id, role) VALUES
   ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'entreprise');
 
 -- ─── Profils ─────────────────────────────────────────────────
-INSERT INTO public.student_profiles (id, nom, prenom, type_parcours) VALUES
-  ('11111111-1111-1111-1111-111111111111', 'Martin',   'Lucas', 'alternant'),
-  ('77777777-7777-7777-7777-777777777777', 'Rousseau', 'Emma',  'temps_plein'),
-  ('88888888-8888-8888-8888-888888888888', 'Petit',    'Hugo',  'alternant');
+INSERT INTO public.student_profiles (id, nom, prenom, email, type_parcours, phone_mobile) VALUES
+  ('11111111-1111-1111-1111-111111111111', 'Martin',   'Lucas', 'etudiant@hub-ecole.dev',  'alternant',   '06 12 34 56 78'),
+  ('77777777-7777-7777-7777-777777777777', 'Rousseau', 'Emma',  'etudiant2@hub-ecole.dev', 'temps_plein', '06 23 45 67 89'),
+  ('88888888-8888-8888-8888-888888888888', 'Petit',    'Hugo',  'etudiant3@hub-ecole.dev', 'alternant',   '07 34 56 78 90');
 
-INSERT INTO public.teacher_profiles (id, nom, prenom, matieres_enseignees) VALUES
-  ('22222222-2222-2222-2222-222222222222', 'Bernard', 'Sophie',  ARRAY['Mathématiques', 'Algorithmique']),
-  ('99999999-9999-9999-9999-999999999999', 'Girard',  'Antoine', ARRAY['Développement web', 'Bases de données', 'Anglais technique']),
-  ('55555555-5555-5555-5555-555555555555', 'Moreau',  'Julien',  ARRAY['Gestion de projet', 'Pédagogie']);
+INSERT INTO public.teacher_profiles (id, nom, prenom, email, matieres_enseignees, phone_mobile, phone_fixed) VALUES
+  ('22222222-2222-2222-2222-222222222222', 'Bernard', 'Sophie',  'prof@hub-ecole.dev',         ARRAY['Mathématiques', 'Algorithmique'],                          '06 45 67 89 01', '01 23 45 67 89'),
+  ('99999999-9999-9999-9999-999999999999', 'Girard',  'Antoine', 'prof2@hub-ecole.dev',        ARRAY['Développement web', 'Bases de données', 'Anglais technique'],'06 56 78 90 12', '01 34 56 78 90'),
+  ('55555555-5555-5555-5555-555555555555', 'Moreau',  'Julien',  'coordinateur@hub-ecole.dev', ARRAY['Gestion de projet', 'Pédagogie'],                          '06 67 89 01 23', '01 45 67 89 01');
 
-INSERT INTO public.admin_profiles (id, nom, prenom, fonction) VALUES
-  ('33333333-3333-3333-3333-333333333333', 'Dupont',  'Marie',    'Directrice des études'),
-  ('66666666-6666-6666-6666-666666666666', 'Laurent', 'Isabelle', 'Secrétariat pédagogique');
+INSERT INTO public.admin_profiles (id, nom, prenom, email, fonction, phone_mobile, phone_fixed) VALUES
+  ('33333333-3333-3333-3333-333333333333', 'Dupont',  'Marie',    'admin@hub-ecole.dev', 'Directrice des études',       '06 78 90 12 34', '01 56 78 90 12'),
+  ('66666666-6666-6666-6666-666666666666', 'Laurent', 'Isabelle', 'staff@hub-ecole.dev', 'Secrétariat pédagogique',     '06 89 01 23 45', '01 67 89 01 23');
 
-INSERT INTO public.company_profiles (id, nom, prenom, entreprise, poste) VALUES
-  ('44444444-4444-4444-4444-444444444444', 'Leroy', 'Thomas',   'Acme Corp',   'Maître d''apprentissage'),
-  ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'Favre', 'Caroline', 'Nextech SAS', 'Responsable technique');
+INSERT INTO public.company_profiles (id, nom, prenom, email, entreprise, poste, phone_mobile, phone_fixed) VALUES
+  ('44444444-4444-4444-4444-444444444444', 'Leroy', 'Thomas',   'entreprise@hub-ecole.dev',  'Acme Corp',   'Maître d''apprentissage', '06 90 12 34 56', '01 78 90 12 34'),
+  ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'Favre', 'Caroline', 'entreprise2@hub-ecole.dev', 'Nextech SAS', 'Responsable technique',   '07 01 23 45 67', '01 89 01 23 45');
 
 -- ─── Classe ──────────────────────────────────────────────────
 INSERT INTO public.classes (id, nom, annee) VALUES
@@ -502,7 +502,8 @@ INSERT INTO public.faq_articles (question, reponse, categorie, publie, auteur_id
 INSERT INTO public.staff_channels (id, nom, description, cree_par) VALUES
   ('b0000001-0000-0000-0000-000000000001', 'Conseil de classe',        'Échanges et comptes-rendus du conseil de classe', '33333333-3333-3333-3333-333333333333'),
   ('b0000002-0000-0000-0000-000000000002', 'Infos Direction',          'Annonces officielles de la direction',            '33333333-3333-3333-3333-333333333333'),
-  ('b0000003-0000-0000-0000-000000000003', 'Ressources pédagogiques',  'Partage de ressources et bonnes pratiques',       '55555555-5555-5555-5555-555555555555');
+  ('b0000003-0000-0000-0000-000000000003', 'Ressources pédagogiques',  'Partage de ressources et bonnes pratiques',       '55555555-5555-5555-5555-555555555555'),
+  ('b0000004-0000-0000-0000-000000000004', 'Vie scolaire',             'Absences, retards, comportement et suivi élèves', '66666666-6666-6666-6666-666666666666');
 
 -- ─── Messages staff ──────────────────────────────────────────
 INSERT INTO public.staff_messages (channel_id, author_id, contenu, created_at) VALUES
@@ -527,7 +528,20 @@ INSERT INTO public.staff_messages (channel_id, author_id, contenu, created_at) V
   ('b0000003-0000-0000-0000-000000000003', '22222222-2222-2222-2222-222222222222',
    'Merci Antoine ! De mon côté, voici un outil de visualisation pour les algorithmes de tri, idéal pour les révisions avec les étudiants : https://exemple.fr/ressource/algo-viz', NOW() - INTERVAL '6 days' + INTERVAL '2 hours'),
   ('b0000003-0000-0000-0000-000000000003', '55555555-5555-5555-5555-555555555555',
-   'Pour les profs qui encadrent des semaines projets : j''ai mis à jour le guide d''évaluation sur le drive partagé. Critères revus selon la grille nationale BTS.', NOW() - INTERVAL '2 days');
+   'Pour les profs qui encadrent des semaines projets : j''ai mis à jour le guide d''évaluation sur le drive partagé. Critères revus selon la grille nationale BTS.', NOW() - INTERVAL '2 days'),
+  -- Vie scolaire
+  ('b0000004-0000-0000-0000-000000000004', '66666666-6666-6666-6666-666666666666',
+   'Bonjour à tous, j''ouvre ce canal pour centraliser les signalements d''absences et de comportement. Merci de m''envoyer vos listes d''absents en fin de journée.', NOW() - INTERVAL '9 days'),
+  ('b0000004-0000-0000-0000-000000000004', '22222222-2222-2222-2222-222222222222',
+   'Isabelle, Hugo Petit était absent lors de mon cours d''algo lundi matin. Pas de justificatif reçu de sa part.', NOW() - INTERVAL '8 days'),
+  ('b0000004-0000-0000-0000-000000000004', '66666666-6666-6666-6666-666666666666',
+   'Noté Sophie, je contacte sa famille. Il est en alternance donc je vérifie aussi côté entreprise.', NOW() - INTERVAL '8 days' + INTERVAL '1 hour'),
+  ('b0000004-0000-0000-0000-000000000004', '99999999-9999-9999-9999-999999999999',
+   'Petite info : la promo est globalement très investie, peu d''incidents. Emma Rousseau se distingue particulièrement en développement web.', NOW() - INTERVAL '6 days'),
+  ('b0000004-0000-0000-0000-000000000004', '55555555-5555-5555-5555-555555555555',
+   'Rappel : la réunion parents-profs du 20 avril approche. Isabelle, tu peux préparer les convocations ? Merci.', NOW() - INTERVAL '4 days'),
+  ('b0000004-0000-0000-0000-000000000004', '66666666-6666-6666-6666-666666666666',
+   'Convocations envoyées par mail à tous les parents ce matin. Relance SMS prévu jeudi si pas de confirmation.', NOW() - INTERVAL '3 days');
 
 -- ─── Actualités (news_posts) ──────────────────────────────────
 INSERT INTO public.news_posts (title, content, author_id, category, pinned, created_at) VALUES
