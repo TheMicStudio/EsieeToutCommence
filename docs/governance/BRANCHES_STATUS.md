@@ -5,7 +5,7 @@
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
 **Dernière mise à jour :** 2026-04-08
-**Mis à jour par :** Claude (workspace groupe, WeekDashboard unifié, revalidatePath global, signUp admin, proxy.ts)
+**Mis à jour par :** Claude (système permissions granulaires complet : 38 permissions, 7 rôles, guards toutes pages, sidebar filtrée, libellés rôles FR)
 
 ---
 
@@ -212,6 +212,8 @@ _Dev 3 doit d'abord terminer le Module 3 (ou en parallèle). Vérifier que les f
 | `supabase/migrations/20260408000000_add_phone_columns.sql` | ✅ Pushé | Colonnes phone_mobile + phone_fixed |
 | `supabase/migrations/20260408030000_class_members_is_current.sql` | ✅ Pushé | Multi-année : colonne is_current |
 | `supabase/migrations/20260408040000_group_workspace.sql` | ✅ Pushé | group_messages, group_whiteboard, week_course_materials |
+| `supabase/migrations/20260408050000_add_roles_coordinateur_staff.sql` | ✅ Pushé | Nouveaux rôles coordinateur + staff dans l'enum role_principal |
+| `supabase/migrations/20260408060000_permissions_system.sql` | ✅ Pushé | Tables permissions, role_permissions, user_permission_overrides + seed 38 permissions × 7 rôles |
 
 > ⚠️ Les migrations du Module 2 (classes, pedagogy, attendance) sont définies dans `docs/features/02_module_pedagogie_classe.md` et `docs/features/06_module_emargement_qrcode.md` — elles n'ont pas encore de fichier SQL dédié.
 
