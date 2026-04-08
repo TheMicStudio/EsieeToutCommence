@@ -107,22 +107,25 @@ export async function getSessionRecords(
 export async function getAbsentees(
   sessionId: string,
 ): Promise<{ student_id: string; nom: string; prenom: string }[]> {
-  const supabase = await createClient();
+  // Utilise le client admin pour bypasser le RLS sur class_members / student_profiles
+  // (le prof n'est pas membre de la classe, donc le client anon est bloqué par RLS)
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const admin = createAdminClient();
 
-  const { data: session } = await supabase
+  const { data: session } = await admin
     .from('attendance_sessions')
     .select('class_id')
     .eq('id', sessionId)
     .single();
   if (!session) return [];
 
-  const { data: members } = await supabase
+  const { data: members } = await admin
     .from('class_members')
     .select('student_id, student_profiles(nom, prenom)')
     .eq('class_id', session.class_id);
   if (!members) return [];
 
-  const { data: records } = await supabase
+  const { data: records } = await admin
     .from('attendance_records')
     .select('student_id')
     .eq('session_id', sessionId);
