@@ -5,7 +5,7 @@
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
 **Dernière mise à jour :** 2026-04-08
-**Mis à jour par :** Claude (imports `requirePermission` manquants sur 7 pages corrigés ; TripartiteChat redesigné avec design system slate/#0471a6 du projet)
+**Mis à jour par :** Claude (fix.md intégralement traité : nav/doublon émargement, création événement, scroll chat, édition notes, modals actualités+projets, recherche globale ; audit complet : guards rôle hardcodés→permissions, user!.id, revalidatePath manquants)
 
 ---
 
