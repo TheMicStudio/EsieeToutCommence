@@ -1,80 +1,66 @@
 import Link from 'next/link';
-import { BookOpen, GraduationCap, MessageSquare, Star } from 'lucide-react';
+import { ArrowRight, GraduationCap } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getMyClass, getMyTeacherClasses } from '@/modules/pedagogy/actions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 
 export const metadata = { title: 'Espace pédagogique — Hub École' };
-
-const NAV_ITEMS = [
-  { href: '/dashboard/pedagogie/cours', label: 'Supports de cours', icon: BookOpen, description: 'Accédez aux ressources pédagogiques' },
-  { href: '/dashboard/pedagogie/notes', label: 'Notes', icon: Star, description: 'Consultez vos notes et moyennes' },
-  { href: '/dashboard/pedagogie/chat', label: 'Chat de classe', icon: MessageSquare, description: 'Discutez avec votre classe' },
-];
 
 export default async function PedagogiePage() {
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) return null;
 
   const isProf = userProfile.role === 'professeur';
-  const classe = isProf ? null : await getMyClass();
+  const myClass = isProf ? null : await getMyClass();
   const teacherClasses = isProf ? await getMyTeacherClasses() : [];
 
+  const classes = isProf
+    ? teacherClasses
+    : myClass ? [myClass] : [];
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Espace pédagogique</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <h1 className="text-2xl font-bold text-[#061826]">
+          {isProf ? 'Mes classes' : 'Ma classe'}
+        </h1>
+        <p className="mt-1 text-sm text-slate-500">
           {isProf
             ? `${teacherClasses.length} classe${teacherClasses.length > 1 ? 's' : ''} assignée${teacherClasses.length > 1 ? 's' : ''}`
-            : classe ? `Classe : ${classe.nom} — Promo ${classe.annee}` : 'Aucune classe assignée'}
+            : myClass ? `${myClass.nom} — Promo ${myClass.annee}` : 'Aucune classe assignée'}
         </p>
       </div>
 
-      {/* Classes du prof */}
-      {isProf && teacherClasses.length > 0 && (
-        <div>
-          <h2 className="mb-3 font-semibold">Mes classes</h2>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {teacherClasses.map((c) => (
-              <Card key={c.id} className="border-primary/20">
-                <CardContent className="flex items-center gap-3 p-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <GraduationCap className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">{c.nom}</p>
-                    <Badge variant="secondary" className="mt-1 text-xs">Promo {c.annee}</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+      {/* Alerte sans classe */}
+      {classes.length === 0 && (
+        <div className="rounded-2xl border border-amber-200/70 bg-amber-50 p-5">
+          <p className="text-sm font-semibold text-amber-800">Aucune classe assignée</p>
+          <p className="mt-1 text-xs text-amber-600">Contactez votre administration pour être affecté à une classe.</p>
         </div>
       )}
 
-      {/* Navigation modules */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link key={item.href} href={item.href}>
-              <Card className="group h-full cursor-pointer transition-all hover:border-primary/40 hover:shadow-md">
-                <CardHeader className="pb-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 transition-colors group-hover:bg-primary/20">
-                    <Icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <CardTitle className="mt-3 text-base">{item.label}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{item.description}</p>
-                </CardContent>
-              </Card>
+      {/* Liste des classes */}
+      {classes.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {classes.map((c) => (
+            <Link
+              key={c.id}
+              href={`/dashboard/pedagogie/classe/${c.id}`}
+              className="group flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm transition-all hover:border-[#0471a6]/30 hover:shadow-md"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#89aae6]/20 group-hover:bg-[#0471a6]/15 transition-colors">
+                <GraduationCap className="h-6 w-6 text-[#3685b5] group-hover:text-[#0471a6] transition-colors" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-[#061826] truncate group-hover:text-[#0471a6] transition-colors">
+                  {c.nom}
+                </p>
+                <p className="mt-0.5 text-sm text-slate-500">Promotion {c.annee}</p>
+              </div>
+              <ArrowRight className="h-4 w-4 shrink-0 text-slate-300 group-hover:text-[#0471a6] transition-colors" />
             </Link>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

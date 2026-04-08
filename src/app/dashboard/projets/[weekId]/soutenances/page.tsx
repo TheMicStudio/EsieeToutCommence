@@ -31,7 +31,7 @@ export default async function SoutenancesPage({ params }: SoutenancesPageProps) 
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Créneaux de soutenance</h1>
+      <h1 className="text-2xl font-bold text-[#061826]">Créneaux de soutenance</h1>
       <SoutenanceGrid slots={slots} weekId={weekId} myGroupId={myGroup?.id} />
     </div>
   );
