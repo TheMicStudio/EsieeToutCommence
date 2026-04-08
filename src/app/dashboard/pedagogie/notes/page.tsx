@@ -36,9 +36,17 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
 
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-[#061826]">Mes notes</h1>
-          {classe && <p className="mt-1 text-sm text-slate-500">{classe.nom} — Promo {classe.annee}</p>}
+        <div className="flex items-center gap-4">
+          <Link
+            href="/dashboard/pedagogie"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-[#061826]">Mes notes</h1>
+            {classe && <p className="mt-1 text-sm text-slate-500">{classe.nom} — Promo {classe.annee}</p>}
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
