@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { ArrowRight, GraduationCap } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getMyClass, getMyTeacherClasses } from '@/modules/pedagogy/actions';
@@ -12,6 +13,11 @@ export default async function PedagogiePage() {
   const isProf = userProfile.role === 'professeur';
   const myClass = isProf ? null : await getMyClass();
   const teacherClasses = isProf ? await getMyTeacherClasses() : [];
+
+  // Un élève n'a qu'une seule classe → rediriger directement dessus
+  if (!isProf && myClass) {
+    redirect(`/dashboard/pedagogie/classe/${myClass.id}`);
+  }
 
   const classes = isProf
     ? teacherClasses
