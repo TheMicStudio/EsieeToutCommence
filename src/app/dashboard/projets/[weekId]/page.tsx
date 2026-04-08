@@ -1,9 +1,11 @@
 import { redirect, notFound } from 'next/navigation';
-import Link from 'next/link';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import { getProjectWeeks, getGroups, getSoutenanceSlots } from '@/modules/projects/actions';
+import {
+  getGroups, getSoutenanceSlots, getWeekCourseMaterials,
+  getRetroBoard, getRetroPostits, getGroupMessages, getGroupWhiteboard,
+} from '@/modules/projects/actions';
+import { WeekDashboard } from '@/modules/projects/components/WeekDashboard';
 import { createClient } from '@/lib/supabase/server';
-import { Users, CalendarClock, ClipboardList, ArrowRight } from 'lucide-react';
 
 interface WeekPageProps {
   params: Promise<{ weekId: string }>;
@@ -13,63 +15,57 @@ export default async function WeekPage({ params }: WeekPageProps) {
   const { weekId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-  
   if (profile.role !== 'eleve' && profile.role !== 'professeur') redirect('/dashboard');
 
   const supabase = await createClient();
-  const { data: week } = await supabase.from('project_weeks').select().eq('id', weekId).single();
+  const { data: { user } } = await supabase.auth.getUser();
+  const currentUserId = user?.id ?? '';
+  const currentUserName = `${profile.profile.prenom} ${profile.profile.nom}`;
+  const isProf = profile.role === 'professeur';
+
+  const { data: week } = await supabase
+    .from('project_weeks').select().eq('id', weekId).single();
   if (!week) notFound();
 
-  const [groups, slots] = await Promise.all([
+  // Données de base en parallèle
+  const [groups, materials, slots] = await Promise.all([
     getGroups(weekId),
+    getWeekCourseMaterials(weekId),
     getSoutenanceSlots(weekId),
   ]);
 
-  const start = new Date(week.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
-  const end = new Date(week.end_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  // Groupe de l'utilisateur courant
+  const myGroup = !isProf
+    ? (groups.find((g) => g.members?.some((m) => m.student_id === currentUserId)) ?? null)
+    : null;
 
-  const navCards = [
-    { href: `/dashboard/projets/${weekId}/groupes`, icon: Users, label: 'Groupes', value: groups.length, color: 'text-[#0471a6]', bg: 'bg-[#89aae6]/10 border-[#89aae6]/30' },
-    { href: `/dashboard/projets/${weekId}/soutenances`, icon: CalendarClock, label: 'Créneaux', value: slots.length, color: 'text-purple-600', bg: 'bg-purple-50 border-purple-200/60' },
-    { href: `/dashboard/projets/${weekId}/retro`, icon: ClipboardList, label: 'Rétro', value: '→', color: 'text-amber-600', bg: 'bg-amber-50 border-amber-200/60' },
-  ];
+  // Rétro board
+  const retroBoard = await getRetroBoard(weekId);
+  const retroPostits = retroBoard ? await getRetroPostits(retroBoard.id) : [];
+
+  // Workspace du groupe (si membre)
+  const [messages, whiteboard] = myGroup
+    ? await Promise.all([
+        getGroupMessages(myGroup.id),
+        getGroupWhiteboard(myGroup.id),
+      ])
+    : [[], null];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-[#061826]">{week.title}</h1>
-        <p className="text-sm text-slate-500">{start} → {end}</p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {navCards.map((card) => (
-          <Link
-            key={card.href}
-            href={card.href}
-            className={`group flex flex-col items-center gap-1.5 rounded-2xl border px-6 py-6 text-center transition-all hover:shadow-md ${card.bg}`}
-          >
-            <card.icon className={`h-6 w-6 ${card.color}`} />
-            <span className={`text-3xl font-bold ${card.color}`}>{card.value}</span>
-            <span className="text-sm text-slate-500">{card.label}</span>
-          </Link>
-        ))}
-      </div>
-
-      <div className="flex gap-3">
-        <Link
-          href={`/dashboard/projets/${weekId}/groupes`}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 transition-all"
-        >
-          Voir les groupes
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-        <Link
-          href={`/dashboard/projets/${weekId}/retro`}
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-        >
-          Mur de rétro
-        </Link>
-      </div>
-    </div>
+    <WeekDashboard
+      weekId={weekId}
+      week={week}
+      groups={groups}
+      myGroup={myGroup}
+      messages={messages}
+      whiteboard={whiteboard}
+      materials={materials}
+      slots={slots}
+      retroBoard={retroBoard}
+      retroPostits={retroPostits}
+      currentUserId={currentUserId}
+      currentUserName={currentUserName}
+      isProf={isProf}
+    />
   );
 }
