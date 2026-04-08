@@ -24,14 +24,11 @@ export default async function TripartitePage() {
 
   if (!chat) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-bold">Espace tripartite</h1>
-        <div className="flex h-48 items-center justify-center rounded-xl border border-dashed">
-          <p className="text-center text-sm text-muted-foreground">
-            Votre espace tripartite n&apos;a pas encore été créé.<br />
-            Contactez l&apos;administration pour le configurer.
-          </p>
-        </div>
+      <div className="flex h-48 items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white">
+        <p className="text-center text-sm text-slate-400">
+          Votre espace tripartite n&apos;a pas encore été créé.<br />
+          Contactez l&apos;administration pour le configurer.
+        </p>
       </div>
     );
   }
@@ -65,20 +62,18 @@ export default async function TripartitePage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold">Espace tripartite</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Échange privé entre l&apos;élève, le référent et le maître d&apos;apprentissage.
-        </p>
+    <div
+      className="flex overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm"
+      style={{ height: 'calc(100vh - 9rem)' }}
+    >
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <TripartiteChat
+          chat={chat}
+          initialMessages={messages}
+          currentUserId={userProfile.profile.id}
+          participantNames={participantNames}
+        />
       </div>
-
-      <TripartiteChat
-        chat={chat}
-        initialMessages={messages}
-        currentUserId={userProfile.profile.id}
-        participantNames={participantNames}
-      />
     </div>
   );
 }
