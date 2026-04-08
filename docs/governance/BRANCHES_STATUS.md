@@ -5,7 +5,7 @@
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
 **Dernière mise à jour :** 2026-04-08
-**Mis à jour par :** Claude (fix.md intégralement traité : nav/doublon émargement, création événement, scroll chat, édition notes, modals actualités+projets, recherche globale ; audit complet : guards rôle hardcodés→permissions, user!.id, revalidatePath manquants)
+**Mis à jour par :** Claude (fix.md + redesign page login : layout 2 panneaux 50/50, panneau gauche card login centrée + trust card, panneau droit navy #0F172A + illustration SVG campus + glassmorphism card, inputs avec icônes mail/lock, bouton cyan #00A3E0, OAuth Microsoft+Google, police Outfit)
 
 ---
 
@@ -43,7 +43,8 @@ main  ← développement centralisé (tous modules codés sur main)
 - `src/app/dashboard/annuaire/page.tsx` — Trombinoscope filtrable
 - `src/modules/auth/types/index.ts` — Types TypeScript complets
 - `src/modules/auth/actions.ts` — signIn / signUp / signOut / getCurrentUserProfile / updateProfile
-- `src/modules/auth/components/LoginForm.tsx`
+- `src/modules/auth/components/LoginForm.tsx` — redesign complet (icônes mail/lock, bouton cyan, OAuth buttons, "or" divider)
+- `src/app/auth/login/page.tsx` — layout 2 panneaux 50/50 100vh, trust card, panneau navy + illustration SVG + glassmorphism card
 - `src/modules/auth/components/RegisterForm.tsx`
 - `src/modules/auth/components/ProfileCard.tsx`
 - `src/modules/auth/components/ProfileEditForm.tsx`
