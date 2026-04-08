@@ -7,43 +7,14 @@ import type { RolePrincipal } from '../types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { MATIERES, FONCTIONS } from '@/lib/constants';
 
+// Seuls ces rôles sont autorisés en auto-inscription.
+// Les comptes Professeur et Admin sont créés exclusivement par l'administration.
 const ROLES: { value: RolePrincipal; label: string; description: string }[] = [
   { value: 'eleve', label: 'Élève', description: 'Accès aux cours, notes et carrière' },
-  { value: 'professeur', label: 'Professeur', description: 'Gestion des classes et émargement' },
-  { value: 'admin', label: 'Administration', description: 'Gestion globale de la plateforme' },
+  { value: 'parent', label: 'Parent d\'élève', description: 'Suivi de la scolarité de votre enfant' },
   { value: 'entreprise', label: 'Entreprise', description: 'Suivi des alternants' },
-];
-
-const MATIERES = [
-  'Mathématiques',
-  'Physique',
-  'Chimie',
-  'Informatique',
-  'Algorithmique',
-  'Réseaux & Systèmes',
-  'Développement Web',
-  'Bases de données',
-  'Anglais',
-  'Français',
-  'Management',
-  'Économie',
-  'Droit',
-  'SIO',
-  'Électronique',
-];
-
-const FONCTIONS = [
-  'Directeur·trice',
-  'Directeur·trice adjoint·e',
-  'Responsable pédagogique',
-  'Responsable administratif·ve',
-  'Secrétariat',
-  'Comptabilité',
-  'Ressources humaines',
-  'Chargé·e de communication',
-  'Référent·e numérique',
-  'Autre',
 ];
 
 interface Step1Data {
@@ -61,15 +32,18 @@ export function RegisterForm() {
     prenom: '', nom: '', email: '', password: '', role: '',
   });
   const [selectedMatieres, setSelectedMatieres] = useState<string[]>([]);
+  const [password, setPassword] = useState('');
 
   function handleStep1(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
+    const pwd = fd.get('password') as string;
+    setPassword(pwd);
     setStep1({
       prenom: fd.get('prenom') as string,
       nom: fd.get('nom') as string,
       email: fd.get('email') as string,
-      password: fd.get('password') as string,
+      password: pwd,
       role: fd.get('role') as RolePrincipal,
     });
     setStep(2);
@@ -164,6 +138,10 @@ export function RegisterForm() {
                 </label>
               ))}
             </div>
+            <p className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
+              Les comptes <span className="font-medium">Professeur</span> et{' '}
+              <span className="font-medium">Administration</span> sont créés par votre établissement.
+            </p>
           </div>
 
           <Button type="submit" className="w-full">Continuer →</Button>
@@ -180,14 +158,13 @@ export function RegisterForm() {
       {/* ── Étape 2 — Profil selon le rôle ── */}
       {step === 2 && (
         <form action={action} className="space-y-5">
-          {/* Réinjection données étape 1 */}
+          {/* Réinjection données étape 1 — le mot de passe est en mémoire React, pas dans le DOM */}
           <input type="hidden" name="prenom" value={step1.prenom} />
           <input type="hidden" name="nom" value={step1.nom} />
           <input type="hidden" name="email" value={step1.email} />
-          <input type="hidden" name="password" value={step1.password} />
+          <input type="hidden" name="password" value={password} />
           <input type="hidden" name="role" value={step1.role} />
-          {/* Matières sélectionnées */}
-          <input type="hidden" name="matieres_enseignees" value={selectedMatieres.join(', ')} />
+          <input type="hidden" name="matieres_enseignees" value={selectedMatieres.join(',')} />
 
           <button
             type="button"
@@ -228,51 +205,6 @@ export function RegisterForm() {
                   </label>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* ── Professeur ── */}
-          {step1.role === 'professeur' && (
-            <div className="space-y-3">
-              <Label>Matières enseignées</Label>
-              <div className="flex flex-col gap-2 max-h-64 overflow-y-auto rounded-lg border p-3">
-                {MATIERES.map((m) => (
-                  <label
-                    key={m}
-                    className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-muted/60"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedMatieres.includes(m)}
-                      onChange={() => toggleMatiere(m)}
-                      className="h-4 w-4 rounded accent-primary shrink-0"
-                    />
-                    <span className="text-sm">{m}</span>
-                  </label>
-                ))}
-              </div>
-              {selectedMatieres.length > 0 && (
-                <p className="text-xs text-primary">
-                  {selectedMatieres.length} matière{selectedMatieres.length > 1 ? 's' : ''} sélectionnée{selectedMatieres.length > 1 ? 's' : ''}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* ── Admin ── */}
-          {step1.role === 'admin' && (
-            <div className="space-y-2">
-              <Label htmlFor="fonction">Fonction</Label>
-              <select
-                id="fonction"
-                name="fonction"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <option value="">Sélectionner une fonction</option>
-                {FONCTIONS.map((f) => (
-                  <option key={f} value={f}>{f}</option>
-                ))}
-              </select>
             </div>
           )}
 
