@@ -20,6 +20,8 @@ export async function createTicket(
   const description = formData.get('description') as string;
   const categorie = formData.get('categorie') as TicketCategorie;
   const auNomDeLaClasse = formData.get('au_nom_de_classe') === 'on';
+  const attachmentUrl = (formData.get('attachment_url') as string) || null;
+  const attachmentName = (formData.get('attachment_name') as string) || null;
 
   if (!sujet || !description || !categorie) {
     return { error: 'Tous les champs sont requis.' };
@@ -37,6 +39,8 @@ export async function createTicket(
     auteur_id: userProfile.profile.id,
     au_nom_de_classe: auNomDeLaClasse,
     class_id: auNomDeLaClasse && userProfile.role === 'eleve' ? userProfile.profile.class_id : null,
+    attachment_url: attachmentUrl,
+    attachment_name: attachmentName,
   });
 
   if (error) return { error: 'Erreur lors de la création du ticket.' };

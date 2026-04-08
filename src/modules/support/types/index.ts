@@ -11,6 +11,8 @@ export interface Ticket {
   au_nom_de_classe: boolean;
   class_id?: string;
   assigne_a?: string;
+  attachment_url?: string | null;
+  attachment_name?: string | null;
   created_at: string;
   updated_at: string;
 }
