@@ -83,7 +83,6 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
         items: [
           { href: '/dashboard/pedagogie', label: 'Mes classes', icon: GraduationCap, permission: 'class.read' },
           { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban, permission: 'project_week.read' },
-          { href: '/dashboard/emargement', label: 'Émargement', icon: QrCode, permission: 'attendance.manage' },
         ],
       },
       {
@@ -107,7 +106,6 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
         items: [
           { href: '/dashboard/pedagogie', label: 'Classes', icon: GraduationCap, permission: 'class.read' },
           { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban, permission: 'project_week.read' },
-          { href: '/dashboard/emargement', label: 'Émargement', icon: QrCode, permission: 'attendance.manage' },
           { href: '/dashboard/pedagogie/notes', label: 'Notes & moyennes', icon: ClipboardList, permission: 'grade.read_class' },
         ],
       },
@@ -131,17 +129,11 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
       {
         title: 'Administration',
         items: [
-          { href: '/dashboard/admin', label: 'Carrière & support', icon: UserRound, permission: 'career_event.manage' },
-          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.read' },
-          { href: '/dashboard/communication', label: 'Messagerie staff', icon: MessageSquare, permission: 'staff_channel.participate' },
-        ],
-      },
-      {
-        title: 'Gestion',
-        items: [
-          { href: '/dashboard/support/admin', label: 'Support', icon: LifeBuoy, permission: 'support.manage' },
           { href: '/dashboard/carriere/job-board', label: 'Job Board', icon: Briefcase, permission: 'job.manage' },
           { href: '/dashboard/carriere/evenements', label: 'Événements', icon: BookOpen, permission: 'career_event.manage' },
+          { href: '/dashboard/support/admin', label: 'Support', icon: LifeBuoy, permission: 'support.manage' },
+          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.read' },
+          { href: '/dashboard/communication', label: 'Messagerie staff', icon: MessageSquare, permission: 'staff_channel.participate' },
         ],
       },
     ],

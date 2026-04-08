@@ -5,7 +5,6 @@ import { requirePermission } from '@/lib/permissions';
 import { getMyTeacherClasses } from '@/modules/pedagogy/actions';
 import { getMyTeacherSessions } from '@/modules/attendance/actions/index';
 import { StartSessionForm } from '@/modules/attendance/components/StartSessionForm';
-import { ClassSelector } from '@/modules/pedagogy/components/ClassSelector';
 import { QrCode } from 'lucide-react';
 
 interface EmargementPageProps {
@@ -38,14 +37,6 @@ export default async function EmargementPage({ searchParams }: EmargementPagePro
           <p className="mt-1 text-sm text-slate-500">{activeClass.nom} — Promo {activeClass.annee}</p>
         )}
       </div>
-
-      {teacherClasses.length > 1 && (
-        <ClassSelector
-          classes={teacherClasses}
-          activeClassId={activeClass?.id ?? ''}
-          basePath="/dashboard/pedagogie/emargement"
-        />
-      )}
 
       {/* Session ouverte */}
       {openSessions.length > 0 && (
