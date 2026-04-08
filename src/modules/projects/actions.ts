@@ -7,6 +7,7 @@ import { getCurrentUserProfile } from '@/modules/auth/actions';
 import type {
   ProjectWeek, ProjectGroup, GroupMember,
   SoutenanceSlot, RetroBoard, RetroPostit, PostitType,
+  GroupMessage, GroupWhiteboard, WeekCourseMaterial,
 } from './types';
 
 // ── Semaines projets ─────────────────────────────────────────
@@ -433,5 +434,121 @@ export async function deletePostit(postitId: string): Promise<{ error?: string }
   const supabase = await createClient();
   const { error } = await supabase.from('retro_postits').delete().eq('id', postitId);
   if (error) return { error: error.message };
+  return {};
+}
+
+// ── Workspace groupe : chat ───────────────────────────────────
+
+export async function getGroupMessages(groupId: string): Promise<GroupMessage[]> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('group_messages')
+    .select('*')
+    .eq('group_id', groupId)
+    .order('created_at', { ascending: true })
+    .limit(200);
+  return (data as GroupMessage[]) ?? [];
+}
+
+export async function sendGroupMessage(
+  _prevState: { error?: string; success?: boolean; message?: GroupMessage } | null,
+  formData: FormData
+): Promise<{ error?: string; success?: boolean; message?: GroupMessage }> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile) return { error: 'Non authentifié.' };
+
+  const groupId = formData.get('group_id') as string;
+  const contenu = (formData.get('contenu') as string)?.trim();
+  if (!contenu) return { error: 'Message vide.' };
+
+  const admin = createAdminClient();
+  const { data, error } = await admin.from('group_messages').insert({
+    group_id: groupId,
+    author_id: userProfile.profile.id,
+    contenu,
+  }).select('*').single();
+
+  if (error) return { error: 'Erreur lors de l\'envoi.' };
+  return { success: true, message: data as GroupMessage };
+}
+
+// ── Workspace groupe : tableau blanc ─────────────────────────
+
+export async function getGroupWhiteboard(groupId: string): Promise<GroupWhiteboard | null> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('group_whiteboard')
+    .select('*')
+    .eq('group_id', groupId)
+    .maybeSingle();
+  return (data as GroupWhiteboard) ?? null;
+}
+
+export async function saveGroupWhiteboard(groupId: string, data: unknown): Promise<{ error?: string }> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile) return { error: 'Non authentifié.' };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('group_whiteboard')
+    .upsert({
+      group_id: groupId,
+      data,
+      updated_at: new Date().toISOString(),
+      updated_by: userProfile.profile.id,
+    }, { onConflict: 'group_id' });
+
+  if (error) return { error: 'Erreur lors de la sauvegarde.' };
+  return {};
+}
+
+// ── Supports de cours de la semaine ──────────────────────────
+
+export async function getWeekCourseMaterials(weekId: string): Promise<WeekCourseMaterial[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('week_course_materials')
+    .select('*')
+    .eq('week_id', weekId)
+    .order('created_at', { ascending: false });
+  return (data as WeekCourseMaterial[]) ?? [];
+}
+
+export async function addWeekCourseMaterial(
+  _prevState: { error?: string; success?: boolean } | null,
+  formData: FormData
+): Promise<{ error?: string; success?: boolean }> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'professeur') return { error: 'Accès refusé.' };
+
+  const weekId = formData.get('week_id') as string;
+  const titre = formData.get('titre') as string;
+  const type = formData.get('type') as 'video' | 'pdf' | 'lien';
+  const url = formData.get('url') as string;
+
+  if (!weekId || !titre || !type || !url) return { error: 'Tous les champs sont requis.' };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from('week_course_materials').insert({
+    week_id: weekId,
+    uploaded_by: userProfile.profile.id,
+    titre,
+    type,
+    url,
+  });
+
+  if (error) return { error: 'Erreur lors de l\'ajout.' };
+  revalidatePath(`/dashboard/projets/${weekId}`);
+  return { success: true };
+}
+
+export async function deleteWeekCourseMaterial(materialId: string, weekId: string): Promise<{ error?: string }> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'professeur') return { error: 'Accès refusé.' };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from('week_course_materials').delete().eq('id', materialId);
+  if (error) return { error: 'Erreur lors de la suppression.' };
+  revalidatePath(`/dashboard/projets/${weekId}`);
   return {};
 }

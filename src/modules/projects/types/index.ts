@@ -38,6 +38,33 @@ export interface SoutenanceSlot {
   group_name?: string;
 }
 
+export interface GroupMessage {
+  id: string;
+  group_id: string;
+  author_id: string;
+  contenu: string;
+  created_at: string;
+  author_name?: string;
+}
+
+export interface GroupWhiteboard {
+  id: string;
+  group_id: string;
+  data: unknown;
+  updated_at: string;
+  updated_by?: string;
+}
+
+export interface WeekCourseMaterial {
+  id: string;
+  week_id: string;
+  uploaded_by: string;
+  titre: string;
+  type: 'video' | 'pdf' | 'lien';
+  url: string;
+  created_at: string;
+}
+
 export interface RetroBoard {
   id: string;
   week_id: string;
