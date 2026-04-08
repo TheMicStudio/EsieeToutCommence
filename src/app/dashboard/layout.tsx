@@ -32,7 +32,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F7F9FB]">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-[#F7F9FB]">
       {/* Blobs décoratifs */}
       <div
         aria-hidden
@@ -43,27 +43,23 @@ export default async function DashboardLayout({
         className="pointer-events-none fixed -bottom-32 -left-32 h-80 w-80 rounded-full bg-[#ac80a0]/20 blur-3xl z-0"
       />
 
-      {/* Sidebar gauche */}
+      {/* Sidebar gauche (desktop) + header mobile */}
       <DashboardSidebar userProfile={userProfile} />
 
       {/* Zone centrale + droite */}
       <div className="flex flex-1 flex-col min-w-0 relative z-10">
-        {/* Mobile header is inside DashboardSidebar, this handles the main content column */}
-        <div className="flex flex-1 min-h-0">
-          {/* Main column */}
-          <div className="flex flex-1 flex-col min-w-0 gap-4 p-4 lg:p-5">
-            {/* Navbar pill */}
-            <TopNavbar userProfile={userProfile} />
+        <div className="flex flex-1 flex-col min-w-0 gap-4 p-4 lg:p-5">
+          {/* Navbar pill */}
+          <TopNavbar userProfile={userProfile} />
 
-            {/* Page content */}
-            <div className="flex flex-1 gap-4">
-              <main className="flex-1 min-w-0 overflow-y-auto">
-                {children}
-              </main>
+          {/* Page content */}
+          <div className="flex flex-1 gap-4">
+            <main className="flex-1 min-w-0 overflow-y-auto">
+              {children}
+            </main>
 
-              {/* Right sidebar */}
-              <RightSidebar userProfile={userProfile} />
-            </div>
+            {/* Right sidebar */}
+            <RightSidebar userProfile={userProfile} />
           </div>
         </div>
       </div>

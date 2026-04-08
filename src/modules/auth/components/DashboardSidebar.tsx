@@ -1,24 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   BookOpen,
   Briefcase,
+  ChevronLeft,
+  ChevronRight,
   GraduationCap,
   LayoutDashboard,
   LogOut,
-  Map,
-  Menu,
   MessageSquare,
   Newspaper,
-
   Settings,
   Smartphone,
   UserRound,
   Users,
+  ClipboardList,
+  QrCode,
+  LifeBuoy,
+  Menu,
   X,
+  ChevronDown,
+  FolderKanban,
 } from 'lucide-react';
 import { signOut } from '../actions';
 import { ROLE_LABELS, type UserProfile } from '../types';
@@ -27,78 +32,130 @@ function getInitials(prenom: string, nom: string) {
   return `${prenom[0] ?? ''}${nom[0] ?? ''}`.toUpperCase();
 }
 
-type NavItem = { href: string; label: string; icon: React.ElementType; badge?: number };
+type NavItem = {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  badge?: number;
+};
 
-function getNavItems(role: UserProfile['role']): NavItem[] {
-  const byRole: Record<UserProfile['role'], NavItem[]> = {
+type NavSection = {
+  title: string;
+  items: NavItem[];
+};
+
+function getNavSections(role: UserProfile['role']): NavSection[] {
+  const byRole: Record<UserProfile['role'], NavSection[]> = {
     eleve: [
-      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/dashboard/pedagogie', label: 'Mes cours', icon: BookOpen },
-      { href: '/dashboard/pedagogie/chat', label: 'Chat', icon: MessageSquare, badge: 1 },
-      { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
-      { href: '/dashboard/carriere', label: 'Carrière', icon: Briefcase },
-      { href: '/dashboard/support', label: 'Support', icon: Users },
+      {
+        title: 'Principal',
+        items: [
+          { href: '/dashboard', label: 'Accueil', icon: LayoutDashboard },
+          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users },
+        ],
+      },
+      {
+        title: 'Pédagogie',
+        items: [
+          { href: '/dashboard/pedagogie', label: 'Mes cours', icon: BookOpen },
+          { href: '/dashboard/pedagogie/notes', label: 'Mes notes', icon: ClipboardList },
+          { href: '/dashboard/pedagogie/chat', label: 'Chat classe', icon: MessageSquare },
+          { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban },
+          { href: '/dashboard/emargement', label: 'Émargement', icon: QrCode },
+        ],
+      },
+      {
+        title: 'Vie scolaire',
+        items: [
+          { href: '/dashboard/carriere', label: 'Carrière', icon: Briefcase },
+          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
+          { href: '/dashboard/support', label: 'Support', icon: LifeBuoy },
+        ],
+      },
     ],
     professeur: [
-      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/dashboard/pedagogie', label: 'Mes classes', icon: GraduationCap },
-      { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
-      { href: '/dashboard/communication', label: 'Communication', icon: MessageSquare },
-      { href: '/dashboard/communication/parents', label: 'Messages parents', icon: UserRound },
-      { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users },
+      {
+        title: 'Principal',
+        items: [
+          { href: '/dashboard', label: 'Accueil', icon: LayoutDashboard },
+          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users },
+        ],
+      },
+      {
+        title: 'Pédagogie',
+        items: [
+          { href: '/dashboard/pedagogie', label: 'Mes classes', icon: GraduationCap },
+          { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban },
+          { href: '/dashboard/emargement', label: 'Émargement', icon: QrCode },
+        ],
+      },
+      {
+        title: 'Communication',
+        items: [
+          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
+          { href: '/dashboard/communication', label: 'Messagerie staff', icon: MessageSquare },
+        ],
+      },
     ],
     admin: [
-      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/dashboard/admin', label: 'Administration', icon: Settings },
-      { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
-      { href: '/dashboard/support/admin', label: 'Support', icon: MessageSquare },
-      { href: '/dashboard/communication', label: 'Communication', icon: MessageSquare },
-      { href: '/dashboard/communication/parents', label: 'Messages parents', icon: UserRound },
-      { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users },
+      {
+        title: 'Principal',
+        items: [
+          { href: '/dashboard', label: 'Accueil', icon: LayoutDashboard },
+          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users },
+        ],
+      },
+      {
+        title: 'Gestion',
+        items: [
+          { href: '/dashboard/support/admin', label: 'Support', icon: LifeBuoy },
+          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
+        ],
+      },
+      {
+        title: 'Communication',
+        items: [
+          { href: '/dashboard/communication', label: 'Messagerie staff', icon: MessageSquare },
+        ],
+      },
     ],
     entreprise: [
-      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
-      { href: '/dashboard/carriere', label: 'Alternance', icon: Briefcase },
-      { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users },
+      {
+        title: 'Principal',
+        items: [
+          { href: '/dashboard', label: 'Accueil', icon: LayoutDashboard },
+          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users },
+        ],
+      },
+      {
+        title: 'Alternance',
+        items: [
+          { href: '/dashboard/carriere', label: 'Espace alternance', icon: Briefcase },
+          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
+        ],
+      },
     ],
     parent: [
-      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/dashboard/enfant', label: 'Mon enfant', icon: UserRound },
-      { href: '/dashboard/parent/messages', label: 'Messages école', icon: MessageSquare },
-      { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
+      {
+        title: 'Principal',
+        items: [
+          { href: '/dashboard', label: 'Accueil', icon: LayoutDashboard },
+          { href: '/dashboard/enfant', label: 'Mon enfant', icon: UserRound },
+        ],
+      },
+      {
+        title: 'Communication',
+        items: [
+          { href: '/dashboard/parent/messages', label: 'Messages école', icon: MessageSquare },
+          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
+        ],
+      },
     ],
   };
   return byRole[role];
 }
 
-function getFavourites(role: UserProfile['role']): NavItem[] {
-  const byRole: Record<UserProfile['role'], NavItem[]> = {
-    eleve: [
-      { href: '/dashboard/pedagogie', label: 'Mes cours', icon: BookOpen },
-      { href: '/dashboard/annuaire', label: 'Annuaire', icon: Map },
-    ],
-    professeur: [
-      { href: '/dashboard/pedagogie', label: 'Mes classes', icon: GraduationCap },
-      { href: '/dashboard/annuaire', label: 'Annuaire', icon: Map },
-    ],
-    admin: [
-      { href: '/dashboard/admin', label: 'Administration', icon: Settings },
-      { href: '/dashboard/annuaire', label: 'Annuaire', icon: Map },
-    ],
-    entreprise: [
-      { href: '/dashboard/carriere', label: 'Alternance', icon: Briefcase },
-      { href: '/dashboard/annuaire', label: 'Annuaire', icon: Map },
-    ],
-    parent: [
-      { href: '/dashboard/enfant', label: 'Mon enfant', icon: UserRound },
-      { href: '/dashboard/parent/messages', label: 'Messages', icon: MessageSquare },
-    ],
-  };
-  return byRole[role];
-}
-
-const ICON_COLORS = [
+const SECTION_ICON_COLORS = [
   'bg-blue-100 text-blue-500',
   'bg-emerald-100 text-emerald-500',
   'bg-purple-100 text-purple-500',
@@ -107,164 +164,246 @@ const ICON_COLORS = [
   'bg-indigo-100 text-indigo-500',
 ];
 
+const LS_KEY = 'hub-sidebar-collapsed';
+
 interface DashboardSidebarProps {
   userProfile: UserProfile;
 }
 
 export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
+  const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set(['Principal', 'Pédagogie', 'Vie scolaire', 'Gestion', 'Communication', 'Alternance']));
   const pathname = usePathname();
   const { profile, role } = userProfile;
-  const navItems = getNavItems(role);
-  const favourites = getFavourites(role);
+  const sections = getNavSections(role);
   const initials = getInitials(profile.prenom, profile.nom);
+
+  // Restore collapse state from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(LS_KEY);
+      if (stored !== null) setCollapsed(stored === 'true');
+    } catch {}
+  }, []);
+
+  function toggleCollapse() {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try { localStorage.setItem(LS_KEY, String(next)); } catch {}
+      return next;
+    });
+  }
+
+  function toggleSection(title: string) {
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(title)) next.delete(title);
+      else next.add(title);
+      return next;
+    });
+  }
 
   function isActive(href: string) {
     if (href === '/dashboard') return pathname === href;
     return pathname === href || pathname.startsWith(href + '/');
   }
 
+  let colorIdx = 0;
+
   const sidebarContent = (
     <div className="flex h-full flex-col">
-      {/* Brand */}
-      <div className="flex items-center gap-3 px-5 py-5">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0471a6]">
-          <GraduationCap className="h-5 w-5 text-white" />
-        </div>
-        <div>
-          <p className="text-sm font-bold leading-tight text-[#061826]">Hub École</p>
-          <p className="text-[11px] text-slate-400 leading-tight">{ROLE_LABELS[role]}</p>
-        </div>
-      </div>
-
-      {/* Scrollable nav */}
-      <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-5">
-        {/* FAVOURITES */}
-        <div>
-          <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-            Favoris
-          </p>
-          <div className="space-y-0.5">
-            {favourites.map((item, i) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
-                >
-                  <span className={['flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[12px]', ICON_COLORS[i % ICON_COLORS.length]].join(' ')}>
-                    <Icon className="h-3.5 w-3.5" />
-                  </span>
-                  <span className="truncate">{item.label}</span>
-                </Link>
-              );
-            })}
+      {/* ── Brand + collapse button ─────────────────────────── */}
+      <div className={['flex items-center py-4 border-b border-slate-100', collapsed ? 'justify-center px-0' : 'justify-between px-4 gap-3'].join(' ')}>
+        {!collapsed && (
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#0471a6]">
+              <GraduationCap className="h-4.5 w-4.5 h-[18px] w-[18px] text-white" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold leading-tight text-[#061826] truncate">Hub École</p>
+              <p className="text-[11px] text-slate-400 leading-tight truncate">{ROLE_LABELS[role]}</p>
+            </div>
           </div>
-        </div>
-
-        {/* MAIN MENU */}
-        <div>
-          <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-            Menu principal
-          </p>
-          <div className="space-y-0.5">
-            {navItems.map((item, i) => {
-              const active = isActive(item.href);
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={[
-                    'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
-                    active
-                      ? 'bg-[#0471a6] text-white'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
-                  ].join(' ')}
-                >
-                  <span
-                    className={[
-                      'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg',
-                      active
-                        ? 'bg-white/20'
-                        : ICON_COLORS[i % ICON_COLORS.length],
-                    ].join(' ')}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                  </span>
-                  <span className="flex-1 truncate">{item.label}</span>
-                  {item.badge && !active && (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ac80a0] text-[10px] font-bold text-white">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
+        )}
+        {collapsed && (
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#0471a6]">
+            <GraduationCap className="h-[18px] w-[18px] text-white" />
           </div>
-        </div>
-      </div>
-
-      {/* CTA Card */}
-      <div className="px-3 pb-3">
-        <div className="rounded-2xl bg-gradient-to-br from-[#0471a6] to-[#3685b5] p-4 text-white">
-          <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-xl bg-white/20">
-            <Smartphone className="h-4 w-4" />
-          </div>
-          <p className="text-sm font-semibold leading-tight">Obtenez l&apos;app campus</p>
-          <p className="mt-1 text-[11px] text-blue-100 leading-relaxed">
-            Accès rapide à vos cours, emploi du temps et notifications.
-          </p>
-          <button
-            type="button"
-            className="mt-3 w-full rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-[#0471a6] hover:bg-blue-50 transition-colors"
-          >
-            Télécharger
-          </button>
-        </div>
-      </div>
-
-      {/* Profile + logout */}
-      <div className="border-t border-slate-200/70 px-3 py-3 flex items-center gap-3">
-        <Link
-          href="/dashboard/profile"
-          onClick={() => setMobileOpen(false)}
-          className="flex flex-1 items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-slate-100 transition-colors min-w-0"
+        )}
+        {/* Hidden on mobile, shown on desktop only */}
+        <button
+          type="button"
+          onClick={toggleCollapse}
+          title={collapsed ? 'Développer' : 'Réduire'}
+          className={[
+            'hidden lg:flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors',
+            collapsed ? 'mt-0' : '',
+          ].join(' ')}
         >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#89aae6]/30 text-[#3685b5] text-xs font-bold">
-            {initials}
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-xs font-semibold text-slate-800">
-              {profile.prenom} {profile.nom}
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </button>
+      </div>
+
+      {/* ── Scrollable nav ──────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden py-3 space-y-1">
+        {sections.map((section) => {
+          const isOpen = openSections.has(section.title);
+          return (
+            <div key={section.title}>
+              {/* Section header */}
+              {!collapsed && (
+                <button
+                  type="button"
+                  onClick={() => toggleSection(section.title)}
+                  className="flex w-full items-center justify-between px-4 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  <span>{section.title}</span>
+                  <ChevronDown className={['h-3 w-3 transition-transform', isOpen ? '' : '-rotate-90'].join(' ')} />
+                </button>
+              )}
+
+              {/* Nav items */}
+              {(isOpen || collapsed) && (
+                <div className={['space-y-0.5', collapsed ? 'px-2' : 'px-2'].join(' ')}>
+                  {section.items.map((item) => {
+                    const active = isActive(item.href);
+                    const Icon = item.icon;
+                    const colorClass = SECTION_ICON_COLORS[colorIdx++ % SECTION_ICON_COLORS.length];
+
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setMobileOpen(false)}
+                        title={collapsed ? item.label : undefined}
+                        className={[
+                          'flex items-center rounded-xl transition-all duration-150',
+                          collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5',
+                          active
+                            ? 'bg-[#0471a6] text-white'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+                        ].join(' ')}
+                      >
+                        <span
+                          className={[
+                            'flex shrink-0 items-center justify-center rounded-lg',
+                            collapsed ? 'h-5 w-5' : 'h-6 w-6',
+                            active ? 'bg-white/20' : colorClass,
+                          ].join(' ')}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                        </span>
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 truncate text-sm font-medium">{item.label}</span>
+                            {item.badge && !active && (
+                              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ac80a0] text-[10px] font-bold text-white">
+                                {item.badge}
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Separator between sections */}
+              {!collapsed && <div className="mt-1 mb-0 h-px mx-4 bg-slate-100" />}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── CTA card (hidden when collapsed) ───────────────── */}
+      {!collapsed && (
+        <div className="px-3 pb-3">
+          <div className="rounded-2xl bg-gradient-to-br from-[#0471a6] to-[#3685b5] p-4 text-white">
+            <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-xl bg-white/20">
+              <Smartphone className="h-4 w-4" />
+            </div>
+            <p className="text-sm font-semibold leading-tight">Obtenez l&apos;app campus</p>
+            <p className="mt-1 text-[11px] text-blue-100 leading-relaxed">
+              Accès rapide à vos cours et notifications.
             </p>
-            <p className="text-[11px] text-slate-400 truncate">{profile.email ?? ROLE_LABELS[role]}</p>
+            <button
+              type="button"
+              className="mt-3 w-full rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-[#0471a6] hover:bg-blue-50 transition-colors"
+            >
+              Télécharger
+            </button>
           </div>
-        </Link>
-        <form action={signOut}>
-          <button
-            type="submit"
-            title="Se déconnecter"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
-        </form>
+        </div>
+      )}
+
+      {/* ── Profile + logout ────────────────────────────────── */}
+      <div className={['border-t border-slate-100 py-3', collapsed ? 'flex flex-col items-center gap-2 px-2' : 'flex items-center gap-2 px-3'].join(' ')}>
+        {collapsed ? (
+          <>
+            <Link
+              href="/dashboard/profile"
+              title={`${profile.prenom} ${profile.nom}`}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-[#89aae6]/30 text-[#3685b5] text-xs font-bold hover:bg-[#89aae6]/50 transition-colors"
+            >
+              {initials}
+            </Link>
+            <form action={signOut}>
+              <button
+                type="submit"
+                title="Se déconnecter"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
+            </form>
+          </>
+        ) : (
+          <>
+            <Link
+              href="/dashboard/profile"
+              onClick={() => setMobileOpen(false)}
+              className="flex flex-1 items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-slate-100 transition-colors min-w-0"
+            >
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#89aae6]/30 text-[#3685b5] text-xs font-bold">
+                {initials}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-xs font-semibold text-slate-800">
+                  {profile.prenom} {profile.nom}
+                </p>
+                <p className="text-[11px] text-slate-400 truncate">{profile.email ?? ROLE_LABELS[role]}</p>
+              </div>
+            </Link>
+            <form action={signOut}>
+              <button
+                type="submit"
+                title="Se déconnecter"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );
 
   return (
     <>
-      {/* Sidebar desktop */}
-      <aside className="hidden lg:flex lg:flex-col w-[220px] shrink-0 bg-white border-r border-slate-200/60 min-h-screen">
+      {/* ── Desktop sidebar ─────────────────────────────────── */}
+      <aside
+        className={[
+          'hidden lg:flex lg:flex-col shrink-0 bg-white border-r border-slate-200/60 min-h-screen transition-[width] duration-200 overflow-hidden',
+          collapsed ? 'w-[60px]' : 'w-[220px]',
+        ].join(' ')}
+      >
         {sidebarContent}
       </aside>
 
-      {/* Mobile header */}
+      {/* ── Mobile header bar ───────────────────────────────── */}
       <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200/60 bg-white px-4 lg:hidden">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0471a6]">
@@ -281,7 +420,7 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
         </button>
       </div>
 
-      {/* Mobile slide-in */}
+      {/* ── Mobile slide-in ─────────────────────────────────── */}
       {mobileOpen && (
         <>
           <div
