@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { ArrowLeft, FolderKanban, GraduationCap, History, QrCode, Star } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { requirePermission } from '@/lib/permissions';
-import { getMyAllClasses, getMyTeacherClasses } from '@/modules/pedagogy/actions';
+import { getAllClasses, getMyAllClasses, getMyTeacherClasses } from '@/modules/pedagogy/actions';
 
 const MODULE_ITEMS = [
   { key: 'notes',       label: 'Notes & moyennes',    description: 'Résultats et progression des élèves',      icon: Star,         gradient: 'from-amber-50 to-amber-50/30',      iconBg: 'bg-amber-100 text-amber-500',      profOnly: false },
@@ -21,13 +21,18 @@ export default async function ClasseDetailPage({ params }: ClasseDetailPageProps
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) return null;
 
+  const isCoord = userProfile.role === 'coordinateur' || userProfile.role === 'admin';
   const isProf = userProfile.role === 'professeur';
 
-  // Vérifier que la classe appartient bien à l'utilisateur
+  // Vérifier que l'utilisateur a accès à cette classe
   let activeClass: { id: string; nom: string; annee: string | number } | null = null;
   let isPastClass = false;
 
-  if (isProf) {
+  if (isCoord) {
+    // Coordinateur / admin → accès à toutes les classes
+    const classes = await getAllClasses();
+    activeClass = classes.find((c) => c.id === classeId) ?? null;
+  } else if (isProf) {
     const classes = await getMyTeacherClasses();
     activeClass = classes.find((c) => c.id === classeId) ?? null;
   } else {
