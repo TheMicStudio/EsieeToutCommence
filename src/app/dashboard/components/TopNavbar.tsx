@@ -43,7 +43,7 @@ export function TopNavbar({ userProfile }: TopNavbarProps) {
   const initials = getInitials(profile.prenom, profile.nom);
 
   return (
-    <div className="flex items-center gap-4 rounded-2xl bg-white px-5 py-3 shadow-sm border border-slate-200/60">
+    <div className="flex items-center gap-4 rounded-3xl bg-white px-5 py-3 shadow-card border border-slate-200/70">
       {/* Breadcrumb */}
       <div className="flex shrink-0 items-center gap-1.5 text-sm">
         <span className="text-slate-400">Dashboard</span>

@@ -50,7 +50,7 @@ export default async function DashboardLayout({
         <DashboardSidebar userProfile={userProfile} />
 
         {/* Zone centrale */}
-        <div className="flex flex-1 flex-col min-w-0 gap-5 p-4 lg:p-0 lg:overflow-hidden">
+        <div className="flex flex-1 flex-col min-w-0 gap-6 p-4 lg:p-0 lg:overflow-hidden">
           <TopNavbar userProfile={userProfile} />
           <main className="flex-1 overflow-y-auto min-w-0 pb-2">
             {children}

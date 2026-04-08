@@ -369,7 +369,7 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
       {/* ── Desktop : card flottante ─────────────────────────── */}
       <aside
         className={[
-          'hidden lg:flex lg:flex-col shrink-0 rounded-2xl bg-white shadow-sm border border-slate-200/60 overflow-hidden',
+          'hidden lg:flex lg:flex-col shrink-0 rounded-3xl bg-white shadow-card border border-slate-200/70 overflow-hidden',
           'transition-[width] duration-200',
           collapsed ? 'w-[60px]' : 'w-[220px]',
         ].join(' ')}

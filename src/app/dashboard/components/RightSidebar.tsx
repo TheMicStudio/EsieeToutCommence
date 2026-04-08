@@ -60,7 +60,7 @@ export function RightSidebar({ userProfile }: RightSidebarProps) {
   return (
     <div className="hidden xl:flex xl:flex-col w-[220px] shrink-0 gap-4">
       {/* Card : Documents récents */}
-      <div className="rounded-2xl bg-white shadow-sm border border-slate-200/60 p-4">
+      <div className="rounded-3xl bg-white shadow-card border border-slate-200/70 p-4">
         <div className="mb-3 flex items-center justify-between">
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
             Documents récents
@@ -95,7 +95,7 @@ export function RightSidebar({ userProfile }: RightSidebarProps) {
       </div>
 
       {/* Card : Contacts campus */}
-      <div className="rounded-2xl bg-white shadow-sm border border-slate-200/60 p-4">
+      <div className="rounded-3xl bg-white shadow-card border border-slate-200/70 p-4">
         <div className="mb-3 flex items-center justify-between">
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
             Contacts campus

@@ -373,9 +373,9 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Hero card */}
-      <div className="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+      <div className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-card">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex-1">
             <p className="text-sm font-medium text-slate-400">{heroLabel}</p>
@@ -428,7 +428,7 @@ export default async function DashboardPage() {
 
       {/* Widget actualités */}
       {latestNews.length > 0 && (
-        <div className="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm">
+        <div className="rounded-3xl border border-slate-200/70 bg-white p-5 shadow-card">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#89aae6]/20">
@@ -462,12 +462,12 @@ export default async function DashboardPage() {
       )}
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((card) => {
           const Icon = card.icon;
           return (
             <Link key={card.href + card.label} href={card.href} className="group block">
-              <div className="h-full rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:border-slate-300/80">
+              <div className="h-full rounded-3xl border border-slate-200/70 bg-white p-5 shadow-card transition-all duration-200 group-hover:shadow-md group-hover:border-slate-300">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs font-medium text-slate-400">{card.label}</p>
