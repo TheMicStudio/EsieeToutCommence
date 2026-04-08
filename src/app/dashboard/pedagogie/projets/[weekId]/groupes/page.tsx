@@ -23,7 +23,7 @@ export default async function GroupesPage({ params }: GroupesPageProps) {
   const currentUserId = user?.id ?? '';
 
   const groups = await getGroups(weekId);
-  const isProf = profile.role === 'professeur';
+  const isProf = profile.role === 'professeur' || profile.role === 'coordinateur' || profile.role === 'admin';
 
   const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
 

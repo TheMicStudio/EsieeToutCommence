@@ -5,6 +5,7 @@ import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getRequestPermissions } from '@/lib/permissions';
 import {
   computeAverage,
+  getAllClasses,
   getClassGrades,
   getClassStudents,
   getMyClass,
@@ -66,10 +67,11 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
     );
   }
 
-  // ── Vue professeur ────────────────────────────────────────────────────────
-  if (userProfile.role !== 'professeur') return null;
+  // ── Vue professeur / coordinateur / admin ────────────────────────────────
+  const isCoord = userProfile.role === 'coordinateur' || userProfile.role === 'admin';
+  if (userProfile.role !== 'professeur' && !isCoord) return null;
 
-  const teacherClasses = await getMyTeacherClasses();
+  const teacherClasses = isCoord ? await getAllClasses() : await getMyTeacherClasses();
   if (teacherClasses.length === 0) {
     return (
       <div className="space-y-4">

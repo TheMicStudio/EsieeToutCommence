@@ -22,7 +22,7 @@ export default async function SoutenancesPage({ params }: SoutenancesPageProps) 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const currentUserId = user?.id ?? '';
-  const isProf = profile.role === 'professeur';
+  const isProf = profile.role === 'professeur' || profile.role === 'coordinateur' || profile.role === 'admin';
 
   const [slots, groups] = await Promise.all([
     getSoutenanceSlots(weekId),

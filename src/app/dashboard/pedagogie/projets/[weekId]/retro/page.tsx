@@ -46,7 +46,7 @@ export default async function RetroPage({ params }: RetroPageProps) {
         initialPostits={postits}
         currentUserId={currentUserId}
         currentUserName={currentUserName}
-        isProf={profile.role === 'professeur'}
+        isProf={profile.role === 'professeur' || profile.role === 'coordinateur' || profile.role === 'admin'}
       />
     </div>
   );

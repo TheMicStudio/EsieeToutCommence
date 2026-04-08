@@ -22,7 +22,7 @@ export default async function WeekPage({ params }: WeekPageProps) {
   const { data: { user } } = await supabase.auth.getUser();
   const currentUserId = user?.id ?? '';
   const currentUserName = `${profile.profile.prenom} ${profile.profile.nom}`;
-  const isProf = profile.role === 'professeur';
+  const isProf = profile.role === 'professeur' || profile.role === 'coordinateur' || profile.role === 'admin';
 
   const { data: week } = await supabase
     .from('project_weeks').select().eq('id', weekId).single();
