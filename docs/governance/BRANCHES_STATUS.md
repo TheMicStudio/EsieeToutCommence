@@ -5,7 +5,7 @@
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
 **Dernière mise à jour :** 2026-04-08
-**Mis à jour par :** Claude (fix.md intégralement traité : nav/doublon émargement, création événement, scroll chat, édition notes, modals actualités+projets, recherche globale ; audit complet : guards rôle hardcodés→permissions, user!.id, revalidatePath manquants)
+**Mis à jour par :** Claude (fix.md intégralement traité : nav/doublon émargement, création événement, scroll chat, édition notes, modals actualités+projets, recherche globale ; audit complet : guards rôle hardcodés→permissions, user!.id, revalidatePath manquants ; spec Module 8 Espace Documentaire rédigée)
 
 ---
 
@@ -199,6 +199,60 @@ _Dev 3 doit d'abord terminer le Module 3 (ou en parallèle). Vérifier que les f
 
 ---
 
+---
+
+### `feat/T08-documents` — À assigner
+
+**Modules couverts :** Espace Documentaire (`docs/features/08_module_documentaire.md`)
+**Statut :** 🔴 PAS COMMENCÉ — Spec complète rédigée
+
+#### Fichiers à créer
+
+- `supabase/migrations/20260408070000_init_module_documents.sql`
+- `src/modules/documents/types/index.ts`
+- `src/modules/documents/actions.ts`
+- `src/modules/documents/lib/permissions.ts`
+- `src/modules/documents/components/FolderTree.tsx`
+- `src/modules/documents/components/FolderContents.tsx`
+- `src/modules/documents/components/FileCard.tsx`
+- `src/modules/documents/components/FolderCard.tsx`
+- `src/modules/documents/components/UploadDropzone.tsx`
+- `src/modules/documents/components/PermissionsModal.tsx`
+- `src/modules/documents/components/ShareModal.tsx`
+- `src/modules/documents/components/DocumentSearch.tsx`
+- `src/modules/documents/components/Breadcrumb.tsx`
+- `src/app/dashboard/documents/page.tsx`
+- `src/app/dashboard/documents/[folderId]/page.tsx`
+- `src/app/share/[token]/page.tsx`
+
+#### Checklist de progression
+
+- [ ] SQL exécuté (doc_folders, doc_files, doc_permissions, doc_share_links + RLS)
+- [ ] Bucket Storage `documents` créé (privé)
+- [ ] Types TypeScript
+- [ ] `permissions.ts` — résolution hiérarchique des droits (héritage parent → enfant)
+- [ ] Actions CRUD dossiers, fichiers, permissions, liens de partage
+- [ ] Composants UI (arborescence, upload, permissions, partage, recherche)
+- [ ] Pages routes `/dashboard/documents` et `/dashboard/documents/[folderId]`
+- [ ] Page publique `/share/[token]`
+- [ ] Guard middleware + entrée sidebar pour `admin` et `coordinateur`
+
+#### Dépendances
+
+- **Bloque :** Rien
+- **Bloqué par :** Module 1 (`getCurrentUserProfile`, `user_roles`)
+
+#### Notes
+
+- Accès réservé aux rôles `admin` et `coordinateur` (pas les profs)
+- Arborescence libre (dossiers dans dossiers, profondeur illimitée)
+- Droits par dossier, hérités par les enfants. Priorité : permission individuelle > permission par rôle
+- Pas de workflow de validation, pas de versioning
+- Partage : lien interne (rôle/personne) **ou** lien temporaire avec expiration et quota d'accès
+- Bucket Storage privé — fichiers accessibles uniquement via URL signées
+
+---
+
 ## SQL Migrations
 
 | Fichier | Statut | Tables créées |
@@ -214,6 +268,7 @@ _Dev 3 doit d'abord terminer le Module 3 (ou en parallèle). Vérifier que les f
 | `supabase/migrations/20260408040000_group_workspace.sql` | ✅ Pushé | group_messages, group_whiteboard, week_course_materials |
 | `supabase/migrations/20260408050000_add_roles_coordinateur_staff.sql` | ✅ Pushé | Nouveaux rôles coordinateur + staff dans l'enum role_principal |
 | `supabase/migrations/20260408060000_permissions_system.sql` | ✅ Pushé | Tables permissions, role_permissions, user_permission_overrides + seed 38 permissions × 7 rôles |
+| `supabase/migrations/20260408070000_init_module_documents.sql` | 🔴 À créer | doc_folders, doc_files, doc_permissions, doc_share_links + RLS |
 
 > ⚠️ Les migrations du Module 2 (classes, pedagogy, attendance) sont définies dans `docs/features/02_module_pedagogie_classe.md` et `docs/features/06_module_emargement_qrcode.md` — elles n'ont pas encore de fichier SQL dédié.
 
