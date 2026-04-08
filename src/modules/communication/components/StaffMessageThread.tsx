@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { useActionState, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { sendStaffMessage } from '../actions';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,7 @@ export function StaffMessageThread({
   const [state, action, pending] = useActionState(sendStaffMessage, null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -44,7 +44,7 @@ export function StaffMessageThread({
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [channelId, supabase]);
+  }, [channelId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex h-full flex-col">

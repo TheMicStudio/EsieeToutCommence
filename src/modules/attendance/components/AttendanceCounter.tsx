@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { AttendanceRecord } from '../types';
 
@@ -12,7 +12,7 @@ interface AttendanceCounterProps {
 
 export function AttendanceCounter({ sessionId, classSize, initialCount }: AttendanceCounterProps) {
   const [count, setCount] = useState(initialCount);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     const channel = supabase
@@ -27,7 +27,7 @@ export function AttendanceCounter({ sessionId, classSize, initialCount }: Attend
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [sessionId, supabase]);
+  }, [sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pct = classSize > 0 ? Math.round((count / classSize) * 100) : 0;
 

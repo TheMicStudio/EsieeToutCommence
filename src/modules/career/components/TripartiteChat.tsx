@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { useActionState, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { sendTripartiteMessage } from '../actions';
 import { Button } from '@/components/ui/button';
@@ -29,7 +29,7 @@ export function TripartiteChat({
   const [state, action, pending] = useActionState(sendTripartiteMessage, null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -54,7 +54,7 @@ export function TripartiteChat({
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [chat.id, supabase]);
+  }, [chat.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex h-[600px] flex-col overflow-hidden rounded-xl border bg-card">
