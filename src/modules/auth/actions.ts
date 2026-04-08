@@ -7,6 +7,7 @@ import type {
   ActionState,
   AdminProfile,
   CompanyProfile,
+  ParentProfile,
   RolePrincipal,
   StudentProfile,
   TeacherProfile,
@@ -112,6 +113,7 @@ export async function signUp(
       id: userId,
       nom: data.nom,
       prenom: data.prenom,
+      email: data.email,
       type_parcours: data.type_parcours ?? 'temps_plein',
     });
     profileError = error;
@@ -123,6 +125,7 @@ export async function signUp(
       id: userId,
       nom: data.nom,
       prenom: data.prenom,
+      email: data.email,
       matieres_enseignees: matieres,
     });
     profileError = error;
@@ -131,6 +134,7 @@ export async function signUp(
       id: userId,
       nom: data.nom,
       prenom: data.prenom,
+      email: data.email,
       fonction: data.fonction,
     });
     profileError = error;
@@ -139,8 +143,17 @@ export async function signUp(
       id: userId,
       nom: data.nom,
       prenom: data.prenom,
+      email: data.email,
       entreprise: data.entreprise ?? '',
       poste: data.poste,
+    });
+    profileError = error;
+  } else if (data.role === 'parent') {
+    const { error } = await supabase.from('parent_profiles').insert({
+      id: userId,
+      nom: data.nom,
+      prenom: data.prenom,
+      email: data.email,
     });
     profileError = error;
   }
@@ -221,6 +234,16 @@ export async function getCurrentUserProfile(): Promise<UserProfile | null> {
     return { role: 'entreprise', profile: data as CompanyProfile };
   }
 
+  if (role === 'parent') {
+    const { data } = await admin
+      .from('parent_profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+    if (!data) return null;
+    return { role: 'parent', profile: data as ParentProfile };
+  }
+
   return null;
 }
 
@@ -240,17 +263,25 @@ export async function updateProfile(
   const { role, profile } = userProfile;
   const nom = formData.get('nom') as string;
   const prenom = formData.get('prenom') as string;
+  const email = (formData.get('email') as string | null)?.trim() || undefined;
+  const phone_mobile = (formData.get('phone_mobile') as string | null)?.trim() || undefined;
+  const phone_fixed = (formData.get('phone_fixed') as string | null)?.trim() || undefined;
 
   if (!nom || !prenom) {
     return { error: 'Nom et prénom sont requis.' };
   }
+
+  const phoneFields = {
+    ...(phone_mobile !== undefined ? { phone_mobile } : {}),
+    ...(phone_fixed !== undefined ? { phone_fixed } : {}),
+  };
 
   let error = null;
 
   if (role === 'eleve') {
     const { error: e } = await supabase
       .from('student_profiles')
-      .update({ nom, prenom })
+      .update({ nom, prenom, ...phoneFields })
       .eq('id', profile.id);
     error = e;
   } else if (role === 'professeur') {
@@ -258,13 +289,13 @@ export async function updateProfile(
       ?.split(',').map((m) => m.trim()).filter(Boolean) ?? [];
     const { error: e } = await supabase
       .from('teacher_profiles')
-      .update({ nom, prenom, matieres_enseignees: matieres })
+      .update({ nom, prenom, matieres_enseignees: matieres, ...phoneFields })
       .eq('id', profile.id);
     error = e;
   } else if (role === 'admin') {
     const { error: e } = await supabase
       .from('admin_profiles')
-      .update({ nom, prenom, fonction: formData.get('fonction') as string })
+      .update({ nom, prenom, fonction: formData.get('fonction') as string, ...phoneFields })
       .eq('id', profile.id);
     error = e;
   } else if (role === 'entreprise') {
@@ -275,13 +306,52 @@ export async function updateProfile(
         prenom,
         entreprise: formData.get('entreprise') as string,
         poste: formData.get('poste') as string,
+        ...phoneFields,
       })
+      .eq('id', profile.id);
+    error = e;
+  } else if (role === 'parent') {
+    const { error: e } = await supabase
+      .from('parent_profiles')
+      .update({ nom, prenom, ...phoneFields })
       .eq('id', profile.id);
     error = e;
   }
 
   if (error) {
     return { error: 'Erreur lors de la mise à jour du profil.' };
+  }
+
+  return { success: true };
+}
+
+// ─── Changement d'email (flow séparé) ────────────────────────────────────────
+
+export async function requestEmailChange(
+  _prevState: ActionState | null,
+  formData: FormData
+): Promise<ActionState> {
+  const newEmail = (formData.get('new_email') as string)?.trim().toLowerCase();
+  const confirmEmail = (formData.get('confirm_email') as string)?.trim().toLowerCase();
+
+  if (!newEmail) return { error: 'Veuillez saisir une adresse e-mail.' };
+  if (newEmail !== confirmEmail) return { error: 'Les deux adresses ne correspondent pas.' };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Non authentifié.' };
+
+  if (newEmail === user.email?.toLowerCase()) {
+    return { error: 'C\'est déjà votre adresse e-mail actuelle.' };
+  }
+
+  const { error } = await supabase.auth.updateUser({ email: newEmail });
+
+  if (error) {
+    if (error.message.toLowerCase().includes('rate limit')) {
+      return { error: 'Trop de demandes envoyées. Attendez quelques minutes avant de réessayer.' };
+    }
+    return { error: 'Impossible de changer l\'e-mail : ' + error.message };
   }
 
   return { success: true };
