@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { addTicketMessage, updateTicketStatus, convertTicketToFaq } from '../actions';
 import { TicketStatusBadge } from './TicketStatusBadge';
 import { Button } from '@/components/ui/button';
+import { Paperclip } from 'lucide-react';
 import { CATEGORIE_LABELS, type Ticket, type TicketMessage, type TicketStatut } from '../types';
 
 interface TicketThreadProps {
@@ -63,6 +64,18 @@ export function TicketThread({ ticket, messages, authorNames, currentUserId, isA
           <TicketStatusBadge statut={currentStatut} />
         </div>
         <p className="text-sm text-muted-foreground whitespace-pre-wrap">{ticket.description}</p>
+
+        {ticket.attachment_url && (
+          <a
+            href={ticket.attachment_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-[#0471a6] hover:bg-slate-100 transition-colors"
+          >
+            <Paperclip className="h-4 w-4" />
+            {ticket.attachment_name ?? 'Pièce jointe'}
+          </a>
+        )}
 
         {/* Actions admin */}
         {isAdmin && (

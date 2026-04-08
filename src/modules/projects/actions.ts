@@ -164,6 +164,8 @@ export async function updateGroupLinks(
   groupId: string,
   repoUrl: string,
   slidesUrl: string,
+  slidesFileUrl?: string,
+  slidesFileName?: string,
 ): Promise<{ error?: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -182,7 +184,12 @@ export async function updateGroupLinks(
   const admin = createAdminClient();
   const { error } = await admin
     .from('project_groups')
-    .update({ repo_url: repoUrl || null, slides_url: slidesUrl || null })
+    .update({
+      repo_url: repoUrl || null,
+      slides_url: slidesUrl || null,
+      slides_file_url: slidesFileUrl || null,
+      slides_file_name: slidesFileName || null,
+    })
     .eq('id', groupId);
 
   if (error) return { error: error.message };

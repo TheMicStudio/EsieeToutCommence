@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createProjectWeek } from '../actions';
-import { CalendarDays, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
 const labelCls = 'block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5';
 
-export function CreateWeekForm({ classId }: { classId: string }) {
+export function CreateWeekForm({ classId, onClose }: { classId: string; onClose?: () => void }) {
   const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,18 +26,14 @@ export function CreateWeekForm({ classId }: { classId: string }) {
     setLoading(false);
 
     if (result.error) setError(result.error);
-    else if (result.week) router.push(`/dashboard/pedagogie/projets/${result.week.id}`);
+    else if (result.week) {
+      if (onClose) { onClose(); router.refresh(); }
+      else router.push(`/dashboard/pedagogie/projets/${result.week.id}`);
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm space-y-5">
-      <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0471a6]/10">
-          <CalendarDays className="h-4.5 w-4.5 text-[#0471a6]" />
-        </div>
-        <p className="font-semibold text-[#061826]">Nouvelle semaine projet</p>
-      </div>
-
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <label className={labelCls}>Titre *</label>
         <input
