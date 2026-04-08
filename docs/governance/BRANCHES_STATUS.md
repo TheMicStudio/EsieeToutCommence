@@ -4,8 +4,8 @@
 > Il DOIT être mis à jour par chaque IA (ou développeur) après chaque session de travail.
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
-**Dernière mise à jour :** 2026-04-07
-**Mis à jour par :** Claude (implémentation Module 01)
+**Dernière mise à jour :** 2026-04-08
+**Mis à jour par :** Claude (migration phone_columns + fixes chat realtime, export rétro, email rate limit)
 
 ---
 
@@ -55,7 +55,7 @@ main
 - `src/components/ui/input.tsx`, `label.tsx`, `card.tsx`, `badge.tsx`, `avatar.tsx`, `separator.tsx`, `tabs.tsx`
 
 #### Checklist de progression
-- [ ] SQL exécuté dans Supabase (tables `user_roles`, profils, RLS) ← **À FAIRE MANUELLEMENT**
+- [x] SQL exécuté dans Supabase (tables `user_roles`, profils, RLS) — via `supabase db push`
 - [x] `src/modules/auth/types/index.ts` créé
 - [x] `src/middleware.ts` créé
 - [x] Actions `signIn` / `signOut` / `signUp`
@@ -207,6 +207,8 @@ _Dev 3 doit d'abord terminer le Module 3 (ou en parallèle). Vérifier que les f
 |---------|--------|---------------|
 | `docs/sql/01_init_schema.sql` | 🔴 Non exécuté | `user_roles`, `student_profiles`, `teacher_profiles`, `admin_profiles`, `company_profiles` |
 | `docs/sql/02_projets_groupes_retro.sql` | 🔴 Non exécuté | `project_weeks`, `project_groups`, `group_members`, `soutenance_slots`, `retro_boards`, `retro_postits` |
+| `docs/sql/03_phone_columns_migration.sql` | ✅ Exécuté via `supabase db push` | Colonnes `phone_mobile` + `phone_fixed` sur tous les profils |
+| `supabase/migrations/20260408000000_add_phone_columns.sql` | ✅ Pushé | Idem (migration Supabase CLI) |
 
 > ⚠️ Les migrations du Module 2 (classes, pedagogy, attendance) sont définies dans `docs/features/02_module_pedagogie_classe.md` et `docs/features/06_module_emargement_qrcode.md` — elles n'ont pas encore de fichier SQL dédié.
 
