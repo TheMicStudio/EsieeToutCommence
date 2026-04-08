@@ -11,7 +11,7 @@ export default async function NouveauProjetPage({ searchParams }: NouveauPagePro
   const { classe: classeParam } = await searchParams;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-  if (profile.role !== 'professeur') redirect('/dashboard/pedagogie/projets');
+  await requirePermission('project_week.manage');
 
   const teacherClasses = await getMyTeacherClasses();
   if (teacherClasses.length === 0) redirect('/dashboard/pedagogie/projets');

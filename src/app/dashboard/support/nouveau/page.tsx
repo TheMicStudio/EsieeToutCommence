@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { TicketForm } from '@/modules/support/components/TicketForm';
 
 export default async function NouveauTicketPage() {
+  await requirePermission('support.use');
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
   

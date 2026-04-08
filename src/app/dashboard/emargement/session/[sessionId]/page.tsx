@@ -14,7 +14,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
   
-  if (profile.role !== 'professeur' && profile.role !== 'admin') redirect('/dashboard');
+  await requirePermission('attendance.manage');
 
   const supabase = await createClient();
   const { data: session } = await supabase

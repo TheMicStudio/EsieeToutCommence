@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 export default async function NouveauProjetPage() {
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-  if (!profile || profile.role !== 'professeur') redirect('/dashboard/projets');
+  await requirePermission('project_week.manage'); if (!profile) redirect('/dashboard/projets');
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

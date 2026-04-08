@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getAllParentThreads, getParentMessages } from '@/modules/parent/actions';
 import { ParentMessageThread } from '@/modules/parent/components/ParentMessageThread';
 import { createClient } from '@/lib/supabase/server';
@@ -16,7 +17,7 @@ export default async function ParentsCommunicationPage({ searchParams }: Parents
   const { lien: lienParam } = await searchParams;
   const profile = await getCurrentUserProfile();
   if (!profile) redirect('/login');
-  if (profile.role !== 'admin' && profile.role !== 'professeur') redirect('/dashboard');
+  await requirePermission('staff_channel.participate');
 
   const threads = await getAllParentThreads();
   const activeThread = threads.find((t) => t.id === lienParam) ?? threads[0] ?? null;

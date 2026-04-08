@@ -15,7 +15,7 @@ export default async function RetroPage({ params }: RetroPageProps) {
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
 
-  if (profile.role !== 'eleve' && profile.role !== 'professeur') redirect('/dashboard');
+  await requirePermission('retro.participate');
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

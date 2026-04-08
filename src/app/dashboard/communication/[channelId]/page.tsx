@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getStaffChannels, getChannelMessages, getStaffDirectory } from '@/modules/communication/actions';
 import { StaffMessageThread } from '@/modules/communication/components/StaffMessageThread';
 import { CreateChannelForm } from '@/modules/communication/components/CreateChannelForm';
@@ -11,11 +12,10 @@ interface ChannelPageProps {
 }
 
 export default async function ChannelPage({ params }: ChannelPageProps) {
+  await requirePermission('staff_channel.participate');
   const { channelId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-  
-  if (profile.role !== 'admin' && profile.role !== 'professeur') redirect('/dashboard');
 
   const [channels, messages, directory] = await Promise.all([
     getStaffChannels(),

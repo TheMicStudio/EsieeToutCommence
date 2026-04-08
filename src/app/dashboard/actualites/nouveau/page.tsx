@@ -1,13 +1,14 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { CreatePostForm } from '@/modules/news/components/CreatePostForm';
 
 export const metadata = { title: 'Nouvelle publication — EsieeToutCommence' };
 
 export default async function NouvellePublicationPage() {
+  await requirePermission('news.write');
   const profile = await getCurrentUserProfile();
   if (!profile) redirect('/login');
-  if (profile.role !== 'admin' && profile.role !== 'professeur') redirect('/dashboard/actualites');
 
   return (
     <div className="space-y-6 max-w-2xl">

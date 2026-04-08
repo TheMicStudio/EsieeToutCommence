@@ -2,11 +2,13 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ArrowRight, GraduationCap, History } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getMyAllClasses, getMyTeacherClasses } from '@/modules/pedagogy/actions';
 
 export const metadata = { title: 'Espace pédagogique — EsieeToutCommence' };
 
 export default async function PedagogiePage() {
+  await requirePermission('class.read');
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) return null;
 

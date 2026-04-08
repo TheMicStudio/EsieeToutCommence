@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getMyTripartiteChat, getTripartiteMessages } from '@/modules/career/actions';
 import { TripartiteChat } from '@/modules/career/components/TripartiteChat';
 import { createClient } from '@/lib/supabase/server';
@@ -7,6 +8,7 @@ import { createClient } from '@/lib/supabase/server';
 export const metadata = { title: 'Espace tripartite — EsieeToutCommence' };
 
 export default async function TripartitePage() {
+  await requirePermission('alternance.access');
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) return null;
 

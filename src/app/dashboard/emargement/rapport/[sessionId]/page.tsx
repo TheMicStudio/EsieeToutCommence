@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getAttendanceReport } from '@/modules/attendance/actions';
 import { AttendanceReport } from '@/modules/attendance/components/AttendanceReport';
 import { buttonVariants } from '@/components/ui/button';
@@ -14,7 +15,7 @@ export default async function RapportPage({ params }: RapportPageProps) {
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
   
-  if (profile.role !== 'professeur' && profile.role !== 'admin') redirect('/dashboard');
+  await requirePermission('attendance.read_class');
 
   const report = await getAttendanceReport(sessionId);
   if (!report) notFound();

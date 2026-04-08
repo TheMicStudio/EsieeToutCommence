@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { QrScanner } from '@/modules/attendance/components/QrScanner';
 
 export default async function ScanPage() {
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
   
-  if (profile.role !== 'eleve') redirect('/dashboard');
+  await requirePermission('attendance.read_own');
 
   return (
     <div className="mx-auto max-w-sm space-y-6 py-6">

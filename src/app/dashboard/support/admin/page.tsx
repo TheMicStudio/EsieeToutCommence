@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getAllTickets, getAdminList } from '@/modules/support/actions';
 import { KanbanBoard } from '@/modules/support/components/KanbanBoard';
 
 export default async function AdminSupportPage() {
+  await requirePermission('support.manage');
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-  if (profile.role !== 'admin') redirect('/dashboard/support');
 
   const [tickets, admins] = await Promise.all([getAllTickets(), getAdminList()]);
 

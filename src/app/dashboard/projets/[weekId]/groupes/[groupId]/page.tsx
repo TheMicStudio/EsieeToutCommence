@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getGroups, getGroupMessages, getGroupWhiteboard } from '@/modules/projects/actions';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -17,7 +18,7 @@ export default async function GroupWorkspacePage({ params }: GroupWorkspacePageP
   const { weekId, groupId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-  if (profile.role !== 'eleve' && profile.role !== 'professeur') redirect('/dashboard');
+  await requirePermission('project_group.read');
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

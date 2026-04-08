@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { getRequestPermissions } from '@/lib/permissions';
 import {
   computeAverage,
   getClassGrades,
@@ -24,6 +25,11 @@ interface NotesPageProps {
 }
 
 export default async function NotesPage({ searchParams }: NotesPageProps) {
+  const perms = await getRequestPermissions();
+  // eleve = grade.read_own, prof/coordinateur = grade.read_class ou grade.manage
+  if (!perms.has('grade.read_own') && !perms.has('grade.read_class') && !perms.has('grade.manage')) {
+    redirect('/dashboard');
+  }
   const { classe: classeParam, tab = 'saisie' } = await searchParams;
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) return null;

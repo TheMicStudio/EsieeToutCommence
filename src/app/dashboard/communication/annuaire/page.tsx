@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getStaffDirectory } from '@/modules/communication/actions';
 import { StaffDirectoryList } from '@/modules/communication/components/StaffDirectoryList';
 
@@ -7,7 +8,7 @@ export default async function AnnuairePage() {
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
   
-  if (profile.role !== 'admin' && profile.role !== 'professeur') redirect('/dashboard');
+  await requirePermission('staff_channel.participate');
 
   const contacts = await getStaffDirectory();
 

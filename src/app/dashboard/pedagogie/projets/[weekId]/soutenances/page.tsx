@@ -16,7 +16,7 @@ export default async function SoutenancesPage({ params }: SoutenancesPageProps) 
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
 
-  if (profile.role !== 'eleve' && profile.role !== 'professeur') redirect('/dashboard');
+  await requirePermission('soutenance.read');
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

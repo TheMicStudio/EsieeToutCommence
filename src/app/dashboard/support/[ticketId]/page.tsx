@@ -1,5 +1,6 @@
 import { redirect, notFound } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getTicketById, getTicketMessages } from '@/modules/support/actions';
 import { getStaffDirectory } from '@/modules/communication/actions';
 import { TicketThread } from '@/modules/support/components/TicketThread';
@@ -9,7 +10,8 @@ interface TicketPageProps {
   params: Promise<{ ticketId: string }>;
 }
 
-export default async function TicketPage({ params }: TicketPageProps) {
+export default async function TicketPage({
+  await requirePermission('support.use'); params }: TicketPageProps) {
   const { ticketId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;

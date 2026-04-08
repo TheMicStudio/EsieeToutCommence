@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getMyTeacherClasses } from '@/modules/pedagogy/actions';
 import { getMyTeacherSessions } from '@/modules/attendance/actions/index';
 import { StartSessionForm } from '@/modules/attendance/components/StartSessionForm';
@@ -15,7 +16,7 @@ export default async function EmargementPage({ searchParams }: EmargementPagePro
   const { classe: classeParam } = await searchParams;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-  if (profile.role !== 'professeur') redirect('/dashboard');
+  await requirePermission('attendance.manage');
 
   const teacherClasses = await getMyTeacherClasses();
   const activeClass = teacherClasses.find((c) => c.id === classeParam) ?? teacherClasses[0] ?? null;

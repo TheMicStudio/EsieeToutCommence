@@ -1,16 +1,16 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getProjectWeeks, getGroups } from '@/modules/projects/actions';
 import { ProjectWeekCard } from '@/modules/projects/components/ProjectWeekCard';
 import { createClient } from '@/lib/supabase/server';
 import { CalendarPlus } from 'lucide-react';
 
 export default async function ProjetsPage() {
+  await requirePermission('project_week.read');
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-
-  if (profile.role !== 'eleve' && profile.role !== 'professeur') redirect('/dashboard');
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

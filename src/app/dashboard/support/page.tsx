@@ -2,14 +2,16 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getMyTickets } from '@/modules/support/actions';
 import { TicketList } from '@/modules/support/components/TicketList';
 
 export default async function SupportPage() {
+  await requirePermission('support.use');
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
 
-  if (profile.role === 'admin') redirect('/dashboard/support/admin');
+  if (profile.role === 'admin' || profile.role === 'staff') redirect('/dashboard/support/admin');
 
   const tickets = await getMyTickets();
 

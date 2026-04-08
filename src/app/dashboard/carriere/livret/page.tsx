@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getMyEntries, getMyTripartiteChat } from '@/modules/career/actions';
 import { ApprenticeshipList } from '@/modules/career/components/ApprenticeshipList';
 import { UploadEntryForm } from '@/modules/career/components/UploadEntryForm';
@@ -9,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 export const metadata = { title: 'Livret d\'apprentissage — EsieeToutCommence' };
 
 export default async function LivretPage() {
+  await requirePermission('alternance.access');
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) return null;
 

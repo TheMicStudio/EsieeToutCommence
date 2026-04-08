@@ -39,8 +39,8 @@ export function PostCard({ post, canManage, isAdmin }: PostCardProps) {
 
   return (
     <article className={[
-      'rounded-2xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md',
-      post.pinned ? 'border-[#0471a6]/30' : 'border-slate-200/60',
+      'rounded-3xl border bg-white p-5 shadow-card transition-all hover:shadow-md hover:-translate-y-0.5',
+      post.pinned ? 'border-[#0471a6]/30' : 'border-slate-200/70',
     ].join(' ')}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2 min-w-0">

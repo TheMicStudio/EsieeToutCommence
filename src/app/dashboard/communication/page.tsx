@@ -1,13 +1,13 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getStaffChannels } from '@/modules/communication/actions';
 import { CreateChannelForm } from '@/modules/communication/components/CreateChannelForm';
 
 export default async function CommunicationPage() {
+  await requirePermission('staff_channel.participate');
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-
-  if (profile.role !== 'admin' && profile.role !== 'professeur') redirect('/dashboard');
 
   const channels = await getStaffChannels();
   if (channels.length > 0) {

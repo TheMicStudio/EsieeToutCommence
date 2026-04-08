@@ -1,10 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Calendar, MapPin } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calendar, MapPin, CheckCircle2 } from 'lucide-react';
 import { registerToEvent, unregisterFromEvent } from '../actions';
 import type { CareerEvent } from '../types';
 
@@ -29,46 +26,54 @@ export function EventCard({ event, isRegistered, isEleve }: EventCardProps) {
   }
 
   return (
-    <Card className={isPast ? 'opacity-60' : 'transition-all hover:border-primary/40 hover:shadow-sm'}>
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-base">{event.titre}</CardTitle>
-          {isPast && <Badge variant="secondary">Passé</Badge>}
-          {isRegistered && !isPast && <Badge>Inscrit</Badge>}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <Calendar className="h-3.5 w-3.5" />
+    <div className="flex flex-col rounded-3xl border border-slate-200/70 bg-white shadow-card p-5 transition-all hover:shadow-md hover:-translate-y-0.5">
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-sm font-semibold text-[#061826] leading-snug">{event.titre}</h3>
+        {isRegistered && !isPast && (
+          <span className="shrink-0 flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700">
+            <CheckCircle2 className="h-3 w-3" />
+            Inscrit
+          </span>
+        )}
+      </div>
+
+      <div className="mt-3 flex flex-col gap-1.5">
+        <div className="flex items-center gap-1.5 text-xs text-slate-400">
+          <Calendar className="h-3 w-3 shrink-0 text-amber-400" />
+          <span className="capitalize">
             {dateDebut.toLocaleDateString('fr-FR', {
               weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
             })}
-          </div>
-          {event.lieu && (
-            <div className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5" />
-              {event.lieu}
-            </div>
-          )}
+          </span>
         </div>
-
-        {event.description && (
-          <p className="line-clamp-2 text-sm text-muted-foreground">{event.description}</p>
+        {event.lieu && (
+          <div className="flex items-center gap-1.5 text-xs text-slate-400">
+            <MapPin className="h-3 w-3 shrink-0 text-[#89aae6]" />
+            {event.lieu}
+          </div>
         )}
+      </div>
 
-        {isEleve && !isPast && (
-          <form action={handleToggle}>
-            <Button
-              type="submit"
-              size="sm"
-              variant={isRegistered ? 'outline' : 'default'}
-            >
-              {isRegistered ? 'Se désinscrire' : 'S\'inscrire'}
-            </Button>
-          </form>
-        )}
-      </CardContent>
-    </Card>
+      {event.description && (
+        <p className="mt-3 flex-1 line-clamp-2 text-sm text-slate-500 leading-relaxed">{event.description}</p>
+      )}
+
+      {isEleve && !isPast && (
+        <div className="mt-4 pt-4 border-t border-slate-100">
+          <button
+            type="button"
+            onClick={handleToggle}
+            className={[
+              'rounded-2xl px-4 py-2 text-xs font-semibold transition-colors',
+              isRegistered
+                ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                : 'bg-[#0471a6] text-white hover:bg-[#0471a6]/90',
+            ].join(' ')}
+          >
+            {isRegistered ? 'Se désinscrire' : "S'inscrire"}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

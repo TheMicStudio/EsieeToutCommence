@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getSoutenanceSlots, getGroups } from '@/modules/projects/actions';
 import { SoutenanceGrid } from '@/modules/projects/components/SoutenanceGrid';
 import { createClient } from '@/lib/supabase/server';
@@ -13,7 +14,7 @@ export default async function SoutenancesPage({ params }: SoutenancesPageProps) 
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
   
-  if (profile.role !== 'eleve' && profile.role !== 'professeur') redirect('/dashboard');
+  await requirePermission('soutenance.read');
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, Plus, Users, Star, GitBranch, Presentation, Lock, UserPlus } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getGroups, createGroup } from '@/modules/projects/actions';
 import { JoinGroupButton } from '@/modules/projects/components/JoinGroupButton';
 import { SubmitLinksForm } from '@/modules/projects/components/SubmitLinksForm';
@@ -29,7 +30,7 @@ export default async function GroupesPage({ params }: GroupesPageProps) {
   const { weekId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-  if (profile.role !== 'eleve' && profile.role !== 'professeur') redirect('/dashboard');
+  await requirePermission('project_group.read');
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

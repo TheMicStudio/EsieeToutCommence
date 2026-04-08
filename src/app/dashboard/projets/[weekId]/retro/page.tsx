@@ -1,5 +1,6 @@
 import { redirect, notFound } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getRetroBoard, getRetroPostits } from '@/modules/projects/actions';
 import { RetroBoard } from '@/modules/projects/components/RetroBoard';
 import { createClient } from '@/lib/supabase/server';
@@ -13,7 +14,7 @@ export default async function RetroPage({ params }: RetroPageProps) {
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
   
-  if (profile.role !== 'eleve' && profile.role !== 'professeur') redirect('/dashboard');
+  await requirePermission('retro.participate');
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

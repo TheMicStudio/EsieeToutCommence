@@ -1,10 +1,16 @@
 import Link from 'next/link';
 import { Briefcase, Calendar, GraduationCap, MessageSquare } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { getRequestPermissions } from '@/lib/permissions';
+import { redirect } from 'next/navigation';
 
 export const metadata = { title: 'Carrière — EsieeToutCommence' };
 
 export default async function CarrierePage() {
+  const perms = await getRequestPermissions();
+  if (!perms.has('career_event.read') && !perms.has('alternance.access') && !perms.has('alternance.validate')) {
+    redirect('/dashboard');
+  }
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) return null;
 
@@ -43,16 +49,24 @@ export default async function CarrierePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[#061826]">Carrière</h1>
-          <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+      {/* Header */}
+      <div className="rounded-3xl border border-slate-200/70 bg-white shadow-card px-6 py-5">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0471a6]/10">
+              <Briefcase className="h-5 w-5 text-[#0471a6]" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-[#061826]">Carrière</h1>
+              <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p>
+            </div>
+          </div>
+          {isEleve && (
+            <span className={['rounded-2xl px-3.5 py-2 text-sm font-semibold', isAlternant ? 'bg-[#ac80a0]/10 text-[#ac80a0]' : 'bg-slate-100 text-slate-600'].join(' ')}>
+              {isAlternant ? 'Alternant' : 'Temps plein'}
+            </span>
+          )}
         </div>
-        {isEleve && (
-          <span className={['w-fit rounded-full px-3 py-1 text-xs font-semibold', isAlternant ? 'bg-[#ac80a0]/20 text-[#ac80a0]' : 'bg-slate-100 text-slate-600'].join(' ')}>
-            {isAlternant ? 'Alternant' : 'Temps plein'}
-          </span>
-        )}
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -60,12 +74,12 @@ export default async function CarrierePage() {
           const Icon = item.icon;
           return (
             <Link key={item.href} href={item.href} className="group block">
-              <div className={['h-full rounded-2xl border border-slate-200/60 bg-gradient-to-br p-5 shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:-translate-y-0.5', item.gradient].join(' ')}>
-                <div className={['mb-4 flex h-10 w-10 items-center justify-center rounded-xl', item.iconBg].join(' ')}>
+              <div className={['h-full rounded-3xl border border-slate-200/70 bg-gradient-to-br shadow-card p-6 transition-all duration-200 group-hover:shadow-md group-hover:-translate-y-0.5', item.gradient].join(' ')}>
+                <div className={['mb-4 flex h-11 w-11 items-center justify-center rounded-2xl', item.iconBg].join(' ')}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <p className="font-semibold text-[#061826]">{item.label}</p>
-                <p className="mt-1 text-sm text-slate-500">{item.description}</p>
+                <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">{item.description}</p>
               </div>
             </Link>
           );

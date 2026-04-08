@@ -1,5 +1,6 @@
 import { redirect, notFound } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import {
   getGroups, getSoutenanceSlots, getWeekCourseMaterials,
   getRetroBoard, getRetroPostits, getGroupMessages, getGroupWhiteboard,
@@ -15,7 +16,7 @@ export default async function WeekPage({ params }: WeekPageProps) {
   const { weekId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-  if (profile.role !== 'eleve' && profile.role !== 'professeur') redirect('/dashboard');
+  await requirePermission('project_week.read');
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

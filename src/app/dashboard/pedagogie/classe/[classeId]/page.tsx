@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ArrowLeft, FolderKanban, GraduationCap, History, QrCode, Star } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getMyAllClasses, getMyTeacherClasses } from '@/modules/pedagogy/actions';
 
 const MODULE_ITEMS = [
@@ -14,7 +15,8 @@ interface ClasseDetailPageProps {
   params: Promise<{ classeId: string }>;
 }
 
-export default async function ClasseDetailPage({ params }: ClasseDetailPageProps) {
+export default async function ClasseDetailPage({
+  await requirePermission('class.read'); params }: ClasseDetailPageProps) {
   const { classeId } = await params;
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) return null;

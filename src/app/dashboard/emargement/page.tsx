@@ -1,16 +1,18 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { getRequestPermissions } from '@/lib/permissions';
 import { getMyTeacherSessions } from '@/modules/attendance/actions';
 import { StartSessionForm } from '@/modules/attendance/components/StartSessionForm';
 import { createClient } from '@/lib/supabase/server';
 
 export default async function EmargementPage() {
+  const perms = await getRequestPermissions();
+  if (!perms.has('attendance.manage') && !perms.has('attendance.read_own')) {
+    redirect('/dashboard');
+  }
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-
-  // Seuls les professeurs ont accès à cette page
-  if (profile.role !== 'professeur') redirect('/dashboard');
 
   const teacherId = profile.profile.id;
 
