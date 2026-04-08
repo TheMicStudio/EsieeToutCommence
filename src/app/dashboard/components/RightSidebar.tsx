@@ -8,7 +8,6 @@ interface RightSidebarProps {
   userProfile: UserProfile;
 }
 
-// Faux "documents récents" par rôle — à remplacer par données réelles plus tard
 type DocItem = {
   label: string;
   sub: string;
@@ -59,67 +58,72 @@ export function RightSidebar({ userProfile }: RightSidebarProps) {
   const docs = getRecentDocs(userProfile.role);
 
   return (
-    <aside className="hidden xl:flex xl:flex-col w-[240px] shrink-0 gap-4 overflow-y-auto px-4 py-0 pb-6">
-      {/* Recent Documents */}
-      <div className="rounded-2xl border border-slate-200/60 bg-white p-4 shadow-sm">
-        <div className="mb-3 flex items-center justify-between">
-          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-            Documents récents
-          </p>
-          <Link
-            href="/dashboard/pedagogie"
-            className="text-[11px] font-semibold text-[#0471a6] hover:underline"
-          >
-            Voir tout
-          </Link>
+    <aside className="hidden xl:flex xl:flex-col w-[220px] shrink-0 rounded-2xl bg-white shadow-sm border border-slate-200/60 overflow-y-auto">
+      <div className="flex flex-col gap-5 p-4 h-full">
+        {/* Recent Documents */}
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+              Documents récents
+            </p>
+            <Link
+              href="/dashboard/pedagogie"
+              className="text-[11px] font-semibold text-[#0471a6] hover:underline"
+            >
+              Voir tout
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {docs.map((doc) => {
+              const Icon = doc.icon;
+              return (
+                <Link
+                  key={doc.label + doc.href}
+                  href={doc.href}
+                  className="flex items-center gap-3 rounded-xl p-2 -mx-2 hover:bg-slate-50 transition-colors"
+                >
+                  <div className={['flex h-9 w-9 shrink-0 items-center justify-center rounded-xl', doc.iconBg].join(' ')}>
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-[13px] font-semibold text-slate-800">{doc.label}</p>
+                    <p className="truncate text-[11px] text-slate-400">{doc.sub}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
-        <div className="space-y-3">
-          {docs.map((doc) => {
-            const Icon = doc.icon;
-            return (
-              <Link
-                key={doc.label + doc.href}
-                href={doc.href}
-                className="flex items-center gap-3 rounded-xl p-2 -mx-2 hover:bg-slate-50 transition-colors"
-              >
-                <div className={['flex h-9 w-9 shrink-0 items-center justify-center rounded-xl', doc.iconBg].join(' ')}>
-                  <Icon className="h-4 w-4" />
+
+        {/* Séparateur */}
+        <div className="h-px bg-slate-100" />
+
+        {/* Campus Contacts */}
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+              Contacts campus
+            </p>
+            <Link
+              href="/dashboard/annuaire"
+              className="text-[11px] font-semibold text-[#0471a6] hover:underline"
+            >
+              Tous
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {CONTACTS.map((c) => (
+              <div key={c.name} className="flex items-center gap-3">
+                <div className={['flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold', c.color].join(' ')}>
+                  {c.initials}
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-[13px] font-semibold text-slate-800">{doc.label}</p>
-                  <p className="truncate text-[11px] text-slate-400">{doc.sub}</p>
+                  <p className="truncate text-[13px] font-semibold text-slate-800">{c.name}</p>
+                  <p className="truncate text-[11px] text-slate-400">{c.role}</p>
                 </div>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Campus Contacts */}
-      <div className="rounded-2xl border border-slate-200/60 bg-white p-4 shadow-sm">
-        <div className="mb-3 flex items-center justify-between">
-          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-            Contacts campus
-          </p>
-          <Link
-            href="/dashboard/annuaire"
-            className="text-[11px] font-semibold text-[#0471a6] hover:underline"
-          >
-            Tous
-          </Link>
-        </div>
-        <div className="space-y-3">
-          {CONTACTS.map((c) => (
-            <div key={c.name} className="flex items-center gap-3">
-              <div className={['flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold', c.color].join(' ')}>
-                {c.initials}
               </div>
-              <div className="min-w-0">
-                <p className="truncate text-[13px] font-semibold text-slate-800">{c.name}</p>
-                <p className="truncate text-[11px] text-slate-400">{c.role}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </aside>

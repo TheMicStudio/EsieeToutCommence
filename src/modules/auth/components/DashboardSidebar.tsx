@@ -13,7 +13,6 @@ import {
   LogOut,
   MessageSquare,
   Newspaper,
-  Settings,
   Smartphone,
   UserRound,
   Users,
@@ -173,13 +172,14 @@ interface DashboardSidebarProps {
 export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openSections, setOpenSections] = useState<Set<string>>(new Set(['Principal', 'Pédagogie', 'Vie scolaire', 'Gestion', 'Communication', 'Alternance']));
+  const [openSections, setOpenSections] = useState<Set<string>>(
+    new Set(['Principal', 'Pédagogie', 'Vie scolaire', 'Gestion', 'Communication', 'Alternance'])
+  );
   const pathname = usePathname();
   const { profile, role } = userProfile;
   const sections = getNavSections(role);
   const initials = getInitials(profile.prenom, profile.nom);
 
-  // Restore collapse state from localStorage
   useEffect(() => {
     try {
       const stored = localStorage.getItem(LS_KEY);
@@ -211,14 +211,22 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
 
   let colorIdx = 0;
 
+  // ── Contenu partagé entre desktop et mobile drawer ───────────────────────
   const sidebarContent = (
     <div className="flex h-full flex-col">
-      {/* ── Brand + collapse button ─────────────────────────── */}
-      <div className={['flex items-center py-4 border-b border-slate-100', collapsed ? 'justify-center px-0' : 'justify-between px-4 gap-3'].join(' ')}>
-        {!collapsed && (
+      {/* Brand + toggle */}
+      <div className={[
+        'flex items-center py-4 border-b border-slate-100',
+        collapsed ? 'justify-center px-3' : 'justify-between px-4 gap-3',
+      ].join(' ')}>
+        {collapsed ? (
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#0471a6]">
+            <GraduationCap className="h-[18px] w-[18px] text-white" />
+          </div>
+        ) : (
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#0471a6]">
-              <GraduationCap className="h-4.5 w-4.5 h-[18px] w-[18px] text-white" />
+              <GraduationCap className="h-[18px] w-[18px] text-white" />
             </div>
             <div className="min-w-0">
               <p className="text-sm font-bold leading-tight text-[#061826] truncate">Hub École</p>
@@ -226,32 +234,22 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
             </div>
           </div>
         )}
-        {collapsed && (
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#0471a6]">
-            <GraduationCap className="h-[18px] w-[18px] text-white" />
-          </div>
-        )}
-        {/* Hidden on mobile, shown on desktop only */}
         <button
           type="button"
           onClick={toggleCollapse}
           title={collapsed ? 'Développer' : 'Réduire'}
-          className={[
-            'hidden lg:flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors',
-            collapsed ? 'mt-0' : '',
-          ].join(' ')}
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
       </div>
 
-      {/* ── Scrollable nav ──────────────────────────────────── */}
+      {/* Nav scrollable */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden py-3 space-y-1">
         {sections.map((section) => {
           const isOpen = openSections.has(section.title);
           return (
             <div key={section.title}>
-              {/* Section header */}
               {!collapsed && (
                 <button
                   type="button"
@@ -262,15 +260,12 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
                   <ChevronDown className={['h-3 w-3 transition-transform', isOpen ? '' : '-rotate-90'].join(' ')} />
                 </button>
               )}
-
-              {/* Nav items */}
               {(isOpen || collapsed) && (
-                <div className={['space-y-0.5', collapsed ? 'px-2' : 'px-2'].join(' ')}>
+                <div className="px-2 space-y-0.5">
                   {section.items.map((item) => {
                     const active = isActive(item.href);
                     const Icon = item.icon;
                     const colorClass = SECTION_ICON_COLORS[colorIdx++ % SECTION_ICON_COLORS.length];
-
                     return (
                       <Link
                         key={item.href}
@@ -285,13 +280,11 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
                             : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
                         ].join(' ')}
                       >
-                        <span
-                          className={[
-                            'flex shrink-0 items-center justify-center rounded-lg',
-                            collapsed ? 'h-5 w-5' : 'h-6 w-6',
-                            active ? 'bg-white/20' : colorClass,
-                          ].join(' ')}
-                        >
+                        <span className={[
+                          'flex shrink-0 items-center justify-center rounded-lg',
+                          collapsed ? 'h-5 w-5' : 'h-6 w-6',
+                          active ? 'bg-white/20' : colorClass,
+                        ].join(' ')}>
                           <Icon className="h-3.5 w-3.5" />
                         </span>
                         {!collapsed && (
@@ -309,15 +302,13 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
                   })}
                 </div>
               )}
-
-              {/* Separator between sections */}
-              {!collapsed && <div className="mt-1 mb-0 h-px mx-4 bg-slate-100" />}
+              {!collapsed && <div className="mt-1 h-px mx-4 bg-slate-100" />}
             </div>
           );
         })}
       </div>
 
-      {/* ── CTA card (hidden when collapsed) ───────────────── */}
+      {/* CTA card */}
       {!collapsed && (
         <div className="px-3 pb-3">
           <div className="rounded-2xl bg-gradient-to-br from-[#0471a6] to-[#3685b5] p-4 text-white">
@@ -338,8 +329,11 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
         </div>
       )}
 
-      {/* ── Profile + logout ────────────────────────────────── */}
-      <div className={['border-t border-slate-100 py-3', collapsed ? 'flex flex-col items-center gap-2 px-2' : 'flex items-center gap-2 px-3'].join(' ')}>
+      {/* Profile + logout */}
+      <div className={[
+        'border-t border-slate-100 py-3',
+        collapsed ? 'flex flex-col items-center gap-2 px-2' : 'flex items-center gap-2 px-3',
+      ].join(' ')}>
         {collapsed ? (
           <>
             <Link
@@ -393,18 +387,19 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
 
   return (
     <>
-      {/* ── Desktop sidebar ─────────────────────────────────── */}
+      {/* ── Desktop : card flottante ─────────────────────────── */}
       <aside
         className={[
-          'hidden lg:flex lg:flex-col shrink-0 bg-white border-r border-slate-200/60 min-h-screen transition-[width] duration-200 overflow-hidden',
+          'hidden lg:flex lg:flex-col shrink-0 rounded-2xl bg-white shadow-sm border border-slate-200/60 overflow-hidden',
+          'transition-[width] duration-200',
           collapsed ? 'w-[60px]' : 'w-[220px]',
         ].join(' ')}
       >
         {sidebarContent}
       </aside>
 
-      {/* ── Mobile header bar ───────────────────────────────── */}
-      <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200/60 bg-white px-4 lg:hidden">
+      {/* ── Mobile : header bar ──────────────────────────────── */}
+      <div className="flex h-14 shrink-0 items-center justify-between bg-white/80 backdrop-blur-sm border-b border-slate-200/60 px-4 lg:hidden">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0471a6]">
             <GraduationCap className="h-4 w-4 text-white" />
@@ -420,7 +415,7 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
         </button>
       </div>
 
-      {/* ── Mobile slide-in ─────────────────────────────────── */}
+      {/* ── Mobile : drawer ──────────────────────────────────── */}
       {mobileOpen && (
         <>
           <div

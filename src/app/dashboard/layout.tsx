@@ -32,36 +32,33 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#F7F9FB]">
-      {/* Blobs décoratifs */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed -top-40 -right-40 h-96 w-96 rounded-full bg-[#89aae6]/25 blur-3xl z-0"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none fixed -bottom-32 -left-32 h-80 w-80 rounded-full bg-[#ac80a0]/20 blur-3xl z-0"
-      />
+    <div className="relative min-h-screen lg:h-screen lg:overflow-hidden bg-[#F7F9FB]">
+      {/* ── Blobs décoratifs ────────────────────────────────── */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+        <div className="absolute -top-24 -left-24 h-[420px] w-[420px] rounded-full bg-[#89aae6]/30 blur-[80px]" />
+        <div className="absolute top-1/2 -translate-y-1/2 -right-32 h-[360px] w-[360px] rounded-full bg-[#ac80a0]/20 blur-[80px]" />
+        <div className="absolute -bottom-24 left-1/3 h-[300px] w-[300px] rounded-full bg-[#0471a6]/15 blur-[80px]" />
+      </div>
 
-      {/* Sidebar gauche (desktop) + header mobile */}
-      <DashboardSidebar userProfile={userProfile} />
+      {/* ── Layout principal ────────────────────────────────── */}
+      {/*
+        flex-col sur mobile  → sidebar header en haut, puis contenu
+        flex-row sur desktop → left sidebar | center | right sidebar
+      */}
+      <div className="relative z-10 flex flex-col lg:flex-row h-full lg:gap-3 lg:p-3">
+        {/* Left sidebar : header mobile (lg:hidden) + card desktop (hidden lg:flex) */}
+        <DashboardSidebar userProfile={userProfile} />
 
-      {/* Zone centrale + droite */}
-      <div className="flex flex-1 flex-col min-w-0 relative z-10">
-        <div className="flex flex-1 flex-col min-w-0 gap-4 p-4 lg:p-5">
-          {/* Navbar pill */}
+        {/* Zone centrale */}
+        <div className="flex flex-1 flex-col min-w-0 gap-4 p-4 lg:p-0 lg:gap-3 lg:overflow-hidden">
           <TopNavbar userProfile={userProfile} />
-
-          {/* Page content */}
-          <div className="flex flex-1 gap-4">
-            <main className="flex-1 min-w-0 overflow-y-auto">
-              {children}
-            </main>
-
-            {/* Right sidebar */}
-            <RightSidebar userProfile={userProfile} />
-          </div>
+          <main className="flex-1 overflow-y-auto min-w-0 pb-2">
+            {children}
+          </main>
         </div>
+
+        {/* Right sidebar : pleine hauteur */}
+        <RightSidebar userProfile={userProfile} />
       </div>
     </div>
   );
