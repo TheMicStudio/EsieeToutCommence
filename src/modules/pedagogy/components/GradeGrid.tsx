@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { addGrade } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,11 +23,20 @@ interface GradeGridProps {
 export function GradeGrid({ classId, students, grades, matieres }: GradeGridProps) {
   const [state, action, pending] = useActionState(addGrade, null);
   const [selectedStudent, setSelectedStudent] = useState<string>('');
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Reset le formulaire après succès
+  useEffect(() => {
+    if (state?.success) {
+      formRef.current?.reset();
+      setSelectedStudent('');
+    }
+  }, [state]);
 
   return (
     <div className="space-y-6">
       {/* Formulaire saisie note */}
-      <form action={action} className="rounded-xl border bg-card p-5 space-y-4">
+      <form ref={formRef} action={action} className="rounded-xl border bg-card p-5 space-y-4">
         <h3 className="font-semibold">Ajouter une note</h3>
         <input type="hidden" name="class_id" value={classId} />
 

@@ -8,7 +8,7 @@ interface AverageWidgetProps {
 
 function getProgressColor(moyenne: number): string {
   if (moyenne >= 14) return 'text-primary';
-  if (moyenne >= 10) return 'text-secondary-foreground';
+  if (moyenne >= 10) return 'text-amber-600 dark:text-amber-400';
   return 'text-destructive';
 }
 
