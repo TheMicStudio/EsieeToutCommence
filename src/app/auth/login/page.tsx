@@ -29,15 +29,11 @@ export default function LoginPage() {
           className="flex-1 bg-white rounded-[28px] border border-[#E2E8F0] flex items-center justify-center"
           style={{ boxShadow: '0 1px 0 rgba(15,23,42,0.06), 0 10px 30px rgba(15,23,42,0.06)' }}
         >
-          <div className="w-full max-w-sm px-8 py-8">
-            {/* Site name */}
-            <p className="text-center text-[16px] font-semibold text-[#1E293B] mb-6">
-              Coding Hub
-            </p>
+          <div className="w-full max-w-md px-8 py-8">
 
             {/* Heading */}
             <h1 className="text-center text-[32px] font-bold tracking-tight text-[#1E293B] leading-tight">
-              Bienvenue sur Coding Hub
+              Bienvenue sur EsieeToutCommence
             </h1>
 
             {/* Subtitle */}

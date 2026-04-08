@@ -61,7 +61,7 @@ export function LoginForm() {
               autoComplete="email"
               autoCapitalize="none"
               autoCorrect="off"
-              className="pl-10 h-11 border-[#E2E8F0] rounded-lg text-[14px] placeholder:text-slate-400 focus-visible:ring-[#00A3E0]/30 focus-visible:border-[#00A3E0]"
+              className="pl-10 h-12 border-[#E2E8F0] rounded-lg text-[14px] placeholder:text-slate-400 focus-visible:ring-[#00A3E0]/30 focus-visible:border-[#00A3E0]"
             />
           </div>
         </div>
@@ -88,7 +88,7 @@ export function LoginForm() {
               placeholder="••••••••"
               required
               autoComplete="current-password"
-              className="pl-10 pr-12 h-11 border-[#E2E8F0] rounded-lg text-[14px] placeholder:text-slate-400 focus-visible:ring-[#00A3E0]/30 focus-visible:border-[#00A3E0]"
+              className="pl-10 pr-12 h-12 border-[#E2E8F0] rounded-lg text-[14px] placeholder:text-slate-400 focus-visible:ring-[#00A3E0]/30 focus-visible:border-[#00A3E0]"
             />
             {/* Toggle show/hide */}
             <button

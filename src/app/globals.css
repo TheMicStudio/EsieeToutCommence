@@ -48,6 +48,11 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Force font inheritance on form elements (base-ui / browser resets don't always inherit) */
+input, button, textarea, select, label {
+  font-family: inherit;
+}
+
 /* Palette
    Dusty Mauve:      #ac80a0
    Wisteria Blue:    #89aae6

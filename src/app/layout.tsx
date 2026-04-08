@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className={cn("font-sans", outfit.variable)}>
-      <body className="antialiased" suppressHydrationWarning>{children}</body>
+      <body className="antialiased font-sans" suppressHydrationWarning>{children}</body>
     </html>
   );
 }
