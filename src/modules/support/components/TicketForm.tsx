@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createTicket, searchFaqArticles } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,11 +27,16 @@ export function TicketForm({ isDelegue = false }: TicketFormProps) {
   const [sujet, setSujet] = useState('');
   const [suggestions, setSuggestions] = useState<FaqArticle[]>([]);
   const debouncedSujet = useDebounce(sujet, 300);
+  const router = useRouter();
 
   useEffect(() => {
     if (debouncedSujet.length < 3) { setSuggestions([]); return; }
     searchFaqArticles(debouncedSujet).then(setSuggestions);
   }, [debouncedSujet]);
+
+  useEffect(() => {
+    if (state?.success) router.push('/dashboard/support');
+  }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

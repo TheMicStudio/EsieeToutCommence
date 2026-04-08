@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { addGrade } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,14 +25,15 @@ export function GradeGrid({ classId, students, grades, matieres }: GradeGridProp
   const [state, action, pending] = useActionState(addGrade, null);
   const [selectedStudent, setSelectedStudent] = useState<string>('');
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
 
-  // Reset le formulaire après succès
   useEffect(() => {
     if (state?.success) {
+      router.refresh();
       formRef.current?.reset();
       setSelectedStudent('');
     }
-  }, [state]);
+  }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="space-y-6">

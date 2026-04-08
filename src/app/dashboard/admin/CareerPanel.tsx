@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState, useTransition } from 'react';
+import { useActionState, useEffect, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { Briefcase, Calendar, Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 import {
   publishJobOffer,
@@ -24,6 +25,11 @@ const labelClass = 'block text-xs font-semibold uppercase tracking-wide text-sla
 function JobOffersSection({ jobOffers }: { jobOffers: JobOffer[] }) {
   const [state, action, pending] = useActionState(publishJobOffer, null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state?.success) router.refresh();
+  }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="space-y-5">
@@ -107,7 +113,7 @@ function JobOffersSection({ jobOffers }: { jobOffers: JobOffer[] }) {
                 type="button"
                 title={offer.actif ? 'Masquer' : 'Activer'}
                 disabled={isPending}
-                onClick={() => startTransition(async () => { await toggleJobOffer(offer.id, !offer.actif); })}
+                onClick={() => startTransition(async () => { await toggleJobOffer(offer.id, !offer.actif); router.refresh(); })}
                 className="text-slate-400 hover:text-[#0471a6] disabled:opacity-40 transition-colors"
               >
                 {offer.actif ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -116,7 +122,7 @@ function JobOffersSection({ jobOffers }: { jobOffers: JobOffer[] }) {
                 type="button"
                 title="Supprimer"
                 disabled={isPending}
-                onClick={() => startTransition(async () => { await deleteJobOffer(offer.id); })}
+                onClick={() => startTransition(async () => { await deleteJobOffer(offer.id); router.refresh(); })}
                 className="text-slate-300 hover:text-red-500 disabled:opacity-40 transition-colors"
               >
                 <Trash2 className="h-4 w-4" />
@@ -132,6 +138,11 @@ function JobOffersSection({ jobOffers }: { jobOffers: JobOffer[] }) {
 function EventsSection({ careerEvents }: { careerEvents: CareerEvent[] }) {
   const [state, action, pending] = useActionState(publishCareerEvent, null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state?.success) router.refresh();
+  }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="space-y-5">
@@ -198,7 +209,7 @@ function EventsSection({ careerEvents }: { careerEvents: CareerEvent[] }) {
                 type="button"
                 title="Supprimer"
                 disabled={isPending}
-                onClick={() => startTransition(async () => { await deleteCareerEvent(event.id); })}
+                onClick={() => startTransition(async () => { await deleteCareerEvent(event.id); router.refresh(); })}
                 className="shrink-0 text-slate-300 hover:text-red-500 disabled:opacity-40 transition-colors"
               >
                 <Trash2 className="h-4 w-4" />

@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState, useTransition, useState } from 'react';
+import { useActionState, useEffect, useTransition, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { deleteUser, createUser, updateUserProfile } from '@/modules/admin/users-actions';
 import type { UserRow } from '@/modules/admin/users-actions';
 import { Trash2, Search, Plus, X, Pencil, ChevronDown, ChevronUp, Users } from 'lucide-react';
@@ -51,11 +52,13 @@ function CreateUserForm({
   const [role, setRole] = useState('eleve');
   const [selectedMatieres, setSelectedMatieres] = useState<string[]>([]);
   const [matSearch, setMatSearch] = useState('');
+  const router = useRouter();
 
-  if (state?.success) {
-    onClose();
-    return null;
-  }
+  useEffect(() => {
+    if (state?.success) { router.refresh(); onClose(); }
+  }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (state?.success) return null;
 
   function toggleMatiere(m: string) {
     setSelectedMatieres((prev) =>
@@ -237,11 +240,13 @@ function EditUserForm({
   const [state, action, pending] = useActionState(updateUserProfile, null);
   const [selectedMatieres, setSelectedMatieres] = useState<string[]>(user.matieres ?? []);
   const [matSearch, setMatSearch] = useState('');
+  const router = useRouter();
 
-  if (state?.success) {
-    onClose();
-    return null;
-  }
+  useEffect(() => {
+    if (state?.success) { router.refresh(); onClose(); }
+  }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (state?.success) return null;
 
   function toggleMatiere(m: string) {
     setSelectedMatieres((prev) =>
@@ -433,6 +438,7 @@ export function UsersPanel({ users, subjects, adminFunctions, secondaryRoles }: 
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const router = useRouter();
 
   const filtered = users.filter((u) => {
     const matchRole = !roleFilter || u.role === roleFilter;
@@ -448,7 +454,7 @@ export function UsersPanel({ users, subjects, adminFunctions, secondaryRoles }: 
       return;
     }
     setConfirmDelete(null);
-    startTransition(async () => { await deleteUser(userId); });
+    startTransition(async () => { await deleteUser(userId); router.refresh(); });
   }
 
   const roleCounts = {

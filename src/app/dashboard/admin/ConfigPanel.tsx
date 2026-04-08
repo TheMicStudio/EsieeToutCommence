@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState, useTransition } from 'react';
+import { useActionState, useEffect, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   createSubject, deleteSubject,
   createAdminFunction, deleteAdminFunction,
@@ -41,6 +42,11 @@ function ConfigSection({
 }) {
   const [state, action, pending] = useActionState(createAction, null);
   const [, startTransition] = useTransition();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state?.success) router.refresh();
+  }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="rounded-2xl border border-slate-200/60 bg-white shadow-sm overflow-hidden">
@@ -83,7 +89,7 @@ function ConfigSection({
                   </span>
                 )}
                 <button
-                  onClick={() => startTransition(() => deleteAction(item.id))}
+                  onClick={() => startTransition(async () => { await deleteAction(item.id); router.refresh(); })}
                   className="ml-0.5 text-slate-300 hover:text-red-400 transition-colors"
                   title="Supprimer"
                 >

@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Plus, Upload, Link } from 'lucide-react';
 import { addCourseMaterial } from '../actions';
 
@@ -13,14 +14,16 @@ export function AddCourseMaterialForm({ classId, matieres }: AddCourseMaterialFo
   const [state, action, pending] = useActionState(addCourseMaterial, null);
   const [type, setType] = useState('');
   const [formKey, setFormKey] = useState(0);
+  const router = useRouter();
 
-  // Reset le formulaire après succès
+  // Refresh RSC + reset formulaire après succès
   useEffect(() => {
     if (state?.success) {
+      router.refresh();
       setType('');
       setFormKey((k) => k + 1);
     }
-  }, [state?.success]);
+  }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectClass = 'flex h-9 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
   const inputClass = 'flex h-9 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';

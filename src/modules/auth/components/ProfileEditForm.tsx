@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { updateProfile, requestEmailChange } from '../actions';
 import type { UserProfile } from '../types';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,11 @@ export function ProfileEditForm({ userProfile, subjects, adminFunctions }: Profi
   const [state, action, pending] = useActionState(updateProfile, null);
   const [emailState, emailAction, emailPending] = useActionState(requestEmailChange, null);
   const { profile, role } = userProfile;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state?.success) router.refresh();
+  }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const matieresOptions = subjects && subjects.length > 0 ? subjects : MATIERES;
   const fonctionsOptions = adminFunctions && adminFunctions.length > 0 ? adminFunctions : FONCTIONS;

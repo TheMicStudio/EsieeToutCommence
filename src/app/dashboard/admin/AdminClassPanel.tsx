@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   createClass,
   deleteClass,
@@ -109,6 +110,11 @@ function StudentsSection({
   const [, startTransition] = useTransition();
   const [assignState, assignAction] = useActionState(assignStudentToClass, null);
   const [search, setSearch] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    if (assignState?.success) router.refresh();
+  }, [assignState?.success]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const classStudents = students.filter((s) => s.class_id === cls.id);
   const unassigned = students.filter((s) => !s.class_id || s.class_id !== cls.id);
@@ -135,7 +141,7 @@ function StudentsSection({
                   {PARCOURS_LABELS[s.type_parcours] ?? s.type_parcours}
                 </span>
                 <button
-                  onClick={() => startTransition(() => removeStudentFromClass(s.id))}
+                  onClick={() => startTransition(async () => { await removeStudentFromClass(s.id); router.refresh(); })}
                   className="text-slate-300 hover:text-red-400 transition-colors"
                   title="Retirer de la classe"
                 >
@@ -223,6 +229,7 @@ function TeachersSection({
   const [selectedTeacherId, setSelectedTeacherId] = useState('');
   const [assignments, setAssignments] = useState<TeacherAssignment[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const selectedTeacher = teachers.find((t) => t.id === selectedTeacherId);
   const availableMatieres = selectedTeacher?.matieres_enseignees ?? [];
@@ -235,12 +242,17 @@ function TeachersSection({
     });
   }, [cls.id]);
 
+  useEffect(() => {
+    if (assignState?.success) { router.refresh(); setSelectedTeacherId(''); }
+  }, [assignState?.success]); // eslint-disable-line react-hooks/exhaustive-deps
+
   function handleRemove(teacherId: string, matiere: string) {
     startTransition(async () => {
       await removeTeacherFromClass(teacherId, cls.id, matiere);
       setAssignments((prev) =>
         prev.filter((a) => !(a.teacher_id === teacherId && a.matiere === matiere))
       );
+      router.refresh();
     });
   }
 
@@ -350,6 +362,7 @@ export function AdminClassPanel({ classes, students, teachers }: Props) {
   const [, startTransition] = useTransition();
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [classSearch, setClassSearch] = useState('');
+  const router = useRouter();
 
   function handleDeleteClass(classId: string) {
     if (confirmDelete !== classId) {
@@ -357,7 +370,7 @@ export function AdminClassPanel({ classes, students, teachers }: Props) {
       return;
     }
     setConfirmDelete(null);
-    startTransition(() => deleteClass(classId));
+    startTransition(async () => { await deleteClass(classId); router.refresh(); });
   }
 
   const unclassedStudents = students.filter((s) => !s.class_id);
