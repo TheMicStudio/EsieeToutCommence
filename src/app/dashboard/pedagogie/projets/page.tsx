@@ -31,6 +31,7 @@ export default async function ProjetsPage({ searchParams }: ProjetsPageProps) {
       .from('class_members')
       .select('class_id, classes(nom)')
       .eq('student_id', user?.id ?? '')
+      .eq('is_current', true)
       .maybeSingle();
     classId = (data?.class_id as string) ?? '';
     className = (data?.classes as unknown as { nom: string } | null)?.nom ?? '';

@@ -122,7 +122,8 @@ export async function getAbsentees(
   const { data: members } = await admin
     .from('class_members')
     .select('student_id, student_profiles(nom, prenom)')
-    .eq('class_id', session.class_id);
+    .eq('class_id', session.class_id)
+    .eq('is_current', true);
   if (!members) return [];
 
   const { data: records } = await admin

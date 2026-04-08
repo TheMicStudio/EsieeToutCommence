@@ -241,7 +241,7 @@ export async function getAlternants(): Promise<AlternantRow[]> {
   const [{ data: chats }, { data: memberships }] = await Promise.all([
     admin.from('tripartite_chats').select('id, student_id, referent_id, maitre_id'),
     studentIds.length > 0
-      ? admin.from('class_members').select('student_id, class_id').in('student_id', studentIds)
+      ? admin.from('class_members').select('student_id, class_id').in('student_id', studentIds).eq('is_current', true)
       : Promise.resolve({ data: [] }),
   ]);
 

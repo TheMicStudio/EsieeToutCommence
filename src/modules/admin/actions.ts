@@ -58,7 +58,8 @@ export async function getClasses(): Promise<ClassRow[]> {
       const { count: memberCount } = await admin
         .from('class_members')
         .select('*', { count: 'exact', head: true })
-        .eq('class_id', c.id);
+        .eq('class_id', c.id)
+        .eq('is_current', true);
 
       const { data: teacherData } = await admin
         .from('teacher_classes')
@@ -117,7 +118,8 @@ export async function getStudents(): Promise<StudentRow[]> {
 
   const { data: members } = await admin
     .from('class_members')
-    .select('student_id, classes(id, nom)');
+    .select('student_id, classes(id, nom)')
+    .eq('is_current', true);
 
   const memberMap = new Map<string, { class_id: string; class_nom: string }>();
   for (const m of members ?? []) {

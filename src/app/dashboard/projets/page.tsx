@@ -17,7 +17,7 @@ export default async function ProjetsPage() {
 
   let classId = '';
   if (profile.role === 'eleve') {
-    const { data } = await supabase.from('class_members').select('class_id').eq('student_id', user?.id ?? '').maybeSingle();
+    const { data } = await supabase.from('class_members').select('class_id').eq('student_id', user?.id ?? '').eq('is_current', true).maybeSingle();
     classId = data?.class_id ?? '';
   } else {
     const { data } = await supabase.from('teacher_classes').select('class_id').eq('teacher_id', user?.id ?? '').maybeSingle();

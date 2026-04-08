@@ -30,7 +30,8 @@ export default async function SessionPage({ params }: SessionPageProps) {
   const { count: classSize } = await supabase
     .from('class_members')
     .select('*', { count: 'exact', head: true })
-    .eq('class_id', session.class_id);
+    .eq('class_id', session.class_id)
+    .eq('is_current', true);
 
   const records = await getSessionRecords(sessionId);
 

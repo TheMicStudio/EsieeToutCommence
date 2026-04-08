@@ -10,7 +10,7 @@ export default async function AnnuairePage() {
   const [{ data: elevesRaw }, { data: professeurs }, { data: classMembers }, { data: classes }] = await Promise.all([
     supabase.from('student_profiles').select('*').order('nom'),
     supabase.from('teacher_profiles').select('*').order('nom'),
-    supabase.from('class_members').select('student_id, class_id'),
+    supabase.from('class_members').select('student_id, class_id').eq('is_current', true),
     supabase.from('classes').select('id, nom').order('nom'),
   ]);
 
