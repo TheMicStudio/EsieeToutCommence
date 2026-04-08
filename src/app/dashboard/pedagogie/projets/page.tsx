@@ -1,12 +1,11 @@
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getProjectWeeks, getGroups } from '@/modules/projects/actions';
 import { getMyTeacherClasses } from '@/modules/pedagogy/actions';
 import { ProjectWeekCard } from '@/modules/projects/components/ProjectWeekCard';
+import { NewWeekModal } from '@/modules/projects/components/NewWeekModal';
 import { ClassSelector } from '@/modules/pedagogy/components/ClassSelector';
 import { createClient } from '@/lib/supabase/server';
-import { CalendarPlus } from 'lucide-react';
 
 interface ProjetsPageProps {
   searchParams: Promise<{ classe?: string }>;
@@ -56,13 +55,7 @@ export default async function ProjetsPage({ searchParams }: ProjetsPageProps) {
           {className && <p className="text-sm text-slate-500">{className}</p>}
         </div>
         {profile.role === 'professeur' && classId && (
-          <Link
-            href={`/dashboard/pedagogie/projets/nouveau?classe=${classId}`}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 transition-all"
-          >
-            <CalendarPlus className="h-4 w-4" />
-            Créer une semaine
-          </Link>
+          <NewWeekModal classId={classId} />
         )}
       </div>
 

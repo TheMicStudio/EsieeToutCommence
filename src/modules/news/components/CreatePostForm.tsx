@@ -11,9 +11,10 @@ const labelCls = 'block text-xs font-semibold uppercase tracking-wide text-slate
 
 interface CreatePostFormProps {
   isAdmin: boolean;
+  onSuccess?: () => void;
 }
 
-export function CreatePostForm({ isAdmin }: CreatePostFormProps) {
+export function CreatePostForm({ isAdmin, onSuccess }: CreatePostFormProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState<PostCategory>('annonce');
@@ -30,7 +31,8 @@ export function CreatePostForm({ isAdmin }: CreatePostFormProps) {
     const result = await createNewsPost(title.trim(), content.trim(), category, pinned);
     setLoading(false);
     if (result.error) { setError(result.error); return; }
-    router.push('/dashboard/actualites');
+    if (onSuccess) { onSuccess(); router.refresh(); }
+    else router.push('/dashboard/actualites');
   }
 
   return (
@@ -120,7 +122,7 @@ export function CreatePostForm({ isAdmin }: CreatePostFormProps) {
         </button>
         <button
           type="button"
-          onClick={() => router.push('/dashboard/actualites')}
+          onClick={() => onSuccess ? onSuccess() : router.push('/dashboard/actualites')}
           className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm text-slate-500 hover:bg-slate-50 transition-colors"
         >
           Annuler

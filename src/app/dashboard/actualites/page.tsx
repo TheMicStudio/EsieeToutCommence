@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Plus, Newspaper } from 'lucide-react';
+import { Newspaper } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { requirePermission, getRequestPermissions } from '@/lib/permissions';
 import { getNewsPosts } from '@/modules/news/actions';
 import { PostCard } from '@/modules/news/components/PostCard';
+import { NewPostModal } from '@/modules/news/components/NewPostModal';
 import type { PostCategory } from '@/modules/news/types';
 import { CATEGORY_LABELS } from '@/modules/news/types';
 
@@ -54,15 +55,7 @@ export default async function ActualitesPage({ searchParams }: ActualitesPagePro
             <span className="rounded-2xl bg-slate-100 px-3.5 py-2 text-sm font-semibold text-slate-600">
               {allPosts.length} publication{allPosts.length > 1 ? 's' : ''}
             </span>
-            {canCreate && (
-              <Link
-                href="/dashboard/actualites/nouveau"
-                className="inline-flex items-center gap-2 rounded-2xl bg-[#0471a6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0471a6]/90 transition-all shadow-sm"
-              >
-                <Plus className="h-4 w-4" />
-                Nouvelle publication
-              </Link>
-            )}
+            {canCreate && <NewPostModal isAdmin={isAdmin} />}
           </div>
         </div>
 
