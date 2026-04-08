@@ -7,8 +7,6 @@ import type { RolePrincipal } from '../types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MATIERES, FONCTIONS } from '@/lib/constants';
-
 // Seuls ces rôles sont autorisés en auto-inscription.
 // Les comptes Professeur et Admin sont créés exclusivement par l'administration.
 const ROLES: { value: RolePrincipal; label: string; description: string }[] = [
