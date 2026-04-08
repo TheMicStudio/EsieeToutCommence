@@ -51,9 +51,9 @@ function gradientFor(str: string): string {
 const TYPE_ICON = { video: Video, pdf: FileText, lien: LinkIcon };
 
 const STATUS: Record<CourseMaterial['type'], { label: string; cls: string }> = {
-  video: { label: 'Live', cls: 'bg-blue-50 border border-blue-200 text-blue-700' },
-  pdf: { label: 'Published', cls: 'bg-emerald-50 border border-emerald-200 text-emerald-700' },
-  lien: { label: 'Draft', cls: 'bg-white border border-slate-200 text-slate-700' },
+  video: { label: 'En ligne', cls: 'bg-blue-50 border border-blue-200 text-blue-700' },
+  pdf: { label: 'Publié', cls: 'bg-emerald-50 border border-emerald-200 text-emerald-700' },
+  lien: { label: 'Brouillon', cls: 'bg-white border border-slate-200 text-slate-700' },
 };
 
 function formatDate(d: string) {
@@ -108,7 +108,7 @@ function GridCard({ material }: { material: CourseMaterial }) {
         rel="noopener noreferrer"
         className="mt-4 block w-full rounded-xl border border-slate-200 bg-white py-2 text-center text-[12px] font-bold text-slate-700 hover:bg-slate-50 transition-colors"
       >
-        Manage →
+        Accéder →
       </a>
     </div>
   );
@@ -139,7 +139,7 @@ function ListRow({ material }: { material: CourseMaterial }) {
           rel="noopener noreferrer"
           className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-bold text-slate-700 hover:bg-slate-50 transition-colors"
         >
-          Manage →
+          Accéder →
         </a>
       </div>
     </div>
@@ -206,8 +206,8 @@ export function CourseGrid({
             <Folders className="h-5 w-5 text-cyan-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[#0f1a2e] leading-tight">Courses by Class</h1>
-            <p className="mt-0.5 text-[13px] text-slate-500">Manage and organize your courses efficiently.</p>
+            <h1 className="text-2xl font-bold text-[#0f1a2e] leading-tight">Supports de cours</h1>
+            <p className="mt-0.5 text-[13px] text-slate-500">Gérez et organisez les supports de cours de votre classe.</p>
           </div>
         </div>
         {canManage && classId && (
@@ -216,7 +216,7 @@ export function CourseGrid({
             className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-slate-800 transition-colors shrink-0"
           >
             {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-            {showForm ? 'Close' : 'New Course'}
+            {showForm ? 'Fermer' : 'Nouveau cours'}
           </button>
         )}
       </div>
@@ -236,7 +236,7 @@ export function CourseGrid({
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Search courses by name, instructor, etc."
+            placeholder="Rechercher un cours par titre, matière…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-11 pr-4 text-[13px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0471a6]/20 focus:border-[#0471a6] transition-all"
@@ -260,7 +260,7 @@ export function CourseGrid({
                 ].join(' ')}
               >
                 <Tag className="h-3.5 w-3.5" />
-                {categoryFilter ?? 'Category'}
+                {categoryFilter ?? 'Matière'}
                 <ChevronDown className="h-3 w-3 opacity-60" />
               </button>
               {openDropdown === 'category' && (
@@ -269,7 +269,7 @@ export function CourseGrid({
                     onClick={() => { setCategoryFilter(null); setOpenDropdown(null); }}
                     className="block w-full px-4 py-2 text-left text-[13px] text-slate-500 hover:bg-slate-50"
                   >
-                    All categories
+                    Toutes les matières
                   </button>
                   {uniqueMatieres.map((m) => (
                     <button
@@ -290,7 +290,7 @@ export function CourseGrid({
             {/* Difficulty pill — cosmetic */}
             <button className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[13px] font-medium text-slate-600 hover:border-slate-300 transition-colors">
               <BarChart2 className="h-3.5 w-3.5" />
-              Difficulty
+              Niveau
               <ChevronDown className="h-3 w-3 opacity-60" />
             </button>
 
@@ -306,12 +306,12 @@ export function CourseGrid({
                 ].join(' ')}
               >
                 <CircleDot className="h-3.5 w-3.5" />
-                {statusFilter ?? 'Status'}
+                {statusFilter ?? 'Statut'}
                 <ChevronDown className="h-3 w-3 opacity-60" />
               </button>
               {openDropdown === 'status' && (
                 <div className="absolute left-0 top-full mt-1.5 z-20 min-w-[160px] rounded-2xl border border-slate-200 bg-white py-1.5 shadow-lg">
-                  {[null, 'Published', 'Live', 'Draft'].map((s) => (
+                  {([null, 'Publié', 'En ligne', 'Brouillon'] as const).map((s) => (
                     <button
                       key={s ?? 'all'}
                       onClick={() => { setStatusFilter(s); setOpenDropdown(null); }}
@@ -320,7 +320,7 @@ export function CourseGrid({
                         statusFilter === s ? 'font-semibold text-[#0471a6]' : 'text-slate-700',
                       ].join(' ')}
                     >
-                      {s ?? 'All statuses'}
+                      {s ?? 'Tous les statuts'}
                     </button>
                   ))}
                 </div>
@@ -337,15 +337,15 @@ export function CourseGrid({
                 className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[13px] font-medium text-slate-600 hover:border-slate-300 transition-colors"
               >
                 <ArrowUpDown className="h-3.5 w-3.5" />
-                Sort by
+                Trier par
                 <ChevronDown className="h-3 w-3 opacity-60" />
               </button>
               {openDropdown === 'sort' && (
                 <div className="absolute right-0 top-full mt-1.5 z-20 min-w-[180px] rounded-2xl border border-slate-200 bg-white py-1.5 shadow-lg">
                   {[
-                    { value: 'updated', label: 'Recently Updated' },
-                    { value: 'name', label: 'Name (A–Z)' },
-                    { value: 'created', label: 'Date Created' },
+                    { value: 'updated', label: 'Récemment mis à jour' },
+                    { value: 'name', label: 'Nom (A–Z)' },
+                    { value: 'created', label: 'Date de création' },
                   ].map((opt) => (
                     <button
                       key={opt.value}
@@ -366,7 +366,7 @@ export function CourseGrid({
             <div className="flex items-center gap-0.5 rounded-xl border border-slate-200 bg-slate-50 p-1">
               <button
                 onClick={() => setMode('grid')}
-                title="Grid view"
+                title="Vue grille"
                 className={[
                   'flex items-center justify-center rounded-lg p-1.5 transition-colors',
                   mode === 'grid' ? 'bg-[#0f1a2e] text-white' : 'text-slate-400 hover:text-slate-600',
@@ -376,7 +376,7 @@ export function CourseGrid({
               </button>
               <button
                 onClick={() => setMode('list')}
-                title="List view"
+                title="Vue liste"
                 className={[
                   'flex items-center justify-center rounded-lg p-1.5 transition-colors',
                   mode === 'list' ? 'bg-[#0f1a2e] text-white' : 'text-slate-400 hover:text-slate-600',

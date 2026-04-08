@@ -29,23 +29,23 @@ function CourseSidebar({ materials }: { materials: CourseMaterial[] }) {
     <div className="space-y-4">
       {/* Section 1 — Active Courses */}
       <div className="bg-white border border-slate-200/50 rounded-xl p-6 shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
-        <p className="text-[14px] font-bold tracking-tight text-slate-900 mb-1">Active Courses</p>
+        <p className="text-[14px] font-bold tracking-tight text-slate-900 mb-1">Cours actifs</p>
         <p className="text-[13px] text-slate-500 mb-4">{total} cours au total</p>
         <div className="grid grid-cols-2 gap-2">
           <div className="rounded-2xl bg-blue-50/50 border border-blue-100/50 p-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-blue-700 mb-1">In Progress</p>
+            <p className="text-[11px] font-bold uppercase tracking-wide text-blue-700 mb-1">En ligne</p>
             <p className="text-[16px] font-bold text-blue-900">{videoCount || 4}</p>
           </div>
           <div className="rounded-2xl bg-emerald-50/50 border border-emerald-100/50 p-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-emerald-700 mb-1">Completed</p>
+            <p className="text-[11px] font-bold uppercase tracking-wide text-emerald-700 mb-1">Publiés</p>
             <p className="text-[16px] font-bold text-emerald-900">{pdfCount || 12}</p>
           </div>
           <div className="rounded-2xl bg-amber-50/50 border border-amber-100/50 p-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-amber-700 mb-1">Pending</p>
+            <p className="text-[11px] font-bold uppercase tracking-wide text-amber-700 mb-1">Brouillons</p>
             <p className="text-[16px] font-bold text-amber-900">{lienCount || 2}</p>
           </div>
           <div className="rounded-2xl bg-slate-50/50 border border-slate-100/50 p-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-slate-600 mb-1">Archived</p>
+            <p className="text-[11px] font-bold uppercase tracking-wide text-slate-600 mb-1">Archivés</p>
             <p className="text-[16px] font-bold text-slate-900">0</p>
           </div>
         </div>
