@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { bookSlot, updateSlot } from '../actions';
 import type { SoutenanceSlot } from '../types';
 import { Clock, CheckCircle2, Pencil, Check, X } from 'lucide-react';
@@ -47,6 +48,7 @@ function SlotRow({ slot, weekId, myGroupId, isProf, onBooked, onUpdated }: SlotR
   const [saving, setSaving] = useState(false);
   const [booking, setBooking] = useState(false);
   const [error, setError] = useState('');
+  const router = useRouter();
 
   const isTaken = !!slot.group_id;
   const isMySlot = slot.group_id === myGroupId;
@@ -59,6 +61,7 @@ function SlotRow({ slot, weekId, myGroupId, isProf, onBooked, onUpdated }: SlotR
     if (result.error) { setError(result.error); return; }
     onUpdated(slot.id, buildIso(date, startTime), buildIso(date, endTime));
     setEditing(false);
+    router.refresh();
   }
 
   async function handleBook() {
@@ -69,6 +72,7 @@ function SlotRow({ slot, weekId, myGroupId, isProf, onBooked, onUpdated }: SlotR
     setBooking(false);
     if (result.error) { setError(result.error); return; }
     onBooked(slot.id, myGroupId);
+    router.refresh();
   }
 
   const inputCls = 'h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] transition-all';

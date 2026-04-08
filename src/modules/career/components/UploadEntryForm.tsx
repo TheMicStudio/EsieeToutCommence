@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { uploadApprenticeshipEntry } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,11 @@ const MAX_SIZE_MB = 10;
 export function UploadEntryForm({ chatId }: UploadEntryFormProps) {
   const [state, action, pending] = useActionState(uploadApprenticeshipEntry, null);
   const [fileError, setFileError] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state?.success) router.refresh();
+  }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

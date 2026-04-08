@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { createStaffChannel } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +9,11 @@ import { Label } from '@/components/ui/label';
 
 export function CreateChannelForm() {
   const [state, action, pending] = useActionState(createStaffChannel, null);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state?.success) router.refresh();
+  }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <form action={action} className="space-y-3 rounded-xl border bg-card p-4">

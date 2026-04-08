@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { ExternalLink, FileText, Trash2, Video } from 'lucide-react';
 import { deleteCourseMaterial } from '../actions';
@@ -29,6 +30,7 @@ export function CourseMaterialList({ materials: initialMaterials, classId, canDe
   const [materials, setMaterials] = useState<CourseMaterial[]>(initialMaterials);
   const [isPending, startTransition] = useTransition();
   const supabase = useMemo(() => createClient(), []);
+  const router = useRouter();
 
   // Synchroniser si les props changent (changement de classe côté prof)
   useEffect(() => {
@@ -128,7 +130,7 @@ export function CourseMaterialList({ materials: initialMaterials, classId, canDe
                     <button
                       type="button"
                       disabled={isPending}
-                      onClick={() => startTransition(async () => { await deleteCourseMaterial(material.id); })}
+                      onClick={() => startTransition(async () => { await deleteCourseMaterial(material.id); router.refresh(); })}
                       className="shrink-0 text-slate-300 hover:text-red-500 disabled:opacity-40 transition-colors"
                       title="Supprimer"
                     >

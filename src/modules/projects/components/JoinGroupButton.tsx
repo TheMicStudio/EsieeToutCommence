@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { joinGroup, leaveGroup } from '../actions';
 import { UserPlus, UserMinus } from 'lucide-react';
 
@@ -15,6 +16,7 @@ export function JoinGroupButton({ groupId, weekId, isMember, isFull }: JoinGroup
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [optimisticMember, setOptimisticMember] = useState(isMember);
+  const router = useRouter();
 
   async function handleToggle() {
     setLoading(true);
@@ -29,6 +31,8 @@ export function JoinGroupButton({ groupId, weekId, isMember, isFull }: JoinGroup
     if (result.error) {
       setOptimisticMember(optimisticMember);
       setError(result.error);
+    } else {
+      router.refresh();
     }
   }
 

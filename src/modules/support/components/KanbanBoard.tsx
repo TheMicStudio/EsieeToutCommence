@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { updateTicketStatus, assignTicket } from '../actions';
 import { ChevronRight, UserCheck } from 'lucide-react';
 import { CATEGORIE_LABELS, type AdminContact, type Ticket, type TicketStatut } from '../types';
@@ -27,15 +28,18 @@ const MOVE_TARGETS: Record<TicketStatut, { statut: TicketStatut; label: string }
 
 export function KanbanBoard({ tickets: initialTickets, admins = [] }: KanbanBoardProps) {
   const [tickets, setTickets] = useState(initialTickets);
+  const router = useRouter();
 
   async function moveTicket(ticketId: string, newStatut: TicketStatut) {
     await updateTicketStatus(ticketId, newStatut);
     setTickets((prev) => prev.map((t) => t.id === ticketId ? { ...t, statut: newStatut } : t));
+    router.refresh();
   }
 
   async function handleAssign(ticketId: string, adminId: string) {
     await assignTicket(ticketId, adminId);
     setTickets((prev) => prev.map((t) => t.id === ticketId ? { ...t, assigne_a: adminId || undefined } : t));
+    router.refresh();
   }
 
   return (

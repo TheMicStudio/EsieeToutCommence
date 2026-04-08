@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState, useTransition, useState } from 'react';
+import { useActionState, useEffect, useTransition, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createTripartiteChat, deleteTripartiteChat } from '@/modules/admin/users-actions';
 import type { AlternantRow, UserRow } from '@/modules/admin/users-actions';
 import { MessageSquare, Trash2, CheckCircle, AlertCircle, Users, Pencil, X, GraduationCap } from 'lucide-react';
@@ -28,11 +29,13 @@ function ConfigForm({
   onCancel?: () => void;
 }) {
   const [state, action, pending] = useActionState(createTripartiteChat, null);
+  const router = useRouter();
 
-  if (state?.success) {
-    onSuccess?.();
-    return null;
-  }
+  useEffect(() => {
+    if (state?.success) { router.refresh(); onSuccess?.(); }
+  }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (state?.success) return null;
 
   return (
     <form action={action} className="space-y-4">
@@ -112,6 +115,7 @@ function AlternantCard({
   const [, startTransition] = useTransition();
   const [editing, setEditing] = useState(!alt.chat_id);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const router = useRouter();
 
   return (
     <div className={[
@@ -179,7 +183,7 @@ function AlternantCard({
                 <button
                   onClick={() => {
                     setConfirmDelete(false);
-                    startTransition(() => deleteTripartiteChat(alt.chat_id!));
+                    startTransition(async () => { await deleteTripartiteChat(alt.chat_id!); router.refresh(); });
                   }}
                   className="text-xs font-semibold text-red-500 hover:underline"
                 >

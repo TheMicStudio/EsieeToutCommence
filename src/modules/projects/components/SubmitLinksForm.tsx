@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { updateGroupLinks } from '../actions';
 import { GitBranch, Presentation, Check } from 'lucide-react';
 
@@ -17,6 +18,7 @@ export function SubmitLinksForm({ groupId, initialRepo, initialSlides }: {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,7 +29,7 @@ export function SubmitLinksForm({ groupId, initialRepo, initialSlides }: {
     const result = await updateGroupLinks(groupId, repo, slides);
     setLoading(false);
     if (result.error) setError(result.error);
-    else { setSuccess(true); setTimeout(() => setSuccess(false), 3000); }
+    else { setSuccess(true); router.refresh(); setTimeout(() => setSuccess(false), 3000); }
   }
 
   return (
