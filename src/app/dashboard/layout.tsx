@@ -1,4 +1,5 @@
 import { getCurrentUserProfile, signOut } from '@/modules/auth/actions';
+import { getRequestPermissions } from '@/lib/permissions';
 import { DashboardSidebar } from '@/modules/auth/components/DashboardSidebar';
 import { TopNavbar } from './components/TopNavbar';
 import { RightSidebar } from './components/RightSidebar';
@@ -31,25 +32,21 @@ export default async function DashboardLayout({
     );
   }
 
+  // getRequestPermissions est cache()-ée : pas de double requête si les pages l'appellent aussi
+  const permissions = await getRequestPermissions();
+  const permissionsArray = Array.from(permissions);
+
   return (
     <div className="relative min-h-screen lg:h-screen lg:overflow-hidden bg-[#F7F9FB]">
-      {/* ── Blobs décoratifs ────────────────────────────────── */}
       <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden z-0">
         <div className="absolute -top-24 -left-24 h-[420px] w-[420px] rounded-full bg-[#89aae6]/30 blur-[80px]" />
         <div className="absolute top-1/2 -translate-y-1/2 -right-32 h-[360px] w-[360px] rounded-full bg-[#ac80a0]/20 blur-[80px]" />
         <div className="absolute -bottom-24 left-1/3 h-[300px] w-[300px] rounded-full bg-[#0471a6]/15 blur-[80px]" />
       </div>
 
-      {/* ── Layout principal ────────────────────────────────── */}
-      {/*
-        flex-col sur mobile  → sidebar header en haut, puis contenu
-        flex-row sur desktop → left sidebar | center | right sidebar
-      */}
       <div className="relative z-10 flex flex-col lg:flex-row h-full lg:gap-4 lg:p-5">
-        {/* Left sidebar : header mobile (lg:hidden) + card desktop (hidden lg:flex) */}
-        <DashboardSidebar userProfile={userProfile} />
+        <DashboardSidebar userProfile={userProfile} permissions={permissionsArray} />
 
-        {/* Zone centrale */}
         <div className="flex flex-1 flex-col min-w-0 gap-6 p-4 lg:p-0 lg:overflow-hidden">
           <TopNavbar userProfile={userProfile} />
           <main className="flex-1 overflow-y-auto min-w-0 pb-2">
@@ -57,7 +54,6 @@ export default async function DashboardLayout({
           </main>
         </div>
 
-        {/* Right sidebar : pleine hauteur */}
         <RightSidebar userProfile={userProfile} />
       </div>
     </div>

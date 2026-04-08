@@ -35,6 +35,7 @@ type NavItem = {
   label: string;
   icon: React.ElementType;
   badge?: number;
+  permission?: string; // si absent → toujours visible
 };
 
 type NavSection = {
@@ -49,23 +50,23 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
         title: 'Principal',
         items: [
           { href: '/dashboard', label: 'Accueil', icon: LayoutDashboard },
-          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users },
+          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users, permission: 'directory.read' },
         ],
       },
       {
         title: 'Pédagogie',
         items: [
-          { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban },
-          { href: '/dashboard/pedagogie/notes', label: 'Mes notes', icon: ClipboardList },
-          { href: '/dashboard/emargement', label: 'Émargement', icon: QrCode },
+          { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban, permission: 'project_week.read' },
+          { href: '/dashboard/pedagogie/notes', label: 'Mes notes', icon: ClipboardList, permission: 'grade.read_own' },
+          { href: '/dashboard/emargement', label: 'Émargement', icon: QrCode, permission: 'attendance.read_own' },
         ],
       },
       {
         title: 'Vie scolaire',
         items: [
-          { href: '/dashboard/carriere', label: 'Carrière', icon: Briefcase },
-          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
-          { href: '/dashboard/support', label: 'Support', icon: LifeBuoy },
+          { href: '/dashboard/carriere', label: 'Carrière', icon: Briefcase, permission: 'career_event.read' },
+          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.read' },
+          { href: '/dashboard/support', label: 'Support', icon: LifeBuoy, permission: 'support.use' },
         ],
       },
     ],
@@ -74,22 +75,73 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
         title: 'Principal',
         items: [
           { href: '/dashboard', label: 'Accueil', icon: LayoutDashboard },
-          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users },
+          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users, permission: 'directory.read' },
         ],
       },
       {
         title: 'Pédagogie',
         items: [
-          { href: '/dashboard/pedagogie', label: 'Mes classes', icon: GraduationCap },
-          { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban },
-          { href: '/dashboard/emargement', label: 'Émargement', icon: QrCode },
+          { href: '/dashboard/pedagogie', label: 'Mes classes', icon: GraduationCap, permission: 'class.read' },
+          { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban, permission: 'project_week.read' },
+          { href: '/dashboard/emargement', label: 'Émargement', icon: QrCode, permission: 'attendance.manage' },
         ],
       },
       {
         title: 'Communication',
         items: [
-          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
-          { href: '/dashboard/communication', label: 'Messagerie staff', icon: MessageSquare },
+          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.read' },
+          { href: '/dashboard/communication', label: 'Messagerie staff', icon: MessageSquare, permission: 'staff_channel.participate' },
+        ],
+      },
+    ],
+    coordinateur: [
+      {
+        title: 'Principal',
+        items: [
+          { href: '/dashboard', label: 'Accueil', icon: LayoutDashboard },
+          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users, permission: 'directory.read' },
+        ],
+      },
+      {
+        title: 'Pédagogie',
+        items: [
+          { href: '/dashboard/pedagogie', label: 'Classes', icon: GraduationCap, permission: 'class.read' },
+          { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban, permission: 'project_week.read' },
+          { href: '/dashboard/emargement', label: 'Émargement', icon: QrCode, permission: 'attendance.manage' },
+          { href: '/dashboard/pedagogie/notes', label: 'Notes & moyennes', icon: ClipboardList, permission: 'grade.read_class' },
+        ],
+      },
+      {
+        title: 'Administration',
+        items: [
+          { href: '/dashboard/admin', label: 'Classes & alternance', icon: UserRound, permission: 'class.manage' },
+          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.read' },
+          { href: '/dashboard/communication', label: 'Messagerie staff', icon: MessageSquare, permission: 'staff_channel.participate' },
+        ],
+      },
+    ],
+    staff: [
+      {
+        title: 'Principal',
+        items: [
+          { href: '/dashboard', label: 'Accueil', icon: LayoutDashboard },
+          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users, permission: 'directory.read' },
+        ],
+      },
+      {
+        title: 'Administration',
+        items: [
+          { href: '/dashboard/admin', label: 'Carrière & support', icon: UserRound, permission: 'career_event.manage' },
+          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.read' },
+          { href: '/dashboard/communication', label: 'Messagerie staff', icon: MessageSquare, permission: 'staff_channel.participate' },
+        ],
+      },
+      {
+        title: 'Gestion',
+        items: [
+          { href: '/dashboard/support/admin', label: 'Support', icon: LifeBuoy, permission: 'support.manage' },
+          { href: '/dashboard/carriere/job-board', label: 'Job Board', icon: Briefcase, permission: 'job.manage' },
+          { href: '/dashboard/carriere/evenements', label: 'Événements', icon: BookOpen, permission: 'career_event.manage' },
         ],
       },
     ],
@@ -98,20 +150,21 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
         title: 'Principal',
         items: [
           { href: '/dashboard', label: 'Accueil', icon: LayoutDashboard },
-          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users },
+          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users, permission: 'directory.read' },
         ],
       },
       {
-        title: 'Gestion',
+        title: 'Administration',
         items: [
-          { href: '/dashboard/support/admin', label: 'Support', icon: LifeBuoy },
-          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
+          { href: '/dashboard/admin', label: 'Comptes & rôles', icon: UserRound, permission: 'user.manage' },
+          { href: '/dashboard/support/admin', label: 'Support', icon: LifeBuoy, permission: 'support.manage' },
+          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.read' },
         ],
       },
       {
         title: 'Communication',
         items: [
-          { href: '/dashboard/communication', label: 'Messagerie staff', icon: MessageSquare },
+          { href: '/dashboard/communication', label: 'Messagerie staff', icon: MessageSquare, permission: 'staff_channel.participate' },
         ],
       },
     ],
@@ -120,14 +173,14 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
         title: 'Principal',
         items: [
           { href: '/dashboard', label: 'Accueil', icon: LayoutDashboard },
-          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users },
+          { href: '/dashboard/annuaire', label: 'Annuaire', icon: Users, permission: 'directory.read' },
         ],
       },
       {
         title: 'Alternance',
         items: [
-          { href: '/dashboard/carriere', label: 'Espace alternance', icon: Briefcase },
-          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
+          { href: '/dashboard/carriere', label: 'Espace alternance', icon: Briefcase, permission: 'alternance.access' },
+          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.read' },
         ],
       },
     ],
@@ -143,7 +196,7 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
         title: 'Communication',
         items: [
           { href: '/dashboard/parent/messages', label: 'Messages école', icon: MessageSquare },
-          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper },
+          { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.read' },
         ],
       },
     ],
@@ -164,17 +217,30 @@ const LS_KEY = 'hub-sidebar-collapsed';
 
 interface DashboardSidebarProps {
   userProfile: UserProfile;
+  permissions: string[];
 }
 
-export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
+export function DashboardSidebar({ userProfile, permissions }: DashboardSidebarProps) {
+  const permSet = new Set(permissions);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openSections, setOpenSections] = useState<Set<string>>(
-    new Set(['Principal', 'Pédagogie', 'Vie scolaire', 'Gestion', 'Communication', 'Alternance'])
+    new Set(['Principal', 'Pédagogie', 'Vie scolaire', 'Gestion', 'Communication', 'Alternance', 'Administration'])
   );
   const pathname = usePathname();
   const { profile, role } = userProfile;
-  const sections = getNavSections(role);
+  const rawSections = getNavSections(role);
+
+  // Filtrer les items selon les permissions, puis les sections vides
+  const sections = rawSections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter(
+        (item) => !item.permission || permSet.has(item.permission)
+      ),
+    }))
+    .filter((section) => section.items.length > 0);
+
   const initials = getInitials(profile.prenom, profile.nom);
 
   useEffect(() => {
@@ -208,7 +274,6 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
 
   let colorIdx = 0;
 
-  // ── Contenu partagé entre desktop et mobile drawer ───────────────────────
   const sidebarContent = (
     <div className="flex h-full flex-col">
       {/* Brand + toggle */}
@@ -305,7 +370,6 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
         })}
       </div>
 
-
       {/* Profile + logout */}
       <div className={[
         'border-t border-slate-100 py-3',
@@ -364,7 +428,7 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
 
   return (
     <>
-      {/* ── Desktop : card flottante ─────────────────────────── */}
+      {/* Desktop */}
       <aside
         className={[
           'hidden lg:flex lg:flex-col shrink-0 rounded-3xl bg-white shadow-card border border-slate-200/70 overflow-hidden',
@@ -375,7 +439,7 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
         {sidebarContent}
       </aside>
 
-      {/* ── Mobile : header bar ──────────────────────────────── */}
+      {/* Mobile header */}
       <div className="flex h-14 shrink-0 items-center justify-between bg-white/80 backdrop-blur-sm border-b border-slate-200/60 px-4 lg:hidden">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0471a6]">
@@ -392,7 +456,7 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
         </button>
       </div>
 
-      {/* ── Mobile : drawer ──────────────────────────────────── */}
+      {/* Mobile drawer */}
       {mobileOpen && (
         <>
           <div

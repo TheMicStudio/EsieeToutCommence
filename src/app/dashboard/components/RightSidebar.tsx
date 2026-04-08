@@ -36,6 +36,18 @@ function getRecentDocs(role: UserProfile['role']): DocItem[] {
       { label: 'Classes', sub: 'Admin · actif', icon: GraduationCap, iconBg: 'bg-purple-100 text-purple-500', href: '/dashboard/admin' },
       { label: 'Annuaire', sub: 'Comptes · actif', icon: Database, iconBg: 'bg-emerald-100 text-emerald-500', href: '/dashboard/annuaire' },
     ],
+    coordinateur: [
+      { label: 'Mes classes', sub: 'Pédagogie · actif', icon: GraduationCap, iconBg: 'bg-purple-100 text-purple-500', href: '/dashboard/pedagogie' },
+      { label: 'Cours déposés', sub: 'Supports · fichiers', icon: BookOpen, iconBg: 'bg-blue-100 text-blue-500', href: '/dashboard/pedagogie/cours' },
+      { label: 'Administration', sub: 'Gestion · actif', icon: Settings, iconBg: 'bg-amber-100 text-amber-500', href: '/dashboard/admin' },
+      { label: 'Annuaire', sub: 'Comptes · actif', icon: Database, iconBg: 'bg-emerald-100 text-emerald-500', href: '/dashboard/annuaire' },
+    ],
+    staff: [
+      { label: 'Administration', sub: 'Gestion · actif', icon: Settings, iconBg: 'bg-blue-100 text-blue-500', href: '/dashboard/admin' },
+      { label: 'Support', sub: 'Tickets · ouverts', icon: LifeBuoy, iconBg: 'bg-rose-100 text-rose-500', href: '/dashboard/support/admin' },
+      { label: 'Annuaire', sub: 'Comptes · actif', icon: Database, iconBg: 'bg-emerald-100 text-emerald-500', href: '/dashboard/annuaire' },
+      { label: 'Actualités', sub: 'École · récent', icon: BookOpen, iconBg: 'bg-amber-100 text-amber-500', href: '/dashboard/actualites' },
+    ],
     entreprise: [
       { label: 'Livret apprentissage', sub: 'Alternance · actif', icon: BookOpen, iconBg: 'bg-blue-100 text-blue-500', href: '/dashboard/carriere/livret' },
       { label: 'Tripartite', sub: 'Document · ce mois', icon: Code2, iconBg: 'bg-purple-100 text-purple-500', href: '/dashboard/carriere/tripartite' },
@@ -45,7 +57,7 @@ function getRecentDocs(role: UserProfile['role']): DocItem[] {
       { label: 'Actualités', sub: 'École · récent', icon: BookOpen, iconBg: 'bg-amber-100 text-amber-500', href: '/dashboard/actualites' },
     ],
   };
-  return byRole[role];
+  return byRole[role] ?? [];
 }
 
 const CONTACTS = [
