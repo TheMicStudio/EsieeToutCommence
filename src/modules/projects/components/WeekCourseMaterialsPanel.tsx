@@ -4,7 +4,8 @@ import { useActionState, useEffect, useRef, useTransition, useState } from 'reac
 import { useRouter } from 'next/navigation';
 import { addWeekCourseMaterial, deleteWeekCourseMaterial } from '../actions';
 import type { WeekCourseMaterial } from '../types';
-import { ExternalLink, FileText, Video, Trash2, Plus, Upload, Link2, X } from 'lucide-react';
+import { ExternalLink, Eye, FileText, Video, Trash2, Plus, Upload, Link2, X } from 'lucide-react';
+import { DocumentPreviewModal, detectPreviewMode } from '@/components/DocumentPreviewModal';
 
 const TYPE_ICONS = { video: Video, pdf: FileText, lien: ExternalLink };
 const TYPE_LABEL = { video: 'Vidéo', pdf: 'Fichier', lien: 'Lien' };
@@ -22,9 +23,12 @@ interface WeekCourseMaterialsPanelProps {
   isProf: boolean;
 }
 
+interface PreviewTarget { url: string; title: string; type: string; }
+
 export function WeekCourseMaterialsPanel({ weekId, materials, isProf }: WeekCourseMaterialsPanelProps) {
   const [state, action, pending] = useActionState(addWeekCourseMaterial, null);
   const [isDeleting, startDelete] = useTransition();
+  const [preview, setPreview] = useState<PreviewTarget | null>(null);
   const [mode, setMode] = useState<'fichier' | 'lien'>('fichier');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -69,17 +73,27 @@ export function WeekCourseMaterialsPanel({ weekId, materials, isProf }: WeekCour
         <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/60 bg-white">
           {materials.map((m) => {
             const Icon = TYPE_ICONS[m.type];
+            const canPreview = detectPreviewMode(m.url, null, m.type) !== 'none';
             return (
-              <div key={m.id} className="flex items-center gap-3 px-4 py-3 first:rounded-t-xl last:rounded-b-xl hover:bg-slate-50 transition-colors">
+              <div key={m.id} className="group flex items-center gap-3 px-4 py-3 first:rounded-t-xl last:rounded-b-xl hover:bg-slate-50 transition-colors">
                 <Icon className="h-4 w-4 shrink-0 text-slate-400" />
-                <a
-                  href={m.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 truncate text-sm font-medium text-[#061826] hover:text-[#0471a6] transition-colors"
+                <button
+                  type="button"
+                  onClick={() => canPreview && setPreview({ url: m.url, title: m.titre, type: m.type })}
+                  className={['flex-1 truncate text-left text-sm font-medium text-[#061826] transition-colors', canPreview ? 'hover:text-[#0471a6] cursor-pointer' : 'cursor-default'].join(' ')}
                 >
                   {m.titre}
-                </a>
+                </button>
+                {canPreview && (
+                  <button
+                    type="button"
+                    onClick={() => setPreview({ url: m.url, title: m.titre, type: m.type })}
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-300 opacity-0 hover:bg-slate-100 hover:text-[#0471a6] group-hover:opacity-100 transition-all"
+                    title="Aperçu"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                  </button>
+                )}
                 <span className={['shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold', TYPE_STYLE[m.type]].join(' ')}>
                   {TYPE_LABEL[m.type]}
                 </span>
@@ -210,6 +224,15 @@ export function WeekCourseMaterialsPanel({ weekId, materials, isProf }: WeekCour
             {pending ? 'Ajout…' : 'Ajouter'}
           </button>
         </form>
+      )}
+
+      {preview && (
+        <DocumentPreviewModal
+          url={preview.url}
+          title={preview.title}
+          fileType={preview.type}
+          onClose={() => setPreview(null)}
+        />
       )}
     </div>
   );
