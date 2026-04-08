@@ -13,7 +13,6 @@ import {
   LogOut,
   MessageSquare,
   Newspaper,
-  Smartphone,
   UserRound,
   Users,
   ClipboardList,
@@ -276,14 +275,14 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
                           'flex items-center rounded-xl transition-all duration-150',
                           collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5',
                           active
-                            ? 'bg-[#0471a6] text-white'
-                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+                            ? 'bg-[#0471a6]/10 text-[#0471a6]'
+                            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800',
                         ].join(' ')}
                       >
                         <span className={[
                           'flex shrink-0 items-center justify-center rounded-lg',
                           collapsed ? 'h-5 w-5' : 'h-6 w-6',
-                          active ? 'bg-white/20' : colorClass,
+                          active ? 'bg-[#0471a6]/15 text-[#0471a6]' : colorClass,
                         ].join(' ')}>
                           <Icon className="h-3.5 w-3.5" />
                         </span>
@@ -308,26 +307,6 @@ export function DashboardSidebar({ userProfile }: DashboardSidebarProps) {
         })}
       </div>
 
-      {/* CTA card */}
-      {!collapsed && (
-        <div className="px-3 pb-3">
-          <div className="rounded-2xl bg-gradient-to-br from-[#0471a6] to-[#3685b5] p-4 text-white">
-            <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-xl bg-white/20">
-              <Smartphone className="h-4 w-4" />
-            </div>
-            <p className="text-sm font-semibold leading-tight">Obtenez l&apos;app campus</p>
-            <p className="mt-1 text-[11px] text-blue-100 leading-relaxed">
-              Accès rapide à vos cours et notifications.
-            </p>
-            <button
-              type="button"
-              className="mt-3 w-full rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-[#0471a6] hover:bg-blue-50 transition-colors"
-            >
-              Télécharger
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Profile + logout */}
       <div className={[

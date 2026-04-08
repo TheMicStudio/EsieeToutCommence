@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className={cn("font-sans", outfit.variable)}>
-      <body>{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

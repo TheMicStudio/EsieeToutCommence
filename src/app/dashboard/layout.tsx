@@ -45,12 +45,12 @@ export default async function DashboardLayout({
         flex-col sur mobile  → sidebar header en haut, puis contenu
         flex-row sur desktop → left sidebar | center | right sidebar
       */}
-      <div className="relative z-10 flex flex-col lg:flex-row h-full lg:gap-3 lg:p-3">
+      <div className="relative z-10 flex flex-col lg:flex-row h-full lg:gap-4 lg:p-5">
         {/* Left sidebar : header mobile (lg:hidden) + card desktop (hidden lg:flex) */}
         <DashboardSidebar userProfile={userProfile} />
 
         {/* Zone centrale */}
-        <div className="flex flex-1 flex-col min-w-0 gap-4 p-4 lg:p-0 lg:gap-3 lg:overflow-hidden">
+        <div className="flex flex-1 flex-col min-w-0 gap-5 p-4 lg:p-0 lg:overflow-hidden">
           <TopNavbar userProfile={userProfile} />
           <main className="flex-1 overflow-y-auto min-w-0 pb-2">
             {children}
