@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { saveGroupWhiteboard } from '../actions';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Maximize2, Minimize2, Save } from 'lucide-react';
 
 // Excalidraw API shape (subset we need)
 interface ExcalidrawAPI {
@@ -34,6 +34,7 @@ interface GroupWhiteboardViewProps {
 export function GroupWhiteboardView({ groupId, initialData }: GroupWhiteboardViewProps) {
   const [api, setApi] = useState<ExcalidrawAPI | null>(null);
   const [saving, setSaving] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
 
   // Injection CSS Excalidraw (fichier dans /public, non exposé dans les exports du package)
   useEffect(() => {
@@ -101,14 +102,14 @@ export function GroupWhiteboardView({ groupId, initialData }: GroupWhiteboardVie
     setLastSaved(new Date());
   }
 
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between px-1">
-        <p className="text-xs text-slate-400">
-          {lastSaved
-            ? `Sauvegardé à ${lastSaved.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`
-            : 'Les modifications sont sauvegardées automatiquement'}
-        </p>
+  const toolbar = (
+    <div className="flex items-center justify-between px-1">
+      <p className="text-xs text-slate-400">
+        {lastSaved
+          ? `Sauvegardé à ${lastSaved.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`
+          : 'Les modifications sont sauvegardées automatiquement'}
+      </p>
+      <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={handleManualSave}
@@ -118,17 +119,73 @@ export function GroupWhiteboardView({ groupId, initialData }: GroupWhiteboardVie
           {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
           Sauvegarder
         </button>
+        <button
+          type="button"
+          onClick={() => setFullscreen((v) => !v)}
+          title={fullscreen ? 'Quitter le plein écran' : 'Plein écran'}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+        >
+          {fullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+          {fullscreen ? 'Réduire' : 'Plein écran'}
+        </button>
       </div>
+    </div>
+  );
+
+  const canvas = (
+    <Excalidraw
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      excalidrawAPI={(apiInstance: any) => setApi(apiInstance)}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onChange={(elements: any) => handleChange(elements)}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      initialData={initialData ? { elements: initialData as any } : undefined}
+      langCode="fr-FR"
+    />
+  );
+
+  if (fullscreen) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col bg-white">
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 py-2">
+          <p className="text-sm font-semibold text-[#061826]">Tableau blanc</p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-slate-400">
+              {lastSaved
+                ? `Sauvegardé à ${lastSaved.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`
+                : 'Sauvegarde automatique'}
+            </p>
+            <button
+              type="button"
+              onClick={handleManualSave}
+              disabled={saving || !api}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+            >
+              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+              Sauvegarder
+            </button>
+            <button
+              type="button"
+              onClick={() => setFullscreen(false)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+            >
+              <Minimize2 className="h-3.5 w-3.5" />
+              Réduire
+            </button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-hidden">
+          {canvas}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {toolbar}
       <div className="h-[600px] rounded-2xl border border-slate-200 overflow-hidden">
-        <Excalidraw
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          excalidrawAPI={(apiInstance: any) => setApi(apiInstance)}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onChange={(elements: any) => handleChange(elements)}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          initialData={initialData ? { elements: initialData as any } : undefined}
-          langCode="fr-FR"
-        />
+        {canvas}
       </div>
     </div>
   );
