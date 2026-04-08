@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createSoutenanceSlots, clearSoutenanceSlots, randomizeSlots } from '../actions';
 import { Clock, Shuffle, Trash2, Plus, Check } from 'lucide-react';
 
@@ -42,6 +43,7 @@ function generateSlots(date: string, startTime: string, durationMin: number, cou
 }
 
 export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: CreateSoutenanceSlotsFormProps) {
+  const router = useRouter();
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('09:00');
   const [duration, setDuration] = useState(15);
@@ -68,7 +70,7 @@ export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Crea
     const result = await createSoutenanceSlots(weekId, preview.map(({ heure_debut, heure_fin }) => ({ heure_debut, heure_fin })));
     setLoading(false);
     if (result.error) setError(result.error);
-    else { setSuccess(`${preview.length} créneaux générés !`); setTimeout(() => setSuccess(''), 3000); }
+    else { setSuccess(`${preview.length} créneaux générés !`); setTimeout(() => setSuccess(''), 3000); router.refresh(); }
   }
 
   async function handleRandomize() {
@@ -78,7 +80,7 @@ export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Crea
     const result = await randomizeSlots(weekId);
     setRandomizing(false);
     if (result.error) setError(result.error);
-    else { setSuccess('Ordre aléatoire appliqué !'); setTimeout(() => setSuccess(''), 3000); }
+    else { setSuccess('Ordre aléatoire appliqué !'); setTimeout(() => setSuccess(''), 3000); router.refresh(); }
   }
 
   async function handleClear() {
@@ -87,6 +89,7 @@ export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Crea
     const result = await clearSoutenanceSlots(weekId);
     setClearing(false);
     if (result.error) setError(result.error);
+    else router.refresh();
   }
 
   return (

@@ -153,6 +153,7 @@ export async function deleteCourseMaterial(materialId: string): Promise<ActionSt
     .eq('teacher_id', userProfile.profile.id);
 
   if (error) return { error: 'Erreur lors de la suppression.' };
+  revalidatePath('/dashboard/pedagogie/cours');
   return { success: true };
 }
 
@@ -223,6 +224,7 @@ export async function addGrade(
   });
 
   if (error) return { error: 'Erreur lors de l\'ajout de la note.' };
+  revalidatePath('/dashboard/pedagogie/notes');
   return { success: true };
 }
 
