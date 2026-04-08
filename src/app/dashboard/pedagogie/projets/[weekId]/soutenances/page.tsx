@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { requirePermission } from '@/lib/permissions';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getSoutenanceSlots, getGroups } from '@/modules/projects/actions';
 import { SoutenanceGrid } from '@/modules/projects/components/SoutenanceGrid';

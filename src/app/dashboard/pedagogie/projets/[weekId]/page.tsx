@@ -1,4 +1,5 @@
 import { redirect, notFound } from 'next/navigation';
+import { requirePermission } from '@/lib/permissions';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import {
   getGroups, getSoutenanceSlots, getWeekCourseMaterials,

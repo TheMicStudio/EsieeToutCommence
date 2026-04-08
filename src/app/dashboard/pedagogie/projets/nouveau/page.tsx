@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { requirePermission } from '@/lib/permissions';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getMyTeacherClasses } from '@/modules/pedagogy/actions';
 import { CreateWeekForm } from '@/modules/projects/components/CreateWeekForm';

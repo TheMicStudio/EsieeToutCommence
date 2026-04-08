@@ -1,5 +1,6 @@
 import { redirect, notFound } from 'next/navigation';
 import { headers } from 'next/headers';
+import { requirePermission } from '@/lib/permissions';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getSessionRecords } from '@/modules/attendance/actions';
 import { QrCodeDisplay } from '@/modules/attendance/components/QrCodeDisplay';

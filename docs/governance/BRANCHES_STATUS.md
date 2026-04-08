@@ -5,7 +5,7 @@
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
 **Dernière mise à jour :** 2026-04-08
-**Mis à jour par :** Claude (système permissions granulaires complet : 38 permissions, 7 rôles, guards toutes pages, sidebar filtrée, libellés rôles FR)
+**Mis à jour par :** Claude (imports `requirePermission` manquants sur 7 pages corrigés ; TripartiteChat redesigné avec design system slate/#0471a6 du projet)
 
 ---
 

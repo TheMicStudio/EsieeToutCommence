@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { requirePermission } from '@/lib/permissions';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { CreateWeekForm } from '@/modules/projects/components/CreateWeekForm';
 import { createClient } from '@/lib/supabase/server';
@@ -6,7 +7,7 @@ import { createClient } from '@/lib/supabase/server';
 export default async function NouveauProjetPage() {
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-  await requirePermission('project_week.manage'); if (!profile) redirect('/dashboard/projets');
+  await requirePermission('project_week.manage');
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

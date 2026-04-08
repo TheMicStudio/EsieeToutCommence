@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { requirePermission } from '@/lib/permissions';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getGroups, createGroup } from '@/modules/projects/actions';
 import { GroupCard } from '@/modules/projects/components/GroupCard';
