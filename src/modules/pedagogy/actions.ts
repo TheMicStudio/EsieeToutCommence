@@ -100,7 +100,8 @@ export async function addCourseMaterial(
   formData: FormData
 ): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') {
+  const allowed = ['professeur', 'coordinateur', 'admin'];
+  if (!userProfile || !allowed.includes(userProfile.role)) {
     return { error: 'Accès refusé.' };
   }
 
@@ -153,7 +154,8 @@ export async function addCourseMaterial(
 
 export async function deleteCourseMaterial(materialId: string): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') {
+  const allowed = ['professeur', 'coordinateur', 'admin'];
+  if (!userProfile || !allowed.includes(userProfile.role)) {
     return { error: 'Accès refusé.' };
   }
 
@@ -187,7 +189,8 @@ export async function getMyGrades(): Promise<Grade[]> {
 
 export async function getClassGrades(classId: string): Promise<Grade[]> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') return [];
+  const allowed = ['professeur', 'coordinateur', 'admin'];
+  if (!userProfile || !allowed.includes(userProfile.role)) return [];
 
   const supabase = await createClient();
   const { data } = await supabase
@@ -205,7 +208,8 @@ export async function addGrade(
   formData: FormData
 ): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') {
+  const allowed = ['professeur', 'coordinateur', 'admin'];
+  if (!userProfile || !allowed.includes(userProfile.role)) {
     return { error: 'Accès refusé.' };
   }
 
@@ -265,7 +269,8 @@ export async function addBulkGrades(
   grades: { studentId: string; note: number }[],
 ): Promise<{ error?: string; count?: number }> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') return { error: 'Accès refusé.' };
+  const allowed = ['professeur', 'coordinateur', 'admin'];
+  if (!userProfile || !allowed.includes(userProfile.role)) return { error: 'Accès refusé.' };
   if (grades.length === 0) return { error: 'Aucune note à saisir.' };
   const supabase = await createClient();
   const rows = grades.map((g) => ({
@@ -290,7 +295,8 @@ export async function updateGrade(
 ): Promise<{ error?: string }> {
   if (note < 0 || note > 20) return { error: 'Note invalide (0–20).' };
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') return { error: 'Accès refusé.' };
+  const allowed = ['professeur', 'coordinateur', 'admin'];
+  if (!userProfile || !allowed.includes(userProfile.role)) return { error: 'Accès refusé.' };
   const supabase = await createClient();
   const { error } = await supabase
     .from('grades')
@@ -305,7 +311,8 @@ export async function updateGrade(
 
 export async function deleteGrade(gradeId: string): Promise<{ error?: string }> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') return { error: 'Accès refusé.' };
+  const allowed = ['professeur', 'coordinateur', 'admin'];
+  if (!userProfile || !allowed.includes(userProfile.role)) return { error: 'Accès refusé.' };
   const supabase = await createClient();
   const { error } = await supabase
     .from('grades')
