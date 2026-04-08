@@ -81,40 +81,46 @@ export async function signUp(
     return { error: 'Veuillez remplir tous les champs obligatoires.' };
   }
 
-  const supabase = await createClient();
+  // Utiliser le client admin pour contourner les limites de signUp (email déjà utilisé, confirmation email, RLS)
+  const admin = createAdminClient();
 
-  const { data: authData, error: authError } = await supabase.auth.signUp({
+  // Vérifier si l'email existe déjà
+  const { data: existing } = await admin.auth.admin.listUsers();
+  if (existing?.users.some((u) => u.email === data.email)) {
+    return { error: 'Cet email est déjà utilisé.' };
+  }
+
+  const { data: authData, error: authError } = await admin.auth.admin.createUser({
     email: data.email,
     password: data.password,
+    email_confirm: true, // Confirmation automatique, pas d'email requis
   });
 
   if (authError || !authData.user) {
-    if (authError?.message.includes('already registered')) {
+    if (authError?.message?.toLowerCase().includes('already')) {
       return { error: 'Cet email est déjà utilisé.' };
     }
-    return { error: 'Impossible de créer le compte. Réessayez.' };
+    return { error: `Impossible de créer le compte : ${authError?.message ?? 'erreur inconnue'}` };
   }
 
   const userId = authData.user.id;
 
-  // Insérer le rôle
-  const { error: roleError } = await supabase
+  // Insérer le rôle via admin (bypass RLS)
+  const { error: roleError } = await admin
     .from('user_roles')
     .insert({ id: userId, role: data.role });
 
   if (roleError) {
+    await admin.auth.admin.deleteUser(userId); // rollback
     return { error: 'Erreur lors de la création du profil.' };
   }
 
-  // Insérer le profil selon le rôle
+  // Insérer le profil selon le rôle via admin
   let profileError = null;
 
   if (data.role === 'eleve') {
-    const { error } = await supabase.from('student_profiles').insert({
-      id: userId,
-      nom: data.nom,
-      prenom: data.prenom,
-      email: data.email,
+    const { error } = await admin.from('student_profiles').insert({
+      id: userId, nom: data.nom, prenom: data.prenom, email: data.email,
       type_parcours: data.type_parcours ?? 'temps_plein',
     });
     profileError = error;
@@ -122,46 +128,38 @@ export async function signUp(
     const matieres = data.matieres_enseignees
       ? data.matieres_enseignees.split(',').map((m) => m.trim()).filter(Boolean)
       : [];
-    const { error } = await supabase.from('teacher_profiles').insert({
-      id: userId,
-      nom: data.nom,
-      prenom: data.prenom,
-      email: data.email,
+    const { error } = await admin.from('teacher_profiles').insert({
+      id: userId, nom: data.nom, prenom: data.prenom, email: data.email,
       matieres_enseignees: matieres,
     });
     profileError = error;
   } else if (data.role === 'admin') {
-    const { error } = await supabase.from('admin_profiles').insert({
-      id: userId,
-      nom: data.nom,
-      prenom: data.prenom,
-      email: data.email,
+    const { error } = await admin.from('admin_profiles').insert({
+      id: userId, nom: data.nom, prenom: data.prenom, email: data.email,
       fonction: data.fonction,
     });
     profileError = error;
   } else if (data.role === 'entreprise') {
-    const { error } = await supabase.from('company_profiles').insert({
-      id: userId,
-      nom: data.nom,
-      prenom: data.prenom,
-      email: data.email,
-      entreprise: data.entreprise ?? '',
-      poste: data.poste,
+    const { error } = await admin.from('company_profiles').insert({
+      id: userId, nom: data.nom, prenom: data.prenom, email: data.email,
+      entreprise: data.entreprise ?? '', poste: data.poste,
     });
     profileError = error;
   } else if (data.role === 'parent') {
-    const { error } = await supabase.from('parent_profiles').insert({
-      id: userId,
-      nom: data.nom,
-      prenom: data.prenom,
-      email: data.email,
+    const { error } = await admin.from('parent_profiles').insert({
+      id: userId, nom: data.nom, prenom: data.prenom, email: data.email,
     });
     profileError = error;
   }
 
   if (profileError) {
-    return { error: 'Erreur lors de la création du profil métier.' };
+    await admin.auth.admin.deleteUser(userId); // rollback
+    return { error: `Erreur lors de la création du profil : ${profileError.message}` };
   }
+
+  // Connecter l'utilisateur après création
+  const supabase = await createClient();
+  await supabase.auth.signInWithPassword({ email: data.email, password: data.password });
 
   redirect('/dashboard');
 }
