@@ -1,8 +1,9 @@
+import Link from 'next/link';
 import type { ProjectGroup } from '../types';
 import { JoinGroupButton } from './JoinGroupButton';
 import { SubmitLinksForm } from './SubmitLinksForm';
 import { GradeGroupForm } from './GradeGroupForm';
-import { GitBranch, Presentation, Star } from 'lucide-react';
+import { GitBranch, Presentation, Star, MessageSquare } from 'lucide-react';
 
 interface GroupCardProps {
   group: ProjectGroup;
@@ -102,6 +103,15 @@ export function GroupCard({ group, weekId, currentUserId, isProf }: GroupCardPro
               isMember={isMember}
               isFull={isFull}
             />
+          )}
+          {(isMember || isProf) && (
+            <Link
+              href={`/dashboard/projets/${weekId}/groupes/${group.id}`}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#89aae6]/10 border border-[#89aae6]/30 px-4 py-2 text-sm font-semibold text-[#0471a6] hover:bg-[#89aae6]/20 transition-all w-full justify-center"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Espace groupe (chat + tableau blanc)
+            </Link>
           )}
           {isMember && !isProf && (
             <SubmitLinksForm
