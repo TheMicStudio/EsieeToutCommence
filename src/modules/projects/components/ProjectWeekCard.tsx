@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { CalendarDays, Users } from 'lucide-react';
 import type { ProjectWeek } from '../types';
 
-export function ProjectWeekCard({ week, groupCount = 0 }: { week: ProjectWeek; groupCount?: number }) {
+export function ProjectWeekCard({ week, groupCount = 0, classLabel }: { week: ProjectWeek; groupCount?: number; classLabel?: string }) {
   const start = new Date(week.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
   const end = new Date(week.end_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
   const now = new Date();
@@ -43,9 +43,16 @@ export function ProjectWeekCard({ week, groupCount = 0 }: { week: ProjectWeek; g
         </div>
       </div>
 
-      <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-500">
-        <Users className="h-3.5 w-3.5" />
-        <span>{groupCount} groupe{groupCount !== 1 ? 's' : ''}</span>
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 text-xs text-slate-500">
+          <Users className="h-3.5 w-3.5" />
+          <span>{groupCount} groupe{groupCount !== 1 ? 's' : ''}</span>
+        </div>
+        {classLabel && (
+          <span className="rounded-full bg-[#89aae6]/15 px-2.5 py-0.5 text-[11px] font-medium text-[#3685b5] truncate max-w-[120px]">
+            {classLabel}
+          </span>
+        )}
       </div>
     </Link>
   );

@@ -4,13 +4,26 @@ import { useEffect, useRef, useState } from 'react';
 import { X, CalendarPlus } from 'lucide-react';
 import { CreateWeekForm } from './CreateWeekForm';
 
+interface ClassOption { id: string; nom: string; annee?: number | string }
+
 interface NewWeekModalProps {
-  classId: string;
+  /** Classe unique pré-sélectionnée (filtre actif) */
+  classId?: string;
+  /** Toutes les classes disponibles (quand pas de filtre) */
+  classes?: ClassOption[];
+  /** Label du bouton */
+  label?: string;
 }
 
-export function NewWeekModal({ classId }: NewWeekModalProps) {
+export function NewWeekModal({ classId, classes = [], label = 'Créer une semaine' }: NewWeekModalProps) {
   const [open, setOpen] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState(classId ?? classes[0]?.id ?? '');
   const dialogRef = useRef<HTMLDialogElement>(null);
+
+  // Sync si classId change (changement de filtre)
+  useEffect(() => {
+    setSelectedClassId(classId ?? classes[0]?.id ?? '');
+  }, [classId, classes]);
 
   useEffect(() => {
     if (open) dialogRef.current?.showModal();
@@ -21,15 +34,18 @@ export function NewWeekModal({ classId }: NewWeekModalProps) {
     if (e.target === dialogRef.current) setOpen(false);
   }
 
+  const effectiveClassId = classId ?? selectedClassId;
+  const showSelector = !classId && classes.length > 1;
+
   return (
     <>
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 transition-all"
+        className="inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 transition-all shadow-sm"
       >
         <CalendarPlus className="h-4 w-4" />
-        Créer une semaine
+        {label}
       </button>
 
       <dialog
@@ -47,8 +63,28 @@ export function NewWeekModal({ classId }: NewWeekModalProps) {
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="p-6">
-          <CreateWeekForm classId={classId} />
+        <div className="p-6 space-y-4">
+          {showSelector && (
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+                Classe *
+              </label>
+              <select
+                value={selectedClassId}
+                onChange={(e) => setSelectedClassId(e.target.value)}
+                className="flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all"
+              >
+                {classes.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nom}{c.annee ? ` — Promo ${c.annee}` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          {effectiveClassId && (
+            <CreateWeekForm classId={effectiveClassId} onClose={() => setOpen(false)} />
+          )}
         </div>
       </dialog>
     </>
