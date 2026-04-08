@@ -1,0 +1,14 @@
+FROM node:22-alpine
+WORKDIR /app
+
+# Dépendances en premier pour profiter du cache Docker
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Le code source est monté en volume — pas de COPY ici
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=development
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]
