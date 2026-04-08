@@ -13,11 +13,11 @@ import { getSubjects } from '@/modules/admin/config-actions';
 export const metadata = { title: 'Supports de cours — EsieeToutCommence' };
 
 export default async function CoursPage({
-  await requirePermission('course_material.read');
   searchParams,
 }: {
   searchParams: Promise<{ classe?: string }>;
 }) {
+  await requirePermission('course_material.read');
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) return null;
 
