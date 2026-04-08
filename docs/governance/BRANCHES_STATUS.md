@@ -5,20 +5,18 @@
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
 **Dernière mise à jour :** 2026-04-08
-**Mis à jour par :** Claude (migration phone_columns + fixes chat realtime, export rétro, email rate limit)
+**Mis à jour par :** Claude (workspace groupe, WeekDashboard unifié, revalidatePath global, signUp admin, proxy.ts)
 
 ---
 
 ## Vue d'ensemble
 
 ```
-main
-├── feat/T01-auth-profiles-identite       [Dev 1] 🟡 EN COURS (code complet, SQL à exécuter)
-├── feat/T02-pedagogy-espace-classe       [Dev 2] 🔴 PAS COMMENCÉ
-├── feat/T03-career-alternance            [Dev 3] 🔴 PAS COMMENCÉ
-├── feat/T04-support-faq-communication   [Dev 4] 🔴 PAS COMMENCÉ
-└── feat/T07-projects-groupes-retro      [Dev 3] 🔴 PAS COMMENCÉ
+main  ← développement centralisé (tous modules codés sur main)
 ```
+
+> ⚠️ Tous les modules sont développés directement sur `main` (décision d'équipe).
+> Les branches feat/* n'ont pas encore été créées.
 
 **Légende :** 🔴 Pas commencé · 🟡 En cours · 🟢 Prêt pour review · ✅ Mergé sur main
 
@@ -205,10 +203,15 @@ _Dev 3 doit d'abord terminer le Module 3 (ou en parallèle). Vérifier que les f
 
 | Fichier | Statut | Tables créées |
 |---------|--------|---------------|
-| `docs/sql/01_init_schema.sql` | 🔴 Non exécuté | `user_roles`, `student_profiles`, `teacher_profiles`, `admin_profiles`, `company_profiles` |
-| `docs/sql/02_projets_groupes_retro.sql` | 🔴 Non exécuté | `project_weeks`, `project_groups`, `group_members`, `soutenance_slots`, `retro_boards`, `retro_postits` |
-| `docs/sql/03_phone_columns_migration.sql` | ✅ Exécuté via `supabase db push` | Colonnes `phone_mobile` + `phone_fixed` sur tous les profils |
-| `supabase/migrations/20260408000000_add_phone_columns.sql` | ✅ Pushé | Idem (migration Supabase CLI) |
+| `supabase/migrations/20260407130912_init_module_auth.sql` | ✅ Pushé | Auth, profils, user_roles, RLS |
+| `supabase/migrations/20260407131117_init_module_pedagogy.sql` | ✅ Pushé | Classes, cours, notes, canaux |
+| `supabase/migrations/20260407140000_init_module_attendance.sql` | ✅ Pushé | Sessions, émargements QR |
+| `supabase/migrations/20260407132313_init_module_career.sql` | ✅ Pushé | Job offers, events, tripartite, livret |
+| `supabase/migrations/20260407133054_init_module_support_com.sql` | ✅ Pushé | Tickets, FAQ, canaux staff |
+| `supabase/migrations/20260407150000_init_module_projects.sql` | ✅ Pushé | Semaines, groupes, soutenances, rétro |
+| `supabase/migrations/20260408000000_add_phone_columns.sql` | ✅ Pushé | Colonnes phone_mobile + phone_fixed |
+| `supabase/migrations/20260408030000_class_members_is_current.sql` | ✅ Pushé | Multi-année : colonne is_current |
+| `supabase/migrations/20260408040000_group_workspace.sql` | ✅ Pushé | group_messages, group_whiteboard, week_course_materials |
 
 > ⚠️ Les migrations du Module 2 (classes, pedagogy, attendance) sont définies dans `docs/features/02_module_pedagogie_classe.md` et `docs/features/06_module_emargement_qrcode.md` — elles n'ont pas encore de fichier SQL dédié.
 
