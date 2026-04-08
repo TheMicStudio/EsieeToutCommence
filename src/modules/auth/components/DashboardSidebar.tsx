@@ -15,6 +15,7 @@ import {
   Newspaper,
   UserRound,
   Users,
+  ClipboardList,
   QrCode,
   LifeBuoy,
   Menu,
@@ -54,8 +55,8 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
       {
         title: 'Pédagogie',
         items: [
-          { href: '/dashboard/pedagogie', label: 'Mes cours', icon: BookOpen },
           { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban },
+          { href: '/dashboard/pedagogie/notes', label: 'Mes notes', icon: ClipboardList },
           { href: '/dashboard/emargement', label: 'Émargement', icon: QrCode },
         ],
       },
