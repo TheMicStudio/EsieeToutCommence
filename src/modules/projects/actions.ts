@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getCurrentUserProfile } from '@/modules/auth/actions';
 import type {
   ProjectWeek, ProjectGroup, GroupMember,
   SoutenanceSlot, RetroBoard, RetroPostit, PostitType,
@@ -165,6 +166,19 @@ export async function updateGroupLinks(
   repoUrl: string,
   slidesUrl: string,
 ): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Non authentifié' };
+
+  // Vérifier que l'utilisateur est membre du groupe
+  const { data: membership } = await supabase
+    .from('group_members')
+    .select('student_id')
+    .eq('group_id', groupId)
+    .eq('student_id', user.id)
+    .maybeSingle();
+  if (!membership) return { error: 'Vous n\'êtes pas membre de ce groupe.' };
+
   // Admin client pour éviter la récursion RLS (UPDATE project_groups → group_members → project_groups)
   const admin = createAdminClient();
   const { error } = await admin
@@ -182,15 +196,16 @@ export async function gradeGroup(
   note: number,
   feedbackProf: string,
 ): Promise<{ error?: string }> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: 'Non authentifié' };
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'professeur') {
+    return { error: 'Seuls les professeurs peuvent noter un groupe.' };
+  }
 
   // Admin client pour la même raison (récursion RLS sur project_groups UPDATE)
   const admin = createAdminClient();
   const { error } = await admin
     .from('project_groups')
-    .update({ note, feedback_prof: feedbackProf, note_par: user.id })
+    .update({ note, feedback_prof: feedbackProf, note_par: userProfile.profile.id })
     .eq('id', groupId);
 
   if (error) return { error: error.message };
@@ -217,6 +232,10 @@ export async function createSoutenanceSlots(
   weekId: string,
   slots: { heure_debut: string; heure_fin: string }[],
 ): Promise<{ error?: string }> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'professeur') {
+    return { error: 'Seuls les professeurs peuvent créer des créneaux.' };
+  }
   const admin = createAdminClient();
   const rows = slots.map((s) => ({ week_id: weekId, ...s }));
   const { error } = await admin.from('soutenance_slots').insert(rows);
@@ -226,6 +245,10 @@ export async function createSoutenanceSlots(
 }
 
 export async function clearSoutenanceSlots(weekId: string): Promise<{ error?: string }> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'professeur') {
+    return { error: 'Non autorisé.' };
+  }
   const admin = createAdminClient();
   const { error } = await admin.from('soutenance_slots').delete().eq('week_id', weekId);
   if (error) return { error: error.message };
@@ -234,6 +257,10 @@ export async function clearSoutenanceSlots(weekId: string): Promise<{ error?: st
 }
 
 export async function randomizeSlots(weekId: string): Promise<{ error?: string }> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'professeur') {
+    return { error: 'Non autorisé.' };
+  }
   const admin = createAdminClient();
 
   // Récupérer créneaux libres + groupes
@@ -274,6 +301,10 @@ export async function updateSlot(
   heureFin: string,
   weekId: string,
 ): Promise<{ error?: string }> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile || userProfile.role !== 'professeur') {
+    return { error: 'Non autorisé.' };
+  }
   const admin = createAdminClient();
   const { error } = await admin
     .from('soutenance_slots')
