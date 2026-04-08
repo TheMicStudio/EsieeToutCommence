@@ -17,7 +17,7 @@ interface GroupChatProps {
 
 export function GroupChat({ groupId, initialMessages, currentUserId, currentUserName, memberNames }: GroupChatProps) {
   const [state, action, pending] = useActionState(sendGroupMessage, null);
-  const [messages, setMessages] = useState<GroupMessage[]>(initialMessages);
+  const [messages, setMessages] = useState<GroupMessage[]>(initialMessages ?? []);
   const formRef = useRef<HTMLFormElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);

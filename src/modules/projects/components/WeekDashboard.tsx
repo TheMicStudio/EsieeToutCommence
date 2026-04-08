@@ -289,7 +289,7 @@ export function WeekDashboard({
           chatContent={
             <GroupChat
               groupId={myGroup.id}
-              initialMessages={messages}
+              initialMessages={messages ?? []}
               currentUserId={currentUserId}
               currentUserName={currentUserName}
               memberNames={Object.fromEntries(
