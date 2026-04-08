@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import type {
   ActionState,
@@ -68,6 +69,17 @@ export async function getMyTeacherClasses(): Promise<Class[]> {
   return data
     .map((d) => d.classes as unknown as Class)
     .filter((c) => c && !seen.has(c.id) && seen.add(c.id));
+}
+
+// ─── Toutes les classes (pour coordinateur / admin) ──────────────────────────
+
+export async function getAllClasses(): Promise<Class[]> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('classes')
+    .select('*')
+    .order('annee', { ascending: false });
+  return (data as Class[]) ?? [];
 }
 
 // ─── Supports de cours ────────────────────────────────────────────────────────
