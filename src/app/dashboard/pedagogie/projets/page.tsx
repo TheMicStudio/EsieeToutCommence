@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { requirePermission } from '@/lib/permissions';
 import { getProjectWeeks, getGroups } from '@/modules/projects/actions';
-import { getMyTeacherClasses } from '@/modules/pedagogy/actions';
+import { getAllClasses, getMyTeacherClasses } from '@/modules/pedagogy/actions';
 import { ProjectWeekCard } from '@/modules/projects/components/ProjectWeekCard';
 import { NewWeekModal } from '@/modules/projects/components/NewWeekModal';
 import { ClassSelector } from '@/modules/pedagogy/components/ClassSelector';
@@ -34,6 +35,12 @@ export default async function ProjetsPage({ searchParams }: ProjetsPageProps) {
       .maybeSingle();
     classId = (data?.class_id as string) ?? '';
     className = (data?.classes as unknown as { nom: string } | null)?.nom ?? '';
+  } else if (profile.role === 'coordinateur' || profile.role === 'admin') {
+    const allClasses = await getAllClasses();
+    teacherClasses = allClasses;
+    const activeClass = allClasses.find((c) => c.id === classeParam) ?? allClasses[0];
+    classId = activeClass?.id ?? '';
+    className = activeClass?.nom ?? '';
   } else {
     teacherClasses = await getMyTeacherClasses();
     const activeClass = teacherClasses.find((c) => c.id === classeParam) ?? teacherClasses[0];
@@ -54,7 +61,7 @@ export default async function ProjetsPage({ searchParams }: ProjetsPageProps) {
           <h1 className="text-2xl font-bold text-[#061826]">Semaines projets</h1>
           {className && <p className="text-sm text-slate-500">{className}</p>}
         </div>
-        {profile.role === 'professeur' && classId && (
+        {(profile.role === 'professeur' || profile.role === 'coordinateur' || profile.role === 'admin') && classId && (
           <NewWeekModal classId={classId} />
         )}
       </div>
