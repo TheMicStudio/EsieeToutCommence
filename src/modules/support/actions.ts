@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
@@ -88,6 +89,8 @@ export async function updateTicketStatus(
     .from('tickets').update({ statut }).eq('id', ticketId);
 
   if (error) return { error: 'Erreur lors de la mise à jour.' };
+  revalidatePath('/dashboard/support');
+  revalidatePath('/dashboard/support/admin');
   return { success: true };
 }
 
@@ -108,6 +111,7 @@ export async function addTicketMessage(
   });
 
   if (error) return { error: 'Erreur lors de l\'envoi.' };
+  revalidatePath('/dashboard/support');
   return { success: true };
 }
 
@@ -161,6 +165,8 @@ export async function createFaqArticle(
   });
 
   if (error) return { error: 'Erreur lors de la création.' };
+  revalidatePath('/dashboard/support');
+  revalidatePath('/dashboard/support/admin');
   return { success: true };
 }
 
@@ -175,6 +181,7 @@ export async function assignTicket(ticketId: string, adminId: string): Promise<A
     .eq('id', ticketId);
 
   if (error) return { error: 'Erreur lors de l\'assignation.' };
+  revalidatePath('/dashboard/support/admin');
   return { success: true };
 }
 
@@ -227,5 +234,7 @@ export async function convertTicketToFaq(ticketId: string): Promise<ActionState>
   });
 
   if (error) return { error: 'Erreur lors de la conversion.' };
+  revalidatePath('/dashboard/support');
+  revalidatePath('/dashboard/support/admin');
   return { success: true };
 }

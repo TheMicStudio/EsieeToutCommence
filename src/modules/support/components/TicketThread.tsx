@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState, useTransition } from 'react';
+import { useActionState, useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { addTicketMessage, updateTicketStatus, convertTicketToFaq } from '../actions';
 import { TicketStatusBadge } from './TicketStatusBadge';
@@ -28,6 +28,10 @@ export function TicketThread({ ticket, messages, authorNames, currentUserId, isA
   const [currentStatut, setCurrentStatut] = useState<TicketStatut>(ticket.statut);
   const router = useRouter();
 
+  useEffect(() => {
+    if (msgState?.success) router.refresh();
+  }, [msgState]);
+
   function handleStatusChange(statut: TicketStatut) {
     startTransition(async () => {
       await updateTicketStatus(ticket.id, statut);
@@ -39,7 +43,7 @@ export function TicketThread({ ticket, messages, authorNames, currentUserId, isA
   function handleConvert() {
     startTransition(async () => {
       const result = await convertTicketToFaq(ticket.id);
-      if (!result?.error) setConvertDone(true);
+      if (!result?.error) { setConvertDone(true); router.refresh(); }
     });
   }
 

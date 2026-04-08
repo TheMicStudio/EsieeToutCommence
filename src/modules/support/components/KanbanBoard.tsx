@@ -4,7 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { updateTicketStatus, assignTicket } from '../actions';
-import { ChevronRight, UserCheck } from 'lucide-react';
+import { ChevronRight, UserCheck, LayoutGrid, List } from 'lucide-react';
+import { TicketStatusBadge } from './TicketStatusBadge';
 import { CATEGORIE_LABELS, type AdminContact, type Ticket, type TicketStatut } from '../types';
 
 interface KanbanBoardProps {
@@ -28,6 +29,7 @@ const MOVE_TARGETS: Record<TicketStatut, { statut: TicketStatut; label: string }
 
 export function KanbanBoard({ tickets: initialTickets, admins = [] }: KanbanBoardProps) {
   const [tickets, setTickets] = useState(initialTickets);
+  const [view, setView] = useState<'kanban' | 'list'>('kanban');
   const router = useRouter();
 
   async function moveTicket(ticketId: string, newStatut: TicketStatut) {
@@ -43,6 +45,99 @@ export function KanbanBoard({ tickets: initialTickets, admins = [] }: KanbanBoar
   }
 
   return (
+    <div className="space-y-4">
+      {/* Toggle vue */}
+      <div className="flex justify-end gap-1">
+        <button
+          type="button"
+          onClick={() => setView('kanban')}
+          className={['rounded-lg border p-2 transition-colors', view === 'kanban' ? 'border-[#89aae6] bg-[#89aae6]/10 text-[#0471a6]' : 'border-slate-200 text-slate-400 hover:bg-slate-50'].join(' ')}
+          title="Vue kanban"
+        >
+          <LayoutGrid className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => setView('list')}
+          className={['rounded-lg border p-2 transition-colors', view === 'list' ? 'border-[#89aae6] bg-[#89aae6]/10 text-[#0471a6]' : 'border-slate-200 text-slate-400 hover:bg-slate-50'].join(' ')}
+          title="Vue liste"
+        >
+          <List className="h-4 w-4" />
+        </button>
+      </div>
+
+      {view === 'list' ? (
+        <div className="rounded-2xl border border-slate-200/60 bg-white shadow-sm overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-100 bg-slate-50/60">
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">Sujet</th>
+                <th className="hidden px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400 sm:table-cell">Catégorie</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">Statut</th>
+                <th className="hidden px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400 md:table-cell">Assigné</th>
+                <th className="hidden px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400 lg:table-cell">Date</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {tickets.map((ticket) => {
+                const assignedAdmin = admins.find((a) => a.id === ticket.assigne_a);
+                return (
+                  <tr key={ticket.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-4 py-3">
+                      <Link href={`/dashboard/support/${ticket.id}`} className="font-medium text-[#061826] hover:text-[#0471a6] transition-colors line-clamp-1">
+                        {ticket.sujet}
+                      </Link>
+                      {ticket.au_nom_de_classe && (
+                        <span className="text-[11px] text-slate-400"> · classe</span>
+                      )}
+                    </td>
+                    <td className="hidden px-4 py-3 text-slate-500 sm:table-cell">
+                      {CATEGORIE_LABELS[ticket.categorie] ?? ticket.categorie}
+                    </td>
+                    <td className="px-4 py-3">
+                      <TicketStatusBadge statut={ticket.statut} />
+                    </td>
+                    <td className="hidden px-4 py-3 text-slate-500 md:table-cell">
+                      {admins.length > 0 && ticket.statut !== 'ferme' ? (
+                        <select
+                          value={ticket.assigne_a ?? ''}
+                          onChange={(e) => handleAssign(ticket.id, e.target.value)}
+                          className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-600 focus:outline-none focus:ring-1 focus:ring-[#89aae6]/40"
+                        >
+                          <option value="">— —</option>
+                          {admins.map((a) => (
+                            <option key={a.id} value={a.id}>{a.prenom} {a.nom}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        assignedAdmin ? `${assignedAdmin.prenom} ${assignedAdmin.nom}` : '—'
+                      )}
+                    </td>
+                    <td className="hidden px-4 py-3 text-xs text-slate-400 lg:table-cell">
+                      {new Date(ticket.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap gap-1">
+                        {MOVE_TARGETS[ticket.statut].map((target) => (
+                          <button
+                            key={target.statut}
+                            type="button"
+                            onClick={() => moveTicket(ticket.id, target.statut)}
+                            className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+                          >
+                            → {target.label}
+                          </button>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
       {COLUMNS.map((col) => {
         const colTickets = tickets.filter((t) => t.statut === col.statut);
@@ -124,6 +219,8 @@ export function KanbanBoard({ tickets: initialTickets, admins = [] }: KanbanBoar
           </div>
         );
       })}
+    </div>
+      )}
     </div>
   );
 }
