@@ -4,8 +4,6 @@ import { ArrowLeft, MessageSquare } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getMyLinks, getParentMessages } from '@/modules/parent/actions';
 import { ParentMessageThread } from '@/modules/parent/components/ParentMessageThread';
-import { createAdminClient } from '@/lib/supabase/admin';
-
 export const metadata = { title: 'Messages — EsieeToutCommence' };
 
 interface ParentMessagesPageProps {
@@ -23,8 +21,6 @@ export default async function ParentMessagesPage({ searchParams }: ParentMessage
 
   const messages = activeLink ? await getParentMessages(activeLink.id) : [];
 
-  // ID utilisateur courant
-  const admin = createAdminClient();
   const supabase = await import('@/lib/supabase/server').then((m) => m.createClient());
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -84,7 +80,7 @@ export default async function ParentMessagesPage({ searchParams }: ParentMessage
               <ParentMessageThread
                 linkId={activeLink.id}
                 initialMessages={messages}
-                currentUserId={user!.id}
+                currentUserId={user?.id ?? ''}
               />
             </div>
           )}

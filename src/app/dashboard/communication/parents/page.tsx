@@ -86,7 +86,7 @@ export default async function ParentsCommunicationPage({ searchParams }: Parents
               <ParentMessageThread
                 linkId={activeThread.id}
                 initialMessages={messages}
-                currentUserId={user!.id}
+                currentUserId={user?.id ?? ''}
               />
             </div>
           ) : (

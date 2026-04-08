@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { getUserPermissions } from '@/lib/permissions';
 import type {
   ActionState,
   ApprenticeshipEntry,
@@ -84,7 +85,6 @@ export async function publishCareerEvent(
 ): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) return { error: 'Accès refusé.' };
-  const { getUserPermissions } = await import('@/lib/permissions');
   const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
   if (!perms.has('career_event.manage')) return { error: 'Accès refusé.' };
 
@@ -111,7 +111,9 @@ export async function publishCareerEvent(
 
 export async function getAllJobOffers(): Promise<JobOffer[]> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return [];
+  if (!userProfile) return [];
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('job.manage')) return [];
 
   const supabase = await createClient();
   const { data } = await supabase
@@ -123,7 +125,9 @@ export async function getAllJobOffers(): Promise<JobOffer[]> {
 
 export async function deleteJobOffer(offerId: string): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+  if (!userProfile) return { error: 'Accès refusé.' };
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('job.manage')) return { error: 'Accès refusé.' };
 
   const supabase = await createClient();
   const { error } = await supabase.from('job_offers').delete().eq('id', offerId);
@@ -135,7 +139,9 @@ export async function deleteJobOffer(offerId: string): Promise<ActionState> {
 
 export async function getAllCareerEvents(): Promise<CareerEvent[]> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return [];
+  if (!userProfile) return [];
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('career_event.manage')) return [];
 
   const supabase = await createClient();
   const { data } = await supabase
@@ -147,7 +153,9 @@ export async function getAllCareerEvents(): Promise<CareerEvent[]> {
 
 export async function deleteCareerEvent(eventId: string): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+  if (!userProfile) return { error: 'Accès refusé.' };
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('career_event.manage')) return { error: 'Accès refusé.' };
 
   const supabase = await createClient();
   const { error } = await supabase.from('career_events').delete().eq('id', eventId);

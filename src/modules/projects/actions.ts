@@ -341,6 +341,7 @@ export async function bookSlot(
 
   if (error) return { error: error.message };
   revalidatePath(`/dashboard/projets/${weekId}/soutenances`);
+  revalidatePath(`/dashboard/pedagogie/projets/${weekId}/soutenances`);
   return {};
 }
 
