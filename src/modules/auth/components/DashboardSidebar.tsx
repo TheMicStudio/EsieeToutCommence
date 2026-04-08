@@ -22,6 +22,7 @@ import {
   X,
   ChevronDown,
   FolderKanban,
+  FolderOpen,
 } from 'lucide-react';
 import { signOut } from '../actions';
 import { ROLE_LABELS, type UserProfile } from '../types';
@@ -113,6 +114,7 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
         title: 'Administration',
         items: [
           { href: '/dashboard/admin', label: 'Administration', icon: UserRound, permission: 'class.manage' },
+          { href: '/dashboard/documents', label: 'Documents', icon: FolderOpen, permission: 'doc.access' },
           { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.read' },
           { href: '/dashboard/communication', label: 'Messagerie staff', icon: MessageSquare, permission: 'staff_channel.participate' },
         ],
@@ -150,6 +152,7 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
         title: 'Administration',
         items: [
           { href: '/dashboard/admin', label: 'Administration', icon: UserRound, permission: 'user.manage' },
+          { href: '/dashboard/documents', label: 'Documents', icon: FolderOpen, permission: 'doc.access' },
           { href: '/dashboard/support/admin', label: 'Support', icon: LifeBuoy, permission: 'support.manage' },
           { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.read' },
         ],
