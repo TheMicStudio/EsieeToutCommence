@@ -525,17 +525,34 @@ export async function addWeekCourseMaterial(
   formData: FormData
 ): Promise<{ error?: string; success?: boolean }> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') return { error: 'Accès refusé.' };
+  const allowed = ['professeur', 'coordinateur', 'admin'];
+  if (!userProfile || !allowed.includes(userProfile.role)) return { error: 'Accès refusé.' };
 
   const weekId = formData.get('week_id') as string;
   const titre = formData.get('titre') as string;
   const type = formData.get('type') as 'video' | 'pdf' | 'lien';
-  const url = formData.get('url') as string;
+  if (!weekId || !titre || !type) return { error: 'Tous les champs sont requis.' };
 
-  if (!weekId || !titre || !type || !url) return { error: 'Tous les champs sont requis.' };
+  const admin = createAdminClient();
+  let url: string;
 
-  const supabase = await createClient();
-  const { error } = await supabase.from('week_course_materials').insert({
+  const file = formData.get('fichier') as File | null;
+  if (file && file.size > 0) {
+    if (file.size > 20 * 1024 * 1024) return { error: 'Le fichier ne doit pas dépasser 20 Mo.' };
+    const ext = file.name.split('.').pop() ?? 'bin';
+    const path = `weeks/${weekId}/${Date.now()}-${titre.replace(/[^a-z0-9]/gi, '_')}.${ext}`;
+    const { error: uploadError } = await admin.storage
+      .from('course_materials')
+      .upload(path, file, { contentType: file.type, upsert: false });
+    if (uploadError) return { error: 'Erreur lors de l\'upload du fichier.' };
+    const { data: publicUrl } = admin.storage.from('course_materials').getPublicUrl(path);
+    url = publicUrl.publicUrl;
+  } else {
+    url = formData.get('url') as string;
+    if (!url) return { error: 'Veuillez fournir une URL ou un fichier.' };
+  }
+
+  const { error } = await admin.from('week_course_materials').insert({
     week_id: weekId,
     uploaded_by: userProfile.profile.id,
     titre,
@@ -545,16 +562,19 @@ export async function addWeekCourseMaterial(
 
   if (error) return { error: 'Erreur lors de l\'ajout.' };
   revalidatePath(`/dashboard/projets/${weekId}`);
+  revalidatePath(`/dashboard/pedagogie/projets/${weekId}`);
   return { success: true };
 }
 
 export async function deleteWeekCourseMaterial(materialId: string, weekId: string): Promise<{ error?: string }> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') return { error: 'Accès refusé.' };
+  const allowed = ['professeur', 'coordinateur', 'admin'];
+  if (!userProfile || !allowed.includes(userProfile.role)) return { error: 'Accès refusé.' };
 
-  const supabase = await createClient();
-  const { error } = await supabase.from('week_course_materials').delete().eq('id', materialId);
+  const admin = createAdminClient();
+  const { error } = await admin.from('week_course_materials').delete().eq('id', materialId);
   if (error) return { error: 'Erreur lors de la suppression.' };
   revalidatePath(`/dashboard/projets/${weekId}`);
+  revalidatePath(`/dashboard/pedagogie/projets/${weekId}`);
   return {};
 }
