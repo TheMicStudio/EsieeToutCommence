@@ -5,7 +5,7 @@
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
 **Dernière mise à jour :** 2026-04-08
-**Mis à jour par :** Claude (fix.md intégralement traité : nav/doublon émargement, création événement, scroll chat, édition notes, modals actualités+projets, recherche globale ; audit complet : guards rôle hardcodés→permissions, user!.id, revalidatePath manquants ; spec Module 8 Espace Documentaire rédigée)
+**Mis à jour par :** Claude (Module 8 Espace Documentaire : spec + code complet — SQL, types, actions, 9 composants, 3 pages, sidebar ; SQL à exécuter dans Supabase Studio)
 
 ---
 
@@ -204,7 +204,7 @@ _Dev 3 doit d'abord terminer le Module 3 (ou en parallèle). Vérifier que les f
 ### `feat/T08-documents` — À assigner
 
 **Modules couverts :** Espace Documentaire (`docs/features/08_module_documentaire.md`)
-**Statut :** 🔴 PAS COMMENCÉ — Spec complète rédigée
+**Statut :** 🟢 CODE COMPLET — SQL à exécuter dans Supabase
 
 #### Fichiers à créer
 
@@ -227,15 +227,15 @@ _Dev 3 doit d'abord terminer le Module 3 (ou en parallèle). Vérifier que les f
 
 #### Checklist de progression
 
-- [ ] SQL exécuté (doc_folders, doc_files, doc_permissions, doc_share_links + RLS)
-- [ ] Bucket Storage `documents` créé (privé)
-- [ ] Types TypeScript
-- [ ] `permissions.ts` — résolution hiérarchique des droits (héritage parent → enfant)
-- [ ] Actions CRUD dossiers, fichiers, permissions, liens de partage
-- [ ] Composants UI (arborescence, upload, permissions, partage, recherche)
-- [ ] Pages routes `/dashboard/documents` et `/dashboard/documents/[folderId]`
-- [ ] Page publique `/share/[token]`
-- [ ] Guard middleware + entrée sidebar pour `admin` et `coordinateur`
+- [ ] SQL exécuté (doc_folders, doc_files, doc_permissions, doc_share_links + RLS)  ← **À FAIRE dans Supabase Studio**
+- [x] Bucket Storage `documents` créé (privé) — déclaré dans la migration SQL
+- [x] Types TypeScript (`src/modules/documents/types/index.ts`)
+- [x] `permissions.ts` — résolution hiérarchique des droits (héritage parent → enfant)
+- [x] Actions CRUD dossiers, fichiers, permissions, liens de partage, recherche (`src/modules/documents/actions.ts`)
+- [x] Composants UI — FolderTree, FolderContents, FileCard, FolderCard, UploadDropzone, PermissionsModal, ShareModal, DocumentSearch, Breadcrumb
+- [x] Pages routes `/dashboard/documents` et `/dashboard/documents/[folderId]`
+- [x] Page publique `/share/[token]`
+- [x] Guard `doc.access` + entrée sidebar pour `admin` et `coordinateur`
 
 #### Dépendances
 
@@ -268,6 +268,7 @@ _Dev 3 doit d'abord terminer le Module 3 (ou en parallèle). Vérifier que les f
 | `supabase/migrations/20260408040000_group_workspace.sql` | ✅ Pushé | group_messages, group_whiteboard, week_course_materials |
 | `supabase/migrations/20260408050000_add_roles_coordinateur_staff.sql` | ✅ Pushé | Nouveaux rôles coordinateur + staff dans l'enum role_principal |
 | `supabase/migrations/20260408060000_permissions_system.sql` | ✅ Pushé | Tables permissions, role_permissions, user_permission_overrides + seed 38 permissions × 7 rôles |
+| `supabase/migrations/20260408100000_init_module_documents.sql` | 🟡 À exécuter | doc_folders, doc_files, doc_permissions, doc_share_links + RLS + bucket documents |
 | `supabase/migrations/20260408070000_init_module_documents.sql` | 🔴 À créer | doc_folders, doc_files, doc_permissions, doc_share_links + RLS |
 
 > ⚠️ Les migrations du Module 2 (classes, pedagogy, attendance) sont définies dans `docs/features/02_module_pedagogie_classe.md` et `docs/features/06_module_emargement_qrcode.md` — elles n'ont pas encore de fichier SQL dédié.
