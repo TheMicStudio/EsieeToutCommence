@@ -124,7 +124,7 @@ export async function signUp(
       type_parcours: data.type_parcours ?? 'temps_plein',
     });
     profileError = error;
-  } else if (data.role === 'professeur') {
+  } else if (data.role === 'professeur' || data.role === 'coordinateur') {
     const matieres = data.matieres_enseignees
       ? data.matieres_enseignees.split(',').map((m) => m.trim()).filter(Boolean)
       : [];
@@ -133,7 +133,7 @@ export async function signUp(
       matieres_enseignees: matieres,
     });
     profileError = error;
-  } else if (data.role === 'admin') {
+  } else if (data.role === 'admin' || data.role === 'staff') {
     const { error } = await admin.from('admin_profiles').insert({
       id: userId, nom: data.nom, prenom: data.prenom, email: data.email,
       fonction: data.fonction,
@@ -203,24 +203,24 @@ export async function getCurrentUserProfile(): Promise<UserProfile | null> {
     return { role: 'eleve', profile: data as StudentProfile };
   }
 
-  if (role === 'professeur') {
+  if (role === 'professeur' || role === 'coordinateur') {
     const { data } = await admin
       .from('teacher_profiles')
       .select('*')
       .eq('id', user.id)
       .maybeSingle();
     if (!data) return null;
-    return { role: 'professeur', profile: data as TeacherProfile };
+    return { role, profile: data as TeacherProfile };
   }
 
-  if (role === 'admin') {
+  if (role === 'admin' || role === 'staff') {
     const { data } = await admin
       .from('admin_profiles')
       .select('*')
       .eq('id', user.id)
       .maybeSingle();
     if (!data) return null;
-    return { role: 'admin', profile: data as AdminProfile };
+    return { role, profile: data as AdminProfile };
   }
 
   if (role === 'entreprise') {
@@ -283,7 +283,7 @@ export async function updateProfile(
       .update({ nom, prenom, ...phoneFields })
       .eq('id', profile.id);
     error = e;
-  } else if (role === 'professeur') {
+  } else if (role === 'professeur' || role === 'coordinateur') {
     const matieres = (formData.get('matieres_enseignees') as string)
       ?.split(',').map((m) => m.trim()).filter(Boolean) ?? [];
     const { error: e } = await supabase
@@ -291,7 +291,7 @@ export async function updateProfile(
       .update({ nom, prenom, matieres_enseignees: matieres, ...phoneFields })
       .eq('id', profile.id);
     error = e;
-  } else if (role === 'admin') {
+  } else if (role === 'admin' || role === 'staff') {
     const { error: e } = await supabase
       .from('admin_profiles')
       .update({ nom, prenom, fonction: formData.get('fonction') as string, ...phoneFields })
@@ -361,7 +361,9 @@ export async function requestEmailChange(
     const tableMap: Record<string, string> = {
       eleve: 'student_profiles',
       professeur: 'teacher_profiles',
+      coordinateur: 'teacher_profiles',
       admin: 'admin_profiles',
+      staff: 'admin_profiles',
       entreprise: 'company_profiles',
       parent: 'parent_profiles',
     };

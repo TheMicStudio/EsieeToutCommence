@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 const ROLES: { value: RolePrincipal; label: string; description: string }[] = [
   { value: 'eleve', label: 'Élève', description: 'Accès aux cours, notes et carrière' },
   { value: 'parent', label: 'Parent d\'élève', description: 'Suivi de la scolarité de votre enfant' },
-  { value: 'entreprise', label: 'Entreprise', description: 'Suivi des alternants' },
+  { value: 'entreprise', label: 'Tuteur professionnel', description: 'Suivi des alternants en entreprise' },
 ];
 
 interface Step1Data {

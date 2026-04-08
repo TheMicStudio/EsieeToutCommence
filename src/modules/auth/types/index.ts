@@ -1,11 +1,13 @@
-export type RolePrincipal = 'eleve' | 'professeur' | 'admin' | 'entreprise' | 'parent';
+export type RolePrincipal = 'eleve' | 'professeur' | 'coordinateur' | 'staff' | 'admin' | 'entreprise' | 'parent';
 
 export const ROLE_LABELS: Record<RolePrincipal, string> = {
   eleve: 'Élève',
   professeur: 'Professeur',
-  admin: 'Administration',
-  entreprise: 'Entreprise',
-  parent: 'Parent d\'élève',
+  coordinateur: 'Responsable pédagogique',
+  staff: 'Secrétariat',
+  admin: 'Direction',
+  entreprise: 'Tuteur professionnel',
+  parent: "Parent d'élève",
 };
 
 export interface UserRole {
@@ -68,6 +70,8 @@ export interface ParentProfile {
 export type UserProfile =
   | { role: 'eleve'; profile: StudentProfile }
   | { role: 'professeur'; profile: TeacherProfile }
+  | { role: 'coordinateur'; profile: TeacherProfile }
+  | { role: 'staff'; profile: AdminProfile }
   | { role: 'admin'; profile: AdminProfile }
   | { role: 'entreprise'; profile: CompanyProfile }
   | { role: 'parent'; profile: ParentProfile };

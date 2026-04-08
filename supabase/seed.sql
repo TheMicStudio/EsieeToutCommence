@@ -3,10 +3,12 @@
 -- Crée des comptes de test complets avec données liées
 -- ============================================================
 -- Comptes créés :
---   etudiant@hub-ecole.dev  / Test1234!  (élève, BTS SIO, alternant)
---   prof@hub-ecole.dev      / Test1234!  (professeur, Mathématiques)
---   admin@hub-ecole.dev     / Test1234!  (administration)
---   entreprise@hub-ecole.dev/ Test1234!  (entreprise, Acme Corp)
+--   etudiant@hub-ecole.dev     / Test1234!  (élève, BTS SIO, alternant)
+--   prof@hub-ecole.dev         / Test1234!  (professeur, Mathématiques)
+--   coordinateur@hub-ecole.dev / Test1234!  (coordinateur pédagogique)
+--   staff@hub-ecole.dev        / Test1234!  (personnel administratif)
+--   admin@hub-ecole.dev        / Test1234!  (super-administrateur)
+--   entreprise@hub-ecole.dev   / Test1234!  (entreprise, Acme Corp)
 -- ============================================================
 
 -- ─── Nettoyage (ordre inverse des FK) ───────────────────────
@@ -44,93 +46,50 @@ DELETE FROM public.user_roles;
 DELETE FROM auth.users WHERE email IN (
   'etudiant@hub-ecole.dev',
   'prof@hub-ecole.dev',
+  'coordinateur@hub-ecole.dev',
+  'staff@hub-ecole.dev',
   'admin@hub-ecole.dev',
   'entreprise@hub-ecole.dev'
 );
 
 -- ─── Comptes Supabase Auth ───────────────────────────────────
--- Les UUIDs sont fixes pour que les FK soient stables
+-- Bloc DO : search_path et hachage dans le même contexte d'exécution
+DO $$
+DECLARE
+  h text;
+BEGIN
+  -- pgcrypto est dans le schema extensions sur Supabase Cloud
+  CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
+  SET LOCAL search_path TO public, extensions;
+  h := crypt('Test1234!', gen_salt('bf'));
 
-INSERT INTO auth.users (
-  id, email, encrypted_password, email_confirmed_at,
-  raw_app_meta_data, raw_user_meta_data,
-  created_at, updated_at, aud, role
-) VALUES
-  (
-    '11111111-1111-1111-1111-111111111111',
-    'etudiant@hub-ecole.dev',
-    crypt('Test1234!', gen_salt('bf')),
-    NOW(),
-    '{"provider":"email","providers":["email"]}',
-    '{}',
-    NOW(), NOW(), 'authenticated', 'authenticated'
-  ),
-  (
-    '22222222-2222-2222-2222-222222222222',
-    'prof@hub-ecole.dev',
-    crypt('Test1234!', gen_salt('bf')),
-    NOW(),
-    '{"provider":"email","providers":["email"]}',
-    '{}',
-    NOW(), NOW(), 'authenticated', 'authenticated'
-  ),
-  (
-    '33333333-3333-3333-3333-333333333333',
-    'admin@hub-ecole.dev',
-    crypt('Test1234!', gen_salt('bf')),
-    NOW(),
-    '{"provider":"email","providers":["email"]}',
-    '{}',
-    NOW(), NOW(), 'authenticated', 'authenticated'
-  ),
-  (
-    '44444444-4444-4444-4444-444444444444',
-    'entreprise@hub-ecole.dev',
-    crypt('Test1234!', gen_salt('bf')),
-    NOW(),
-    '{"provider":"email","providers":["email"]}',
-    '{}',
-    NOW(), NOW(), 'authenticated', 'authenticated'
-  );
+  INSERT INTO auth.users (
+    id, email, encrypted_password, email_confirmed_at,
+    raw_app_meta_data, raw_user_meta_data,
+    created_at, updated_at, aud, role
+  ) VALUES
+    ('11111111-1111-1111-1111-111111111111', 'etudiant@hub-ecole.dev',     h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('22222222-2222-2222-2222-222222222222', 'prof@hub-ecole.dev',         h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('33333333-3333-3333-3333-333333333333', 'admin@hub-ecole.dev',        h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('55555555-5555-5555-5555-555555555555', 'coordinateur@hub-ecole.dev', h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('66666666-6666-6666-6666-666666666666', 'staff@hub-ecole.dev',        h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated'),
+    ('44444444-4444-4444-4444-444444444444', 'entreprise@hub-ecole.dev',   h, NOW(), '{"provider":"email","providers":["email"]}', '{}', NOW(), NOW(), 'authenticated', 'authenticated');
 
--- Identities (nécessaire pour Supabase Auth email/password)
-INSERT INTO auth.identities (
-  id, user_id, identity_data, provider, provider_id,
-  last_sign_in_at, created_at, updated_at
-) VALUES
-  (
-    '11111111-1111-1111-1111-111111111111',
-    '11111111-1111-1111-1111-111111111111',
-    '{"sub":"11111111-1111-1111-1111-111111111111","email":"etudiant@hub-ecole.dev"}',
-    'email', 'etudiant@hub-ecole.dev',
-    NOW(), NOW(), NOW()
-  ),
-  (
-    '22222222-2222-2222-2222-222222222222',
-    '22222222-2222-2222-2222-222222222222',
-    '{"sub":"22222222-2222-2222-2222-222222222222","email":"prof@hub-ecole.dev"}',
-    'email', 'prof@hub-ecole.dev',
-    NOW(), NOW(), NOW()
-  ),
-  (
-    '33333333-3333-3333-3333-333333333333',
-    '33333333-3333-3333-3333-333333333333',
-    '{"sub":"33333333-3333-3333-3333-333333333333","email":"admin@hub-ecole.dev"}',
-    'email', 'admin@hub-ecole.dev',
-    NOW(), NOW(), NOW()
-  ),
-  (
-    '44444444-4444-4444-4444-444444444444',
-    '44444444-4444-4444-4444-444444444444',
-    '{"sub":"44444444-4444-4444-4444-444444444444","email":"entreprise@hub-ecole.dev"}',
-    'email', 'entreprise@hub-ecole.dev',
-    NOW(), NOW(), NOW()
-  );
+  INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at) VALUES
+    (gen_random_uuid(), '11111111-1111-1111-1111-111111111111', '{"sub":"11111111-1111-1111-1111-111111111111","email":"etudiant@hub-ecole.dev","email_verified":true}',     'email', '11111111-1111-1111-1111-111111111111', NOW(), NOW(), NOW()),
+    (gen_random_uuid(), '22222222-2222-2222-2222-222222222222', '{"sub":"22222222-2222-2222-2222-222222222222","email":"prof@hub-ecole.dev","email_verified":true}',         'email', '22222222-2222-2222-2222-222222222222', NOW(), NOW(), NOW()),
+    (gen_random_uuid(), '33333333-3333-3333-3333-333333333333', '{"sub":"33333333-3333-3333-3333-333333333333","email":"admin@hub-ecole.dev","email_verified":true}',        'email', '33333333-3333-3333-3333-333333333333', NOW(), NOW(), NOW()),
+    (gen_random_uuid(), '55555555-5555-5555-5555-555555555555', '{"sub":"55555555-5555-5555-5555-555555555555","email":"coordinateur@hub-ecole.dev","email_verified":true}', 'email', '55555555-5555-5555-5555-555555555555', NOW(), NOW(), NOW()),
+    (gen_random_uuid(), '66666666-6666-6666-6666-666666666666', '{"sub":"66666666-6666-6666-6666-666666666666","email":"staff@hub-ecole.dev","email_verified":true}',        'email', '66666666-6666-6666-6666-666666666666', NOW(), NOW(), NOW()),
+    (gen_random_uuid(), '44444444-4444-4444-4444-444444444444', '{"sub":"44444444-4444-4444-4444-444444444444","email":"entreprise@hub-ecole.dev","email_verified":true}',   'email', '44444444-4444-4444-4444-444444444444', NOW(), NOW(), NOW());
+END $$;
 
 -- ─── Rôles ──────────────────────────────────────────────────
 INSERT INTO public.user_roles (id, role) VALUES
   ('11111111-1111-1111-1111-111111111111', 'eleve'),
   ('22222222-2222-2222-2222-222222222222', 'professeur'),
+  ('55555555-5555-5555-5555-555555555555', 'coordinateur'),
+  ('66666666-6666-6666-6666-666666666666', 'staff'),
   ('33333333-3333-3333-3333-333333333333', 'admin'),
   ('44444444-4444-4444-4444-444444444444', 'entreprise');
 
@@ -139,10 +98,12 @@ INSERT INTO public.student_profiles (id, nom, prenom, type_parcours) VALUES
   ('11111111-1111-1111-1111-111111111111', 'Martin', 'Lucas', 'alternant');
 
 INSERT INTO public.teacher_profiles (id, nom, prenom, matieres_enseignees) VALUES
-  ('22222222-2222-2222-2222-222222222222', 'Bernard', 'Sophie', ARRAY['Mathématiques', 'Algorithmique']);
+  ('22222222-2222-2222-2222-222222222222', 'Bernard', 'Sophie', ARRAY['Mathématiques', 'Algorithmique']),
+  ('55555555-5555-5555-5555-555555555555', 'Moreau', 'Julien', ARRAY['Gestion de projet', 'Pédagogie']);
 
 INSERT INTO public.admin_profiles (id, nom, prenom, fonction) VALUES
-  ('33333333-3333-3333-3333-333333333333', 'Dupont', 'Marie', 'Responsable pédagogique');
+  ('33333333-3333-3333-3333-333333333333', 'Dupont', 'Marie', 'Super administrateur'),
+  ('66666666-6666-6666-6666-666666666666', 'Laurent', 'Isabelle', 'Secrétariat pédagogique');
 
 INSERT INTO public.company_profiles (id, nom, prenom, entreprise, poste) VALUES
   ('44444444-4444-4444-4444-444444444444', 'Leroy', 'Thomas', 'Acme Corp', 'Maître d''apprentissage');
@@ -270,9 +231,11 @@ DO $$
 BEGIN
   RAISE NOTICE '========================================';
   RAISE NOTICE 'SEED TERMINÉ — Comptes de test :';
-  RAISE NOTICE '  etudiant@hub-ecole.dev  / Test1234!';
-  RAISE NOTICE '  prof@hub-ecole.dev      / Test1234!';
-  RAISE NOTICE '  admin@hub-ecole.dev     / Test1234!';
-  RAISE NOTICE '  entreprise@hub-ecole.dev/ Test1234!';
+  RAISE NOTICE '  etudiant@hub-ecole.dev     / Test1234!  (élève alternant)';
+  RAISE NOTICE '  prof@hub-ecole.dev         / Test1234!  (professeur)';
+  RAISE NOTICE '  coordinateur@hub-ecole.dev / Test1234!  (coordinateur pédagogique)';
+  RAISE NOTICE '  staff@hub-ecole.dev        / Test1234!  (personnel administratif)';
+  RAISE NOTICE '  admin@hub-ecole.dev        / Test1234!  (super-administrateur)';
+  RAISE NOTICE '  entreprise@hub-ecole.dev   / Test1234!  (entreprise)';
   RAISE NOTICE '========================================';
 END $$;
