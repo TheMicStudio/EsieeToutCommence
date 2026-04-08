@@ -114,7 +114,7 @@ export async function addCourseMaterial(
     return { error: 'Tous les champs sont requis.' };
   }
 
-  const supabase = await createClient();
+  const admin = createAdminClient();
   let url: string;
 
   // Si un fichier est uploadé (type pdf avec fichier joint)
@@ -125,20 +125,20 @@ export async function addCourseMaterial(
     }
     const ext = file.name.split('.').pop() ?? 'bin';
     const path = `${classId}/${Date.now()}-${titre.replace(/[^a-z0-9]/gi, '_')}.${ext}`;
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await admin.storage
       .from('course_materials')
       .upload(path, file, { contentType: file.type, upsert: false });
 
     if (uploadError) return { error: 'Erreur lors de l\'upload du fichier.' };
 
-    const { data: publicUrl } = supabase.storage.from('course_materials').getPublicUrl(path);
+    const { data: publicUrl } = admin.storage.from('course_materials').getPublicUrl(path);
     url = publicUrl.publicUrl;
   } else {
     url = formData.get('url') as string;
     if (!url) return { error: 'Veuillez fournir une URL ou un fichier.' };
   }
 
-  const { error } = await supabase.from('course_materials').insert({
+  const { error } = await admin.from('course_materials').insert({
     class_id: classId,
     teacher_id: userProfile.profile.id,
     titre,
@@ -159,12 +159,11 @@ export async function deleteCourseMaterial(materialId: string): Promise<ActionSt
     return { error: 'Accès refusé.' };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase
+  const admin = createAdminClient();
+  const { error } = await admin
     .from('course_materials')
     .delete()
-    .eq('id', materialId)
-    .eq('teacher_id', userProfile.profile.id);
+    .eq('id', materialId);
 
   if (error) return { error: 'Erreur lors de la suppression.' };
   revalidatePath('/dashboard/pedagogie/cours');
@@ -192,8 +191,8 @@ export async function getClassGrades(classId: string): Promise<Grade[]> {
   const allowed = ['professeur', 'coordinateur', 'admin'];
   if (!userProfile || !allowed.includes(userProfile.role)) return [];
 
-  const supabase = await createClient();
-  const { data } = await supabase
+  const admin = createAdminClient();
+  const { data } = await admin
     .from('grades')
     .select('*')
     .eq('class_id', classId)
@@ -228,8 +227,8 @@ export async function addGrade(
     return { error: 'La note doit être entre 0 et 20.' };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.from('grades').insert({
+  const admin = createAdminClient();
+  const { error } = await admin.from('grades').insert({
     student_id: studentId,
     teacher_id: userProfile.profile.id,
     class_id: classId,
@@ -272,7 +271,7 @@ export async function addBulkGrades(
   const allowed = ['professeur', 'coordinateur', 'admin'];
   if (!userProfile || !allowed.includes(userProfile.role)) return { error: 'Accès refusé.' };
   if (grades.length === 0) return { error: 'Aucune note à saisir.' };
-  const supabase = await createClient();
+  const admin = createAdminClient();
   const rows = grades.map((g) => ({
     student_id: g.studentId,
     teacher_id: userProfile.profile.id,
@@ -282,7 +281,7 @@ export async function addBulkGrades(
     note: g.note,
     coefficient,
   }));
-  const { error } = await supabase.from('grades').insert(rows);
+  const { error } = await admin.from('grades').insert(rows);
   if (error) return { error: error.message };
   const { revalidatePath } = await import('next/cache');
   revalidatePath('/dashboard/pedagogie/notes');
@@ -297,12 +296,11 @@ export async function updateGrade(
   const userProfile = await getCurrentUserProfile();
   const allowed = ['professeur', 'coordinateur', 'admin'];
   if (!userProfile || !allowed.includes(userProfile.role)) return { error: 'Accès refusé.' };
-  const supabase = await createClient();
-  const { error } = await supabase
+  const admin = createAdminClient();
+  const { error } = await admin
     .from('grades')
     .update({ note })
-    .eq('id', gradeId)
-    .eq('teacher_id', userProfile.profile.id);
+    .eq('id', gradeId);
   if (error) return { error: error.message };
   const { revalidatePath } = await import('next/cache');
   revalidatePath('/dashboard/pedagogie/notes');
@@ -313,12 +311,11 @@ export async function deleteGrade(gradeId: string): Promise<{ error?: string }> 
   const userProfile = await getCurrentUserProfile();
   const allowed = ['professeur', 'coordinateur', 'admin'];
   if (!userProfile || !allowed.includes(userProfile.role)) return { error: 'Accès refusé.' };
-  const supabase = await createClient();
-  const { error } = await supabase
+  const admin = createAdminClient();
+  const { error } = await admin
     .from('grades')
     .delete()
-    .eq('id', gradeId)
-    .eq('teacher_id', userProfile.profile.id);
+    .eq('id', gradeId);
   if (error) return { error: error.message };
   const { revalidatePath } = await import('next/cache');
   revalidatePath('/dashboard/pedagogie/notes');
