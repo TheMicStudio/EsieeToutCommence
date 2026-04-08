@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Pin, Send } from 'lucide-react';
+import { ImagePlus, Pin, Send, X } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 import { createNewsPost } from '../actions';
 import { CATEGORY_LABELS, type PostCategory } from '../types';
 
@@ -21,14 +22,53 @@ export function CreatePostForm({ isAdmin, onSuccess }: CreatePostFormProps) {
   const [pinned, setPinned] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    setBannerFile(file);
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setBannerPreview(url);
+    } else {
+      setBannerPreview(null);
+    }
+  }
+
+  function removeBanner() {
+    setBannerFile(null);
+    setBannerPreview(null);
+    if (fileRef.current) fileRef.current.value = '';
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim() || !content.trim()) { setError('Titre et contenu requis'); return; }
     setLoading(true);
     setError('');
-    const result = await createNewsPost(title.trim(), content.trim(), category, pinned);
+
+    let bannerUrl: string | null = null;
+
+    if (bannerFile) {
+      const supabase = createClient();
+      const ext = bannerFile.name.split('.').pop();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('news-banners')
+        .upload(path, bannerFile, { upsert: false });
+      if (uploadError) {
+        setError(`Erreur upload image : ${uploadError.message}`);
+        setLoading(false);
+        return;
+      }
+      const { data: { publicUrl } } = supabase.storage.from('news-banners').getPublicUrl(path);
+      bannerUrl = publicUrl;
+    }
+
+    const result = await createNewsPost(title.trim(), content.trim(), category, pinned, bannerUrl);
     setLoading(false);
     if (result.error) { setError(result.error); return; }
     if (onSuccess) { onSuccess(); router.refresh(); }
@@ -57,6 +97,44 @@ export function CreatePostForm({ isAdmin, onSuccess }: CreatePostFormProps) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Bannière */}
+      <div>
+        <label className={labelCls}>Bannière (optionnelle)</label>
+        {bannerPreview ? (
+          <div className="relative w-full overflow-hidden rounded-xl border border-slate-200">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={bannerPreview}
+              alt="Aperçu bannière"
+              className="h-40 w-full object-cover"
+            />
+            <button
+              type="button"
+              onClick={removeBanner}
+              className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="flex h-24 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 text-sm text-slate-400 hover:bg-slate-100 hover:border-slate-300 transition-all"
+          >
+            <ImagePlus className="h-5 w-5" />
+            Ajouter une image
+          </button>
+        )}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={handleBannerChange}
+          className="hidden"
+        />
       </div>
 
       {/* Titre */}

@@ -20,6 +20,7 @@ export interface NewsPost {
   author_name?: string;
   category: PostCategory;
   pinned: boolean;
+  banner_url?: string | null;
   created_at: string;
   updated_at: string;
 }

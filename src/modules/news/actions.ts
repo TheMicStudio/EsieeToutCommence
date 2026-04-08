@@ -46,6 +46,7 @@ export async function createNewsPost(
   content: string,
   category: PostCategory,
   pinned: boolean,
+  bannerUrl?: string | null,
 ): Promise<{ post?: NewsPost; error?: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -53,7 +54,7 @@ export async function createNewsPost(
 
   const { data, error } = await supabase
     .from('news_posts')
-    .insert({ title, content, category, pinned, author_id: user.id })
+    .insert({ title, content, category, pinned, author_id: user.id, banner_url: bannerUrl ?? null })
     .select()
     .single();
 

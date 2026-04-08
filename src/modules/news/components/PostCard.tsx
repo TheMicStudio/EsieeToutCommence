@@ -39,9 +39,18 @@ export function PostCard({ post, canManage, isAdmin }: PostCardProps) {
 
   return (
     <article className={[
-      'rounded-3xl border bg-white p-5 shadow-card transition-all hover:shadow-md hover:-translate-y-0.5',
+      'rounded-3xl border bg-white shadow-card transition-all hover:shadow-md hover:-translate-y-0.5 overflow-hidden',
       post.pinned ? 'border-[#0471a6]/30' : 'border-slate-200/70',
     ].join(' ')}>
+      {post.banner_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={post.banner_url}
+          alt={post.title}
+          className="h-40 w-full object-cover"
+        />
+      )}
+      <div className="p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2 min-w-0">
           <span className={['rounded-full px-2.5 py-0.5 text-[11px] font-semibold', categoryColor].join(' ')}>
@@ -94,6 +103,7 @@ export function PostCard({ post, canManage, isAdmin }: PostCardProps) {
             year: 'numeric',
           })}
         </span>
+      </div>
       </div>
     </article>
   );
