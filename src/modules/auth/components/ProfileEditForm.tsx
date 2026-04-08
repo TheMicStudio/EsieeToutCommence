@@ -175,7 +175,7 @@ export function ProfileEditForm({ userProfile, subjects, adminFunctions }: Profi
         {showEmailForm && (
           <form action={emailAction} className="border-t border-slate-100 px-4 py-4 space-y-4">
             <p className="text-xs text-slate-500 leading-relaxed">
-              Un email de confirmation sera envoyé à la nouvelle adresse. Le changement ne sera effectif qu&apos;après avoir cliqué sur le lien de confirmation.
+              L&apos;adresse e-mail sera mise à jour immédiatement. Vous devrez vous reconnecter avec la nouvelle adresse.
             </p>
             <div className="space-y-2">
               <Label htmlFor="new_email">Nouvelle adresse e-mail</Label>
@@ -205,7 +205,7 @@ export function ProfileEditForm({ userProfile, subjects, adminFunctions }: Profi
             )}
             {emailState?.success && (
               <p className="rounded-md bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                Email de confirmation envoyé. Vérifiez votre boîte mail et cliquez sur le lien pour valider le changement.
+                Adresse e-mail mise à jour. Reconnectez-vous avec votre nouvelle adresse.
               </p>
             )}
 

@@ -345,13 +345,29 @@ export async function requestEmailChange(
     return { error: 'C\'est déjà votre adresse e-mail actuelle.' };
   }
 
-  const { error } = await supabase.auth.updateUser({ email: newEmail });
+  // Utilise le client admin pour éviter le flow SMTP de confirmation
+  // (les adresses de test type hub-ecole.dev sont invalides pour Supabase Auth SMTP)
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.updateUserById(user.id, { email: newEmail });
 
   if (error) {
-    if (error.message.toLowerCase().includes('rate limit')) {
-      return { error: 'Trop de demandes envoyées. Attendez quelques minutes avant de réessayer.' };
-    }
     return { error: 'Impossible de changer l\'e-mail : ' + error.message };
+  }
+
+  // Mettre aussi à jour l'email dans la table de profil correspondante
+  const userProfile = await getCurrentUserProfile();
+  if (userProfile) {
+    const tableMap: Record<string, string> = {
+      eleve: 'student_profiles',
+      professeur: 'teacher_profiles',
+      admin: 'admin_profiles',
+      entreprise: 'company_profiles',
+      parent: 'parent_profiles',
+    };
+    const table = tableMap[userProfile.role];
+    if (table) {
+      await admin.from(table).update({ email: newEmail }).eq('id', user.id);
+    }
   }
 
   return { success: true };
