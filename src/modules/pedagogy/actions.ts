@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import type {
@@ -114,6 +115,7 @@ export async function addCourseMaterial(
   });
 
   if (error) return { error: 'Erreur lors de l\'ajout du support.' };
+  revalidatePath('/dashboard/pedagogie/cours');
   return { success: true };
 }
 

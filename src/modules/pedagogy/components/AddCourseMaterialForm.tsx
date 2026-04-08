@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { Plus, Upload, Link } from 'lucide-react';
 import { addCourseMaterial } from '../actions';
 
@@ -12,13 +12,22 @@ interface AddCourseMaterialFormProps {
 export function AddCourseMaterialForm({ classId, matieres }: AddCourseMaterialFormProps) {
   const [state, action, pending] = useActionState(addCourseMaterial, null);
   const [type, setType] = useState('');
+  const [formKey, setFormKey] = useState(0);
+
+  // Reset le formulaire après succès
+  useEffect(() => {
+    if (state?.success) {
+      setType('');
+      setFormKey((k) => k + 1);
+    }
+  }, [state?.success]);
 
   const selectClass = 'flex h-9 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
   const inputClass = 'flex h-9 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
   const labelClass = 'block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5';
 
   return (
-    <form action={action} encType="multipart/form-data" className="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm">
+    <form key={formKey} action={action} encType="multipart/form-data" className="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm">
       <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-slate-400">
         Ajouter un support
       </p>
