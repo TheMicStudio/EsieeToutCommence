@@ -1,7 +1,7 @@
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { requirePermission, getRequestPermissions } from '@/lib/permissions';
 import { getProjectWeeks, getGroups } from '@/modules/projects/actions';
-import { getMyTeacherClasses } from '@/modules/pedagogy/actions';
+import { getMyTeacherClasses, getAllClasses } from '@/modules/pedagogy/actions';
 import { ProjectWeekCard } from '@/modules/projects/components/ProjectWeekCard';
 import { NewWeekModal } from '@/modules/projects/components/NewWeekModal';
 import { createClient } from '@/lib/supabase/server';
@@ -60,7 +60,8 @@ export default async function ProjetsPage({ searchParams }: ProjetsPageProps) {
   }
 
   // ── Prof / coordinateur / staff / admin ───────────────────────────────────
-  const teacherClasses = await getMyTeacherClasses();
+  const isCoord = profile.role === 'coordinateur' || profile.role === 'admin';
+  const teacherClasses = isCoord ? await getAllClasses() : await getMyTeacherClasses();
 
   // Filtre actif : une classe spécifique
   const activeClass = classeParam
