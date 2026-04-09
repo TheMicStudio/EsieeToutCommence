@@ -15,7 +15,7 @@ interface CreatePostFormProps {
   onSuccess?: () => void;
 }
 
-export function CreatePostForm({ isAdmin, onSuccess }: CreatePostFormProps) {
+export function CreatePostForm({ isAdmin, onSuccess }: Readonly<CreatePostFormProps>) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState<PostCategory>('annonce');

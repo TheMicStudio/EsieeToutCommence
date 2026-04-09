@@ -8,7 +8,7 @@ interface NewPostModalProps {
   isAdmin: boolean;
 }
 
-export function NewPostModal({ isAdmin }: NewPostModalProps) {
+export function NewPostModal({ isAdmin }: Readonly<NewPostModalProps>) {
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
 

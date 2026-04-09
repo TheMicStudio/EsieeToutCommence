@@ -16,7 +16,7 @@ interface FolderContentsProps {
   currentFolderId?: string;
 }
 
-export function FolderContents({ folders, files, currentFolderId }: FolderContentsProps) {
+export function FolderContents({ folders, files, currentFolderId }: Readonly<FolderContentsProps>) {
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [renamingFolder, setRenamingFolder] = useState<DocFolder | null>(null);

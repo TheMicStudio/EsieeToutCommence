@@ -11,7 +11,7 @@ interface PostCardProps {
   isAdmin: boolean;
 }
 
-export function PostCard({ post, canManage, isAdmin }: PostCardProps) {
+export function PostCard({ post, canManage, isAdmin }: Readonly<PostCardProps>) {
   const [deleting, setDeleting] = useState(false);
   const [pinning, setPinning] = useState(false);
   const [deleted, setDeleted] = useState(false);

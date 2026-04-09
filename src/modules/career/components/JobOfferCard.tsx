@@ -17,7 +17,7 @@ interface JobOfferCardProps {
   canDelete?: boolean;
 }
 
-export function JobOfferCard({ offer, canDelete }: JobOfferCardProps) {
+export function JobOfferCard({ offer, canDelete }: Readonly<JobOfferCardProps>) {
   const [deleted, setDeleted] = useState(false);
   const [deleting, setDeleting] = useState(false);
 

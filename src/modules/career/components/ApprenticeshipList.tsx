@@ -14,7 +14,7 @@ interface ApprenticeshipListProps {
   entries: ApprenticeshipEntry[];
 }
 
-export function ApprenticeshipList({ entries }: ApprenticeshipListProps) {
+export function ApprenticeshipList({ entries }: Readonly<ApprenticeshipListProps>) {
   if (entries.length === 0) {
     return (
       <div className="flex h-40 items-center justify-center rounded-lg border border-dashed">

@@ -76,11 +76,11 @@ async function LivretContent({
   chat,
   userProfile,
   isValidator,
-}: {
+}: Readonly<{
   chat: NonNullable<Awaited<ReturnType<typeof getMyTripartiteChat>>>;
   userProfile: NonNullable<Awaited<ReturnType<typeof getCurrentUserProfile>>>;
   isValidator: boolean;
-}) {
+}>) {
   const entries = await getMyEntries();
 
   return (

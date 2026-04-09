@@ -19,7 +19,7 @@ interface ShareModalProps {
   onClose: () => void;
 }
 
-export function ShareModal({ target, targetType, onClose }: ShareModalProps) {
+export function ShareModal({ target, targetType, onClose }: Readonly<ShareModalProps>) {
   const [links, setLinks] = useState<DocShareLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);

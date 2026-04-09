@@ -40,7 +40,7 @@ interface TopNavbarProps {
   userProfile: UserProfile;
 }
 
-export function TopNavbar({ userProfile }: TopNavbarProps) {
+export function TopNavbar({ userProfile }: Readonly<TopNavbarProps>) {
   const pathname = usePathname();
   const pageName = getPageName(pathname);
   const { profile, role } = userProfile;

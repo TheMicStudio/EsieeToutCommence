@@ -58,7 +58,7 @@ interface WeekAvailabilityGridProps {
   initialWeeks: string[]; // liste de YYYY-MM-DD (lundis disponibles)
 }
 
-export function WeekAvailabilityGrid({ teacherId, initialWeeks }: WeekAvailabilityGridProps) {
+export function WeekAvailabilityGrid({ teacherId, initialWeeks }: Readonly<WeekAvailabilityGridProps>) {
   const [selectedWeeks, setSelectedWeeks] = useState(() => new Set(initialWeeks));
   const [pending, startTransition] = useTransition();
 

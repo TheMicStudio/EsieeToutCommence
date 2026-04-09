@@ -11,7 +11,7 @@ interface AbsencesListProps {
   sessionId: string;
 }
 
-export function AbsencesList({ absents, sessionId }: AbsencesListProps) {
+export function AbsencesList({ absents, sessionId }: Readonly<AbsencesListProps>) {
   function exportCsv() {
     const header = 'Prénom,Nom,ID';
     const rows = absents.map((a) => `${a.prenom},${a.nom},${a.student_id}`);

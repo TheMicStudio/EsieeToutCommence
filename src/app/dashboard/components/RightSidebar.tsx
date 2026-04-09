@@ -92,7 +92,7 @@ const FALLBACK_AVERAGES: AverageMat[] = [
   { matiere: 'Anglais technique',moyenne: 12.9,  total_coefficients: 2   },
 ];
 
-function GradesWidget({ studentId }: { studentId: string }) {
+function GradesWidget({ studentId }: Readonly<{ studentId: string }>) {
   const [averages, setAverages] = useState<AverageMat[]>([]);
   const [loading, setLoading]   = useState(true);
 
@@ -184,7 +184,7 @@ function GradesWidget({ studentId }: { studentId: string }) {
   );
 }
 
-function DefaultSidebar({ userProfile }: { userProfile: UserProfile }) {
+function DefaultSidebar({ userProfile }: Readonly<{ userProfile: UserProfile }>) {
   const docs = getRecentDocs(userProfile.role);
   return (
     <div className="flex h-full flex-col gap-4 overflow-y-auto p-0">
@@ -426,9 +426,9 @@ function EmargementSidebarContent() {
           </button>
         </div>
         <div className="space-y-2">
-          {RECENT_CALLS.map((call, i) => (
+          {RECENT_CALLS.map((call) => (
             <div
-              key={i}
+              key={`${call.classe}-${call.time}`}
               className="p-3 rounded-xl border border-transparent hover:border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
             >
               <p className="text-[13px] font-semibold text-slate-900">{call.classe}</p>
@@ -587,7 +587,7 @@ function ProjetsSidebarContent() {
 // Main export
 // ─────────────────────────────────────────────────────────
 
-export function RightSidebar({ userProfile }: RightSidebarProps) {
+export function RightSidebar({ userProfile }: Readonly<RightSidebarProps>) {
   const pathname      = usePathname();
   const isAnnuaire    = pathname === '/dashboard/annuaire';
   const isNotes       = pathname === '/dashboard/pedagogie/notes';

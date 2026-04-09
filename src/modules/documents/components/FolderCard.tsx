@@ -13,7 +13,7 @@ interface FolderCardProps {
   onShare?: (folder: DocFolder) => void;
 }
 
-export function FolderCard({ folder, onRename, onPermissions, onShare }: FolderCardProps) {
+export function FolderCard({ folder, onRename, onPermissions, onShare }: Readonly<FolderCardProps>) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 

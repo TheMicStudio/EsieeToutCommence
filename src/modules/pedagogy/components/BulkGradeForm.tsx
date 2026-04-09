@@ -20,7 +20,7 @@ const labelCls = 'block text-xs font-semibold uppercase tracking-wide text-slate
 
 type Mode = 'classe' | 'groupe';
 
-export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }: BulkGradeFormProps) {
+export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }: Readonly<BulkGradeFormProps>) {
   const [matiere, setMatiere] = useState(matieres[0] ?? '');
   const [customMatiere, setCustomMatiere] = useState('');
   const [examen, setExamen] = useState('');

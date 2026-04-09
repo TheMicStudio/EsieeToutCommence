@@ -22,7 +22,7 @@ interface TripartiteChatProps {
 
 export function TripartiteChat({
   chat, initialMessages, currentUserId, participantNames,
-}: TripartiteChatProps) {
+}: Readonly<TripartiteChatProps>) {
   const [messages, setMessages] = useState<TripartiteMessage[]>(initialMessages);
   const [state, action, pending] = useActionState(sendTripartiteMessage, null);
   const scrollRef = useRef<HTMLDivElement>(null);

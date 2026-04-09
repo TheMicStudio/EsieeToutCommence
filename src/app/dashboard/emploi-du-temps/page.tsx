@@ -114,7 +114,7 @@ function Header() {
   );
 }
 
-function EmptyState({ message }: { message: string }) {
+function EmptyState({ message }: Readonly<{ message: string }>) {
   return (
     <div className="rounded-3xl border border-slate-200/70 bg-white p-12 text-center shadow-card">
       <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">

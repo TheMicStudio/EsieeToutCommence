@@ -80,7 +80,7 @@ const TABS: { id: Tab; label: string; Icon: React.ElementType }[] = [
   { id: 'direction',     label: 'Direction',          Icon: ShieldCheck },
 ];
 
-export function AnnuaireGrid({ eleves, professeurs, coordinateurs = [], admins = [], staff = [], classes = [] }: AnnuaireGridProps) {
+export function AnnuaireGrid({ eleves, professeurs, coordinateurs = [], admins = [], staff = [], classes = [] }: Readonly<AnnuaireGridProps>) {
   const searchParams  = useSearchParams();
   const router        = useRouter();
   const pathname      = usePathname();

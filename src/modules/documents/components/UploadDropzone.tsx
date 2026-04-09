@@ -9,7 +9,7 @@ interface UploadDropzoneProps {
   onSuccess?: () => void;
 }
 
-export function UploadDropzone({ folderId, onSuccess }: UploadDropzoneProps) {
+export function UploadDropzone({ folderId, onSuccess }: Readonly<UploadDropzoneProps>) {
   const [state, action, pending] = useActionState(uploadFile, null);
   const [dragging, setDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

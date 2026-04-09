@@ -12,7 +12,7 @@ interface WeekPageProps {
   params: Promise<{ weekId: string }>;
 }
 
-export default async function WeekPage({ params }: WeekPageProps) {
+export default async function WeekPage({ params }: Readonly<WeekPageProps>) {
   const { weekId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;

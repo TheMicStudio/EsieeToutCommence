@@ -36,7 +36,7 @@ function getQrDuration(session: AttendanceSession) {
   return `${minutes} min`;
 }
 
-export default async function EmargementPage({ searchParams }: EmargementPageProps) {
+export default async function EmargementPage({ searchParams }: Readonly<EmargementPageProps>) {
   const { classe: classeParam } = await searchParams;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;

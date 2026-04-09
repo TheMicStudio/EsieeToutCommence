@@ -12,7 +12,7 @@ function formatSize(bytes?: number | null) {
   return `${(bytes / 1024 / 1024).toFixed(1)} Mo`;
 }
 
-export default async function SharePage({ params }: Props) {
+export default async function SharePage({ params }: Readonly<Props>) {
   const { token } = await params;
   const result = await resolveShareLink(token);
 

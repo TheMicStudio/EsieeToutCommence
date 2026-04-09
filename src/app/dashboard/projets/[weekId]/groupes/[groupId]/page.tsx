@@ -14,7 +14,7 @@ interface GroupWorkspacePageProps {
   params: Promise<{ weekId: string; groupId: string }>;
 }
 
-export default async function GroupWorkspacePage({ params }: GroupWorkspacePageProps) {
+export default async function GroupWorkspacePage({ params }: Readonly<GroupWorkspacePageProps>) {
   const { weekId, groupId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;

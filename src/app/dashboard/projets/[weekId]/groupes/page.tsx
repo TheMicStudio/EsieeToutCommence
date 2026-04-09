@@ -25,7 +25,7 @@ const AVATAR_COLORS = [
   'bg-rose-100 text-rose-600',
 ];
 
-export default async function GroupesPage({ params }: GroupesPageProps) {
+export default async function GroupesPage({ params }: Readonly<GroupesPageProps>) {
   const { weekId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;

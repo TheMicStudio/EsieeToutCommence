@@ -10,10 +10,10 @@ import type { TeacherForPlanning } from '@/modules/admin/planning-actions';
 function TeacherWeekCard({
   teacher,
   initialWeeks,
-}: {
+}: Readonly<{
   teacher: TeacherForPlanning;
   initialWeeks: string[];
-}) {
+}>) {
   const [expanded, setExpanded] = useState(false);
   const weekCount = initialWeeks.length;
 
@@ -77,10 +77,10 @@ function TeacherWeekCard({
 export function AvailabilityPanel({
   teachers,
   weeksByTeacher,
-}: {
+}: Readonly<{
   teachers: TeacherForPlanning[];
   weeksByTeacher: Record<string, string[]>;
-}) {
+}>) {
   if (teachers.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 py-12 text-center">

@@ -15,7 +15,7 @@ interface ClasseDetailPageProps {
   params: Promise<{ classeId: string }>;
 }
 
-export default async function ClasseDetailPage({ params }: ClasseDetailPageProps) {
+export default async function ClasseDetailPage({ params }: Readonly<ClasseDetailPageProps>) {
   await requirePermission('class.read');
   const { classeId } = await params;
   const userProfile = await getCurrentUserProfile();

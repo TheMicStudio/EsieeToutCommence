@@ -27,7 +27,7 @@ interface FolderNodeItemProps {
   depth: number;
 }
 
-function FolderNodeItem({ node, currentFolderId, depth }: FolderNodeItemProps) {
+function FolderNodeItem({ node, currentFolderId, depth }: Readonly<FolderNodeItemProps>) {
   const isActive = node.id === currentFolderId;
   const hasChildren = node.children.length > 0;
   const [open, setOpen] = useState(
@@ -93,7 +93,7 @@ interface FolderTreeProps {
   currentFolderId?: string;
 }
 
-export function FolderTree({ folders, currentFolderId }: FolderTreeProps) {
+export function FolderTree({ folders, currentFolderId }: Readonly<FolderTreeProps>) {
   const tree = buildTree(folders);
 
   return (

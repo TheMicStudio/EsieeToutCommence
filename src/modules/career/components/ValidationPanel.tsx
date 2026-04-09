@@ -14,7 +14,7 @@ interface ValidationPanelProps {
   entries: ApprenticeshipEntry[];
 }
 
-export function ValidationPanel({ entries }: ValidationPanelProps) {
+export function ValidationPanel({ entries }: Readonly<ValidationPanelProps>) {
   const router = useRouter();
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<string | null>(null);

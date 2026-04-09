@@ -11,7 +11,7 @@ interface StaffDirectoryListProps {
   contacts: StaffContact[];
 }
 
-export function StaffDirectoryList({ contacts }: StaffDirectoryListProps) {
+export function StaffDirectoryList({ contacts }: Readonly<StaffDirectoryListProps>) {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'tous' | 'professeur' | 'admin'>('tous');
 

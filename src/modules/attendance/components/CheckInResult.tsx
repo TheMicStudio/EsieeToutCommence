@@ -4,7 +4,7 @@ interface CheckInResultProps {
   result: { success?: boolean; statut?: string; error?: string };
 }
 
-export function CheckInResult({ result }: CheckInResultProps) {
+export function CheckInResult({ result }: Readonly<CheckInResultProps>) {
   if (result.error) {
     return (
       <div className="flex flex-col items-center gap-3 rounded-2xl border border-destructive/30 bg-destructive/10 p-8 text-center">

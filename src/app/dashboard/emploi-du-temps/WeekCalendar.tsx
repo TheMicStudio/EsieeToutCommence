@@ -102,7 +102,7 @@ function getSchoolYear(sessions: SessionEvent[]): number {
 
 // ─── SessionTooltip ────────────────────────────────────────────────────────────
 
-function SessionTooltip({ session, onClose }: { session: SessionEvent; onClose: () => void }) {
+function SessionTooltip({ session, onClose }: Readonly<{ session: SessionEvent; onClose: () => void }>) {
   const isConflict = session.status === 'CONFLICT_ERROR';
   const duration = Math.round((new Date(session.end_timestamp).getTime() - new Date(session.start_timestamp).getTime()) / 60000);
 
@@ -162,12 +162,12 @@ function SessionTooltip({ session, onClose }: { session: SessionEvent; onClose: 
 
 // ─── Bloc session (vue semaine) ────────────────────────────────────────────────
 
-function SessionBlock({ session, classColorMap, multiClass, onClick }: {
+function SessionBlock({ session, classColorMap, multiClass, onClick }: Readonly<{
   session: SessionEvent;
   classColorMap: Map<string, number>;
   multiClass: boolean;
   onClick: (s: SessionEvent) => void;
-}) {
+}>) {
   const isConflict = session.status === 'CONFLICT_ERROR';
   const colorIdx = classColorMap.get(session.class_id) ?? 0;
   const colors = isConflict ? CONFLICT_WEEK : WEEK_COLORS[colorIdx];
@@ -209,11 +209,11 @@ function SessionBlock({ session, classColorMap, multiClass, onClick }: {
 
 // ─── Liste des matières (navigation rapide) ────────────────────────────────────
 
-function CourseListPanel({ sessions, classColorMap, onNavigate }: {
+function CourseListPanel({ sessions, classColorMap, onNavigate }: Readonly<{
   sessions: SessionEvent[];
   classColorMap: Map<string, number>;
   onNavigate: (monday: Date) => void;
-}) {
+}>) {
   // Grouper par classe → liste de matières
   const byClass = useMemo(() => {
     const classMap = new Map<string, { class_id: string; class_nom: string; subjects: Map<string, SessionEvent[]> }>();
@@ -282,11 +282,11 @@ function CourseListPanel({ sessions, classColorMap, onNavigate }: {
 
 // ─── Vue annuelle ─────────────────────────────────────────────────────────────
 
-function AnnualView({ sessions, currentMonday, onWeekClick }: {
+function AnnualView({ sessions, currentMonday, onWeekClick }: Readonly<{
   sessions: SessionEvent[];
   currentMonday: Date;
   onWeekClick: (monday: Date) => void;
-}) {
+}>) {
   const year = useMemo(() => getSchoolYear(sessions), [sessions]);
 
   const allMondays = useMemo(() => {
@@ -396,12 +396,12 @@ function AnnualView({ sessions, currentMonday, onWeekClick }: {
 
 // ─── Vue mensuelle ────────────────────────────────────────────────────────────
 
-function MonthView({ sessions, initialMonday, onDayClick, showConflicts }: {
+function MonthView({ sessions, initialMonday, onDayClick, showConflicts }: Readonly<{
   sessions: SessionEvent[];
   initialMonday: Date;
   onDayClick: (monday: Date) => void;
   showConflicts: boolean;
-}) {
+}>) {
   const [year,  setYear]  = useState(initialMonday.getUTCFullYear());
   const [month, setMonth] = useState(initialMonday.getUTCMonth());
 
@@ -460,7 +460,7 @@ function MonthView({ sessions, initialMonday, onDayClick, showConflicts }: {
         {/* Cellules */}
         <div className="grid grid-cols-7 divide-x divide-y divide-slate-100">
           {days.map((day, i) => {
-            if (!day) return <div key={i} className="min-h-[90px] bg-slate-50/40" />;
+            if (!day) return <div key={`empty-${i}`} className="min-h-[90px] bg-slate-50/40" />;
 
             const dayStr   = toUTCDateStr(day);
             const info     = dayMap.get(dayStr);
@@ -486,10 +486,10 @@ function MonthView({ sessions, initialMonday, onDayClick, showConflicts }: {
 
                 {info && (
                   <div className="mt-1 space-y-0.5">
-                    {info.draft.slice(0, 3).map((s, j) => {
+                    {info.draft.slice(0, 3).map((s) => {
                       const p = PALETTE[hashStr(s.subject_name)];
                       return (
-                        <div key={j} className="truncate rounded px-1 py-0.5 text-[10px] font-semibold leading-tight"
+                        <div key={s.id} className="truncate rounded px-1 py-0.5 text-[10px] font-semibold leading-tight"
                           style={{ backgroundColor: p.bg, color: p.text }}>
                           {s.subject_name}
                         </div>
@@ -517,14 +517,14 @@ function MonthView({ sessions, initialMonday, onDayClick, showConflicts }: {
 
 // ─── Vue hebdomadaire ─────────────────────────────────────────────────────────
 
-function WeekView({ sessions, currentMonday, showConflicts, showFilters, classColorMap, onSessionClick }: {
+function WeekView({ sessions, currentMonday, showConflicts, showFilters, classColorMap, onSessionClick }: Readonly<{
   sessions: SessionEvent[];
   currentMonday: Date;
   showConflicts: boolean;
   showFilters: boolean;
   classColorMap: Map<string, number>;
   onSessionClick: (s: SessionEvent) => void;
-}) {
+}>) {
   const [filterClass,   setFilterClass]   = useState('all');
   const [filterTeacher, setFilterTeacher] = useState('all');
 
@@ -696,7 +696,7 @@ interface WeekCalendarProps {
   showFilters?: boolean;
 }
 
-export function WeekCalendar({ sessions, showConflicts = true, showFilters = false }: WeekCalendarProps) {
+export function WeekCalendar({ sessions, showConflicts = true, showFilters = false }: Readonly<WeekCalendarProps>) {
   const [viewMode, setViewMode]       = useState<ViewMode>('week');
   const [selectedSession, setSelected] = useState<SessionEvent | null>(null);
 

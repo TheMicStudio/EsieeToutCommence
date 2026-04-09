@@ -7,7 +7,7 @@ import { Calendar } from 'lucide-react';
 const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
 const labelCls = 'block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5';
 
-export function CreateEventForm({ onSuccess }: { onSuccess?: () => void }) {
+export function CreateEventForm({ onSuccess }: Readonly<{ onSuccess?: () => void }>) {
   const [state, action, pending] = useActionState(publishCareerEvent, null);
   const formRef = useRef<HTMLFormElement>(null);
 

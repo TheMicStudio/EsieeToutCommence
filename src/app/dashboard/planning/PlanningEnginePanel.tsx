@@ -39,7 +39,7 @@ function RunCard({
   onRetryDone,
   onClassAdded,
   onNewVersion,
-}: {
+}: Readonly<{
   run: PlanningRun;
   allClasses: ClassWithCalendar[];
   replacingLabel?: string;  // label du run validé que ce draft remplacera
@@ -48,7 +48,7 @@ function RunCard({
   onRetryDone: (id: string, totalSessions: number, conflictCount: number) => void;
   onClassAdded: (id: string, newClassIds: string[], totalSessions: number, conflictCount: number) => void;
   onNewVersion?: (classIds: string[], fromLabel: string) => void;
-}) {
+}>) {
   const [expanded, setExpanded] = useState(run.status === 'DRAFT');
   const [isPublishing, startPublish] = useTransition();
   const [isDeleting, startDelete] = useTransition();
@@ -456,12 +456,12 @@ function GenerateForm({
   onGenerated,
   preset,
   onPresetConsumed,
-}: {
+}: Readonly<{
   classes: ClassWithCalendar[];
   onGenerated: (run: PlanningRun) => void;
   preset?: { classIds: string[]; fromLabel: string } | null;
   onPresetConsumed?: () => void;
-}) {
+}>) {
   const [open, setOpen] = useState(false);
   const [isGenerating, startGenerate] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -662,10 +662,10 @@ function GenerateForm({
 export function PlanningEnginePanel({
   initialRuns,
   classes,
-}: {
+}: Readonly<{
   initialRuns: PlanningRun[];
   classes: ClassWithCalendar[];
-}) {
+}>) {
   const [runs, setRuns] = useState(initialRuns);
 
   function handleGenerated(run: PlanningRun) {

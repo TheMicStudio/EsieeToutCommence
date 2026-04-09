@@ -6,7 +6,7 @@ interface FaqPageProps {
   searchParams: Promise<{ q?: string; categorie?: string }>;
 }
 
-export default async function FaqPage({ searchParams }: FaqPageProps) {
+export default async function FaqPage({ searchParams }: Readonly<FaqPageProps>) {
   const params = await searchParams;
   const q = params.q?.trim() ?? '';
 

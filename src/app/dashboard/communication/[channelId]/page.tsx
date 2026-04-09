@@ -11,7 +11,7 @@ interface ChannelPageProps {
   params: Promise<{ channelId: string }>;
 }
 
-export default async function ChannelPage({ params }: ChannelPageProps) {
+export default async function ChannelPage({ params }: Readonly<ChannelPageProps>) {
   await requirePermission('staff_channel.participate');
   const { channelId } = await params;
   const profile = await getCurrentUserProfile();

@@ -223,7 +223,7 @@ interface DashboardSidebarProps {
   permissions: string[];
 }
 
-export function DashboardSidebar({ userProfile, permissions }: DashboardSidebarProps) {
+export function DashboardSidebar({ userProfile, permissions }: Readonly<DashboardSidebarProps>) {
   const permSet = new Set(permissions);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);

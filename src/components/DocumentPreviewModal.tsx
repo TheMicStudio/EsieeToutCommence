@@ -55,7 +55,7 @@ interface DocumentPreviewModalProps {
   onClose: () => void;
 }
 
-export function DocumentPreviewModal({ url, title, mimeType, fileType, onClose }: DocumentPreviewModalProps) {
+export function DocumentPreviewModal({ url, title, mimeType, fileType, onClose }: Readonly<DocumentPreviewModalProps>) {
   const mode = detectPreviewMode(url, mimeType, fileType);
 
   // Fermer avec Échap

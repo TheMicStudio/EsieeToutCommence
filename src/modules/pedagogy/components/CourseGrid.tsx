@@ -62,7 +62,7 @@ function formatDate(d: string) {
 }
 
 // ─── Thumbnail ────────────────────────────────────────────────────────────────
-function Thumbnail({ material, size }: { material: CourseMaterial; size: 'full' | 'compact' }) {
+function Thumbnail({ material, size }: Readonly<{ material: CourseMaterial; size: 'full' | 'compact' }>) {
   const Icon = TYPE_ICON[material.type];
   const grad = gradientFor(material.matiere);
   const abbr = material.matiere.slice(0, 5);
@@ -81,7 +81,7 @@ function Thumbnail({ material, size }: { material: CourseMaterial; size: 'full' 
 }
 
 // ─── Grid Card ────────────────────────────────────────────────────────────────
-function GridCard({ material, onPreview }: { material: CourseMaterial; onPreview: (m: CourseMaterial) => void }) {
+function GridCard({ material, onPreview }: Readonly<{ material: CourseMaterial; onPreview: (m: CourseMaterial) => void }>) {
   const status = STATUS[material.type];
   const canPreview = detectPreviewMode(material.url, null, material.type) !== 'none';
 
@@ -127,7 +127,7 @@ function GridCard({ material, onPreview }: { material: CourseMaterial; onPreview
 }
 
 // ─── List Row ─────────────────────────────────────────────────────────────────
-function ListRow({ material, onPreview }: { material: CourseMaterial; onPreview: (m: CourseMaterial) => void }) {
+function ListRow({ material, onPreview }: Readonly<{ material: CourseMaterial; onPreview: (m: CourseMaterial) => void }>) {
   const status = STATUS[material.type];
   const canPreview = detectPreviewMode(material.url, null, material.type) !== 'none';
 

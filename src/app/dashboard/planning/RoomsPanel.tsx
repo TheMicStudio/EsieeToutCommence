@@ -9,7 +9,7 @@ const inputCls =
 const labelCls =
   'block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5';
 
-function CreateRoomForm({ onDone }: { onDone: () => void }) {
+function CreateRoomForm({ onDone }: Readonly<{ onDone: () => void }>) {
   const [state, action, pending] = useActionState(
     async (_prev: { error?: string } | null, formData: FormData) => {
       const res = await createRoom(formData);
@@ -63,7 +63,7 @@ function CreateRoomForm({ onDone }: { onDone: () => void }) {
   );
 }
 
-export function RoomsPanel({ rooms: initialRooms }: { rooms: RoomRow[] }) {
+export function RoomsPanel({ rooms: initialRooms }: Readonly<{ rooms: RoomRow[] }>) {
   const [rooms, setRooms] = useState(initialRooms);
   const [showForm, setShowForm] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);

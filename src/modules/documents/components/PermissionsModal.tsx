@@ -22,7 +22,7 @@ interface PermissionsModalProps {
   onClose: () => void;
 }
 
-export function PermissionsModal({ folder, onClose }: PermissionsModalProps) {
+export function PermissionsModal({ folder, onClose }: Readonly<PermissionsModalProps>) {
   const [permissions, setPermissions] = useState<DocPermission[]>([]);
   const [users, setUsers] = useState<DocUser[]>([]);
   const [loading, setLoading] = useState(true);

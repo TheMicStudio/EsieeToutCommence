@@ -43,7 +43,7 @@ interface Props {
   matrix: RolePermissionMap;
 }
 
-export function PermissionsPanel({ permissions, matrix: initialMatrix }: Props) {
+export function PermissionsPanel({ permissions, matrix: initialMatrix }: Readonly<Props>) {
   const [matrix, setMatrix] = useState<RolePermissionMap>(initialMatrix);
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);

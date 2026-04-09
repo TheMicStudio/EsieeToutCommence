@@ -102,10 +102,10 @@ function CreateClassForm() {
 function StudentsSection({
   cls,
   students,
-}: {
+}: Readonly<{
   cls: ClassRow;
   students: StudentRow[];
-}) {
+}>) {
   const [, startTransition] = useTransition();
   const [assignState, assignAction] = useActionState(assignStudentToClass, null);
   const [search, setSearch] = useState('');
@@ -215,7 +215,7 @@ interface Props {
   students: StudentRow[];
 }
 
-export function AdminClassPanel({ classes, students }: Props) {
+export function AdminClassPanel({ classes, students }: Readonly<Props>) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [, startTransition] = useTransition();
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);

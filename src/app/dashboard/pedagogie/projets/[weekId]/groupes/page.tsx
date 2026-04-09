@@ -10,7 +10,7 @@ interface GroupesPageProps {
   params: Promise<{ weekId: string }>;
 }
 
-export default async function GroupesPage({ params }: GroupesPageProps) {
+export default async function GroupesPage({ params }: Readonly<GroupesPageProps>) {
   const { weekId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;

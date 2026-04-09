@@ -21,13 +21,13 @@ function ConfigForm({
   entreprises,
   onSuccess,
   onCancel,
-}: {
+}: Readonly<{
   alternant: AlternantRow;
   admins: UserRow[];
   entreprises: UserRow[];
   onSuccess?: () => void;
   onCancel?: () => void;
-}) {
+}>) {
   const [state, action, pending] = useActionState(createTripartiteChat, null);
   const router = useRouter();
 
@@ -109,11 +109,11 @@ function AlternantCard({
   alt,
   admins,
   entreprises,
-}: {
+}: Readonly<{
   alt: AlternantRow;
   admins: UserRow[];
   entreprises: UserRow[];
-}) {
+}>) {
   const [, startTransition] = useTransition();
   const [editing, setEditing] = useState(!alt.chat_id);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -226,7 +226,7 @@ function AlternantCard({
   );
 }
 
-export function TripartitePanel({ alternants, admins, entreprises }: Props) {
+export function TripartitePanel({ alternants, admins, entreprises }: Readonly<Props>) {
   const [classeFilter, setClasseFilter] = useState('');
 
   if (alternants.length === 0) {

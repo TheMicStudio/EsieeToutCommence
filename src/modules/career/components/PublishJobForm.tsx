@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export function PublishJobForm({ onSuccess }: { onSuccess?: () => void }) {
+export function PublishJobForm({ onSuccess }: Readonly<{ onSuccess?: () => void }>) {
   const [state, action, pending] = useActionState(publishJobOffer, null);
 
   useEffect(() => {

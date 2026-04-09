@@ -27,7 +27,7 @@ function getDurationDays(start: string, end: string) {
   return diff;
 }
 
-function CreateClosureForm({ onDone }: { onDone: () => void }) {
+function CreateClosureForm({ onDone }: Readonly<{ onDone: () => void }>) {
   const [state, action, pending] = useActionState(
     async (_prev: { error?: string } | null, formData: FormData) => {
       const res = await createClosure(formData);
@@ -94,7 +94,7 @@ function CreateClosureForm({ onDone }: { onDone: () => void }) {
   );
 }
 
-export function ClosuresPanel({ closures: initial }: { closures: ClosureRow[] }) {
+export function ClosuresPanel({ closures: initial }: Readonly<{ closures: ClosureRow[] }>) {
   const [closures, setClosures] = useState(initial);
   const [showForm, setShowForm] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -178,12 +178,12 @@ function ClosureRow({
   onDelete,
   deletingId,
   past,
-}: {
+}: Readonly<{
   closure: ClosureRow;
   onDelete: (id: string) => void;
   deletingId: string | null;
   past: boolean;
-}) {
+}>) {
   const days = getDurationDays(closure.date_start, closure.date_end);
 
   return (

@@ -7,7 +7,7 @@ interface ClassSelectorProps {
   basePath: string;
 }
 
-export function ClassSelector({ classes, activeClassId, basePath }: ClassSelectorProps) {
+export function ClassSelector({ classes, activeClassId, basePath }: Readonly<ClassSelectorProps>) {
   if (classes.length <= 1) return null;
 
   return (

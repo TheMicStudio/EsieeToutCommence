@@ -21,7 +21,7 @@ export function ClassChat({
   currentUserId,
   currentUserName,
   authorNames,
-}: ClassChatProps) {
+}: Readonly<ClassChatProps>) {
   const [activeChannel, setActiveChannel] = useState<ClassChannel>(channels[0]);
   const [messages, setMessages] = useState<ClassMessage[]>(initialMessages);
   const [loading, setLoading] = useState(false);

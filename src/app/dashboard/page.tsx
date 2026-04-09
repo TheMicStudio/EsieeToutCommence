@@ -41,7 +41,7 @@ export const metadata = { title: 'Tableau de bord — EsieeToutCommence' };
 
 const BAR_HEIGHTS = [40, 55, 35, 70, 50, 80, 60];
 
-function BarVisual({ heights = BAR_HEIGHTS }: { heights?: number[] }) {
+function BarVisual({ heights = BAR_HEIGHTS }: Readonly<{ heights?: number[] }>) {
   return (
     <div className="flex items-end gap-1 h-12">
       {heights.map((h, i) => (
@@ -55,7 +55,7 @@ function BarVisual({ heights = BAR_HEIGHTS }: { heights?: number[] }) {
   );
 }
 
-function CircleVisual({ value }: { value: number }) {
+function CircleVisual({ value }: Readonly<{ value: number }>) {
   const r = 18;
   const circ = 2 * Math.PI * r;
   const offset = circ - (value / 100) * circ;

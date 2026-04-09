@@ -17,7 +17,7 @@ interface ActualitesPageProps {
   searchParams: Promise<{ categorie?: string }>;
 }
 
-export default async function ActualitesPage({ searchParams }: ActualitesPageProps) {
+export default async function ActualitesPage({ searchParams }: Readonly<ActualitesPageProps>) {
   await requirePermission('news.read');
   const perms = await getRequestPermissions();
   const { categorie } = await searchParams;

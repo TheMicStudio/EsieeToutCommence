@@ -7,7 +7,7 @@ interface AttendanceReportProps {
   report: AttendanceReport;
 }
 
-export function AttendanceReport({ report }: AttendanceReportProps) {
+export function AttendanceReport({ report }: Readonly<AttendanceReportProps>) {
   const { session, presents, absents, taux_presence } = report;
 
   return (

@@ -76,10 +76,10 @@ function formatWeekLabel(weekStart: string): string {
 function FixedPatternForm({
   classe,
   onSave,
-}: {
+}: Readonly<{
   classe: ClassWithCalendar;
   onSave: () => void;
-}) {
+}>) {
   const [pending, startSave] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -153,10 +153,10 @@ function FixedPatternForm({
 function ManualCalendarGrid({
   classe,
   initialWeeks,
-}: {
+}: Readonly<{
   classe: ClassWithCalendar;
   initialWeeks: CalendarWeek[];
-}) {
+}>) {
   const [weeks, setWeeks] = useState<Record<string, 'SCHOOL' | 'COMPANY'>>(() => {
     const map: Record<string, 'SCHOOL' | 'COMPANY'> = {};
     for (const w of initialWeeks) map[w.week_start] = w.location;
@@ -246,10 +246,10 @@ function ManualCalendarGrid({
 function ClassCalendarCard({
   classe,
   initialWeeks,
-}: {
+}: Readonly<{
   classe: ClassWithCalendar;
   initialWeeks: CalendarWeek[];
-}) {
+}>) {
   const [expanded, setExpanded]   = useState(false);
   const [mode, setMode]           = useState(classe.calendar_mode);
   const [saving, startSave]       = useTransition();
@@ -362,10 +362,10 @@ function ClassCalendarCard({
 export function CalendarPanel({
   classes,
   weeksByClass,
-}: {
+}: Readonly<{
   classes: ClassWithCalendar[];
   weeksByClass: Record<string, CalendarWeek[]>;
-}) {
+}>) {
   if (classes.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 py-12 text-center">

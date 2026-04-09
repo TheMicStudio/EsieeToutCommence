@@ -53,7 +53,7 @@ interface FileCardProps {
   onShare?: (file: DocFile) => void;
 }
 
-export function FileCard({ file, onShare }: FileCardProps) {
+export function FileCard({ file, onShare }: Readonly<FileCardProps>) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [deleting, setDeleting] = useState(false);

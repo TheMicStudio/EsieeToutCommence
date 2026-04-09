@@ -42,12 +42,12 @@ function CreateUserForm({
   subjects,
   adminFunctions,
   secondaryRoles,
-}: {
+}: Readonly<{
   onClose: () => void;
   subjects: string[];
   adminFunctions: string[];
   secondaryRoles: { value: string; label: string }[];
-}) {
+}>) {
   const [state, action, pending] = useActionState(createUser, null);
   const [role, setRole] = useState('eleve');
   const [selectedMatieres, setSelectedMatieres] = useState<string[]>([]);
@@ -231,13 +231,13 @@ function EditUserForm({
   subjects,
   adminFunctions,
   secondaryRoles,
-}: {
+}: Readonly<{
   user: UserRow;
   onClose: () => void;
   subjects: string[];
   adminFunctions: string[];
   secondaryRoles: { value: string; label: string }[];
-}) {
+}>) {
   const [state, action, pending] = useActionState(updateUserProfile, null);
   const [selectedMatieres, setSelectedMatieres] = useState<string[]>(user.matieres ?? []);
   const [matSearch, setMatSearch] = useState('');
@@ -432,7 +432,7 @@ function EditUserForm({
 
 // ─── Panel principal ──────────────────────────────────────────────────────────
 
-export function UsersPanel({ users, subjects, adminFunctions, secondaryRoles }: UsersPanelProps) {
+export function UsersPanel({ users, subjects, adminFunctions, secondaryRoles }: Readonly<UsersPanelProps>) {
   const [, startTransition] = useTransition();
   const [query, setQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('');

@@ -18,7 +18,7 @@ interface JobBoardProps {
   canDelete?: boolean;
 }
 
-export function JobBoard({ offers, canDelete }: JobBoardProps) {
+export function JobBoard({ offers, canDelete }: Readonly<JobBoardProps>) {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'tous' | ContratType>('tous');
 

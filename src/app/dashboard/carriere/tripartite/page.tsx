@@ -72,10 +72,10 @@ export default async function TripartitePage() {
 async function ChatWrapper({
   chat,
   userProfile,
-}: {
+}: Readonly<{
   chat: Awaited<ReturnType<typeof getMyTripartiteChat>>;
   userProfile: NonNullable<Awaited<ReturnType<typeof getCurrentUserProfile>>>;
-}) {
+}>) {
   if (!chat) return null;
 
   const messages = await getTripartiteMessages(chat.id);

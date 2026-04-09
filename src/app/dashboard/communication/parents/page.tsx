@@ -13,7 +13,7 @@ interface ParentsPageProps {
   searchParams: Promise<{ lien?: string }>;
 }
 
-export default async function ParentsCommunicationPage({ searchParams }: ParentsPageProps) {
+export default async function ParentsCommunicationPage({ searchParams }: Readonly<ParentsPageProps>) {
   const { lien: lienParam } = await searchParams;
   const profile = await getCurrentUserProfile();
   if (!profile) redirect('/login');

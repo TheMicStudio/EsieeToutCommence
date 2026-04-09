@@ -23,7 +23,7 @@ interface NotesPageProps {
   searchParams: Promise<{ classe?: string; tab?: string }>;
 }
 
-export default async function NotesPage({ searchParams }: NotesPageProps) {
+export default async function NotesPage({ searchParams }: Readonly<NotesPageProps>) {
   const perms = await getRequestPermissions();
   // eleve = grade.read_own, prof/coordinateur = grade.read_class ou grade.manage
   if (!perms.has('grade.read_own') && !perms.has('grade.read_class') && !perms.has('grade.manage')) {

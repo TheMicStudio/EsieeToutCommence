@@ -36,9 +36,9 @@ type TabId = typeof TABS[number]['id'];
 
 export default async function PlanningPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ tab?: string }>;
-}) {
+}>) {
   const userProfile = await getCurrentUserProfile();
   if (userProfile?.role !== 'admin') redirect('/dashboard');
 

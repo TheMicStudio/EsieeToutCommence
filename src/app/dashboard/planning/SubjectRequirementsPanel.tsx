@@ -25,11 +25,11 @@ function AddRequirementForm({
   classId,
   teachers,
   onAdded,
-}: {
+}: Readonly<{
   classId: string;
   teachers: TeacherForPlanning[];
   onAdded: (req: SubjectRequirement) => void;
-}) {
+}>) {
   const [open, setOpen] = useState(false);
   const [pending, startAdd] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -262,11 +262,11 @@ function ClassRequirementsCard({
   classe,
   teachers,
   initialRequirements,
-}: {
+}: Readonly<{
   classe: ClassWithCalendar;
   teachers: TeacherForPlanning[];
   initialRequirements: SubjectRequirement[];
-}) {
+}>) {
   const [expanded, setExpanded] = useState(false);
   const [requirements, setRequirements] = useState(initialRequirements);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -403,11 +403,11 @@ export function SubjectRequirementsPanel({
   classes,
   teachers,
   requirementsByClass,
-}: {
+}: Readonly<{
   classes: ClassWithCalendar[];
   teachers: TeacherForPlanning[];
   requirementsByClass: Record<string, SubjectRequirement[]>;
-}) {
+}>) {
   if (classes.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 py-12 text-center">

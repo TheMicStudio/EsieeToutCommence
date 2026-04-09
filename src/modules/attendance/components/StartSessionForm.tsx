@@ -19,7 +19,7 @@ interface StartSessionFormProps {
 const DURATIONS = [5, 10, 15, 30] as const;
 type Duration = (typeof DURATIONS)[number];
 
-export function StartSessionForm({ classes, initialClassId }: StartSessionFormProps) {
+export function StartSessionForm({ classes, initialClassId }: Readonly<StartSessionFormProps>) {
   const [classId, setClassId]   = useState(initialClassId ?? classes[0]?.id ?? '');
   const [duration, setDuration] = useState<Duration>(5);
   const [loading, setLoading]   = useState(false);

@@ -40,7 +40,7 @@ const ROLE_COLORS: Record<string, { badge: string; avatar: string; banner: strin
   entreprise: { badge: 'bg-[#3685b5]/20 text-[#3685b5]', avatar: 'bg-[#3685b5]/30 text-[#3685b5]', banner: 'from-[#3685b5]/30 to-[#89aae6]/20' },
 };
 
-export function ProfileCard({ userProfile }: ProfileCardProps) {
+export function ProfileCard({ userProfile }: Readonly<ProfileCardProps>) {
   const { profile, role } = userProfile;
   const initials = getInitials(profile.prenom, profile.nom);
   const details = getProfileDetails(userProfile);

@@ -35,9 +35,9 @@ type TabId = keyof typeof TAB_PERMISSIONS;
 
 export default async function AdminPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ tab?: string }>;
-}) {
+}>) {
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) redirect('/dashboard');
 

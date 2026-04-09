@@ -68,11 +68,11 @@ function SessionRow({
   session,
   onDelete,
   onMove,
-}: {
+}: Readonly<{
   session: SessionEvent;
   onDelete: (id: string) => void;
   onMove: (id: string, newStart: string, newEnd: string) => void;
-}) {
+}>) {
   const [editing, setEditing] = useState(false);
   const [date, setDate] = useState(isoToDate(session.start_timestamp));
   const [startTime, setStartTime] = useState(isoToTime(session.start_timestamp));
@@ -218,13 +218,13 @@ function AddSessionForm({
   existingSessions,
   onAdded,
   onClose,
-}: {
+}: Readonly<{
   runId: string;
   classes: ClassWithCalendar[];
   existingSessions: SessionEvent[];
   onAdded: (session: SessionEvent) => void;
   onClose: () => void;
-}) {
+}>) {
   const [classId, setClassId] = useState(classes[0]?.id ?? '');
   const [subjectName, setSubjectName] = useState('');
   const [teacherId, setTeacherId] = useState('');
@@ -306,9 +306,9 @@ function AddSessionForm({
         </label>
         {classOptions.length > 0 ? (
           <div className="flex flex-wrap gap-1.5 mb-2">
-            {classOptions.map((opt, i) => (
+            {classOptions.map((opt) => (
               <button
-                key={i}
+                key={`${opt.subject_name}-${opt.teacher_id}`}
                 onClick={() => handleOptionSelect(opt)}
                 className={[
                   'flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold transition-all',
@@ -411,11 +411,11 @@ export function ManualSessionEditor({
   runId,
   initialSessions,
   classes,
-}: {
+}: Readonly<{
   runId: string;
   initialSessions: SessionEvent[];
   classes: ClassWithCalendar[];
-}) {
+}>) {
   const [sessions, setSessions] = useState(initialSessions);
   const [currentMonday, setCurrentMonday] = useState(() => {
     // Aller à la 1ère semaine qui a des sessions, sinon semaine courante

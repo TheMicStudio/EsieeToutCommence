@@ -48,7 +48,7 @@ export default async function EnfantPage() {
   );
 }
 
-async function ChildCard({ link }: { link: Awaited<ReturnType<typeof getMyLinks>>[number] }) {
+async function ChildCard({ link }: Readonly<{ link: Awaited<ReturnType<typeof getMyLinks>>[number] }>) {
   const [grades, attendance] = await Promise.all([
     link.student_class_id ? getChildGrades(link.student_id, link.student_class_id) : Promise.resolve([]),
     getChildAttendance(link.student_id),

@@ -22,7 +22,7 @@ const inputClass = 'flex h-9 w-full rounded-xl border border-slate-200 bg-slate-
 const selectClass = 'flex h-9 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
 const labelClass = 'block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5';
 
-function JobOffersSection({ jobOffers }: { jobOffers: JobOffer[] }) {
+function JobOffersSection({ jobOffers }: Readonly<{ jobOffers: JobOffer[] }>) {
   const [state, action, pending] = useActionState(publishJobOffer, null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -136,7 +136,7 @@ function JobOffersSection({ jobOffers }: { jobOffers: JobOffer[] }) {
   );
 }
 
-function EventsSection({ careerEvents }: { careerEvents: CareerEvent[] }) {
+function EventsSection({ careerEvents }: Readonly<{ careerEvents: CareerEvent[] }>) {
   const [state, action, pending] = useActionState(publishCareerEvent, null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -223,7 +223,7 @@ function EventsSection({ careerEvents }: { careerEvents: CareerEvent[] }) {
   );
 }
 
-export function CareerPanel({ jobOffers, careerEvents }: CareerPanelProps) {
+export function CareerPanel({ jobOffers, careerEvents }: Readonly<CareerPanelProps>) {
   return (
     <div className="space-y-8">
       {/* Offres d'emploi */}

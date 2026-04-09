@@ -16,7 +16,7 @@ interface ProfileEditFormProps {
   adminFunctions?: string[];
 }
 
-export function ProfileEditForm({ userProfile, subjects, adminFunctions }: ProfileEditFormProps) {
+export function ProfileEditForm({ userProfile, subjects, adminFunctions }: Readonly<ProfileEditFormProps>) {
   const [state, action, pending] = useActionState(updateProfile, null);
   const [emailState, emailAction, emailPending] = useActionState(requestEmailChange, null);
   const { profile, role } = userProfile;
