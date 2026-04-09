@@ -278,27 +278,27 @@ export async function updateProfile(
   let error = null;
 
   if (role === 'eleve') {
-    const { error: e } = await supabase
+    const { error: updateError } = await supabase
       .from('student_profiles')
       .update({ nom, prenom, ...phoneFields })
       .eq('id', profile.id);
-    error = e;
+    error = updateError;
   } else if (role === 'professeur' || role === 'coordinateur') {
     const matieres = (formData.get('matieres_enseignees') as string)
       ?.split(',').map((m) => m.trim()).filter(Boolean) ?? [];
-    const { error: e } = await supabase
+    const { error: updateError } = await supabase
       .from('teacher_profiles')
       .update({ nom, prenom, matieres_enseignees: matieres, ...phoneFields })
       .eq('id', profile.id);
-    error = e;
+    error = updateError;
   } else if (role === 'admin' || role === 'staff') {
-    const { error: e } = await supabase
+    const { error: updateError } = await supabase
       .from('admin_profiles')
       .update({ nom, prenom, fonction: formData.get('fonction') as string, ...phoneFields })
       .eq('id', profile.id);
-    error = e;
+    error = updateError;
   } else if (role === 'entreprise') {
-    const { error: e } = await supabase
+    const { error: updateError } = await supabase
       .from('company_profiles')
       .update({
         nom,
@@ -308,13 +308,13 @@ export async function updateProfile(
         ...phoneFields,
       })
       .eq('id', profile.id);
-    error = e;
+    error = updateError;
   } else if (role === 'parent') {
-    const { error: e } = await supabase
+    const { error: updateError } = await supabase
       .from('parent_profiles')
       .update({ nom, prenom, ...phoneFields })
       .eq('id', profile.id);
-    error = e;
+    error = updateError;
   }
 
   if (error) {

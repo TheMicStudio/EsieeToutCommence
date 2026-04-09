@@ -1,4 +1,4 @@
-# Cahier des Charges Fonctionnel : Hub École (Plateforme de Gestion)
+# Cahier des Charges Fonctionnel : EsieeToutCommence (Plateforme de Gestion)
 
 Ce document décrit l'architecture fonctionnelle et les spécifications d'un système de gestion scolaire (LMS/ERP/Helpdesk) pensé en architecture modulaire (Séparation des préoccupations).
 

@@ -4,8 +4,8 @@
 > Il DOIT être mis à jour par chaque IA (ou développeur) après chaque session de travail.
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
-**Dernière mise à jour :** 2026-04-09
-**Mis à jour par :** Antigravity (Fix TypeScript 'link.max_uses' dans ShareModal.tsx, et packages warnings dans package.json)
+**Dernière mise à jour :** 2026-04-10
+**Mis à jour par :** Antigravity & Claude (Merge feat/doc_api, US30 tests E2E + fixes TS, Fix ReDoS vulnerability)
 
 ---
 
@@ -252,6 +252,33 @@ _Dev 3 doit d'abord terminer le Module 3 (ou en parallèle). Vérifier que les f
 - Pas de workflow de validation, pas de versioning
 - Partage : lien interne (rôle/personne) **ou** lien temporaire avec expiration et quota d'accès
 - Bucket Storage privé — fichiers accessibles uniquement via URL signées
+
+---
+
+### `feat/doc_api` — US30 Tests E2E + fixes TS
+
+**Modules couverts :** Tests d'intégration & parcours E2E (US29 + US30)
+**Statut :** 🟢 TESTS EXÉCUTÉS — 13/14 passent
+
+#### Résultats des tests (2026-04-09)
+
+**Tests unitaires (`npm test`) — 4 fichiers, 32 tests ✅**
+- `src/lib/utils/__tests__/time.test.ts` — 8 tests ✅
+- `src/lib/utils/__tests__/attendance.test.ts` — 7 tests ✅
+- `src/modules/documents/lib/__tests__/permissions.test.ts` — 9 tests ✅
+- `src/app/api/attendance/checkin/__tests__/route.test.ts` — 8 tests ✅
+
+**Tests E2E Playwright (`npm run test:e2e`) — 14 tests, 13 passent**
+- `tests/e2e/auth.spec.ts` — 5/5 ✅
+- `tests/e2e/checkin-api.spec.ts` — 4/4 ✅
+- `tests/e2e/acces-controle.spec.ts` — 4/5 (1 échec attendu)
+  - ❌ `professeur → /dashboard/pedagogie/emargement accessible` — redirigé vers `/dashboard/pedagogie` car le compte prof de test n'a pas de classe assignée dans Supabase. Pas un bug de code.
+
+#### Fixes TS appliqués pour faire passer le build
+- `src/modules/documents/actions.ts:92` — cast explicite sur `.maybeSingle()` dans boucle
+- `src/modules/documents/lib/permissions.ts:23` — idem
+- `src/modules/documents/components/ShareModal.tsx:95` — `!= null` au lieu de `!== null`
+- `src/modules/planning/engine.ts:48` — ajout `'VALIDATED'` dans l'union `SessionInsert.status`
 
 ---
 

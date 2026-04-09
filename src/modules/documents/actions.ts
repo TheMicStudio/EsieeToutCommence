@@ -1,6 +1,13 @@
 'use server';
 
 import { randomBytes } from 'crypto';
+
+// ── Constantes du module ──────────────────────────────────────────────────────
+const MAX_FILE_SIZE_BYTES   = 50 * 1024 * 1024; // 50 Mo — limite bucket Supabase Storage
+const SIGNED_URL_TTL_SHORT  = 3_600;             // 1h  — téléchargement authentifié
+const SIGNED_URL_TTL_PUBLIC = 86_400;            // 24h — lien de partage public
+const MAX_BREADCRUMB_DEPTH  = 20;                // sécurité anti-boucle infinie sur arbre de dossiers
+
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
@@ -81,12 +88,12 @@ export async function getBreadcrumb(folderId: string): Promise<DocBreadcrumb[]> 
   const crumbs: DocBreadcrumb[] = [];
   let currentId: string | null = folderId;
 
-  while (currentId && crumbs.length < 20) {
-    const { data }: { data: { id: string; name: string; parent_id: string | null } | null } = await admin
+  while (currentId && crumbs.length < MAX_BREADCRUMB_DEPTH) {
+    const { data } = await admin
       .from('doc_folders')
       .select('id, name, parent_id')
       .eq('id', currentId)
-      .maybeSingle();
+      .maybeSingle() as { data: { id: string; name: string; parent_id: string | null } | null };
     if (!data) break;
     crumbs.unshift({ id: data.id, name: data.name });
     currentId = data.parent_id ?? null;
@@ -193,7 +200,7 @@ export async function uploadFile(
     return { error: 'Dossier et fichier sont requis.' };
   }
 
-  if (file.size > 50 * 1024 * 1024) {
+  if (file.size > MAX_FILE_SIZE_BYTES) {
     return { error: 'Le fichier dépasse 50 Mo.' };
   }
 
@@ -269,7 +276,7 @@ export async function getSignedDownloadUrl(fileId: string): Promise<{ url?: stri
 
   const { data, error } = await admin.storage
     .from('documents')
-    .createSignedUrl(file.storage_path, 3600); // 1h
+    .createSignedUrl(file.storage_path, SIGNED_URL_TTL_SHORT);
 
   if (error || !data) return { error: 'Impossible de générer le lien.' };
   return { url: data.signedUrl };
@@ -488,7 +495,7 @@ export async function getPublicSignedUrl(storagePath: string): Promise<string | 
   const admin = createAdminClient();
   const { data } = await admin.storage
     .from('documents')
-    .createSignedUrl(storagePath, 86400); // 24h pour les liens publics
+    .createSignedUrl(storagePath, SIGNED_URL_TTL_PUBLIC);
   return data?.signedUrl ?? null;
 }
 

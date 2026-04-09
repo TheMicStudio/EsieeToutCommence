@@ -170,7 +170,7 @@ export async function parseXlsxToCSV(
 
 // Format NOM_GROUPE : "CC_TH6_BACH_DEV WEB SÉC 2 TP 25-26"
 // Regex : capture tout avant le dernier (TP|ALT), puis l'année
-const GROUPE_REGEX = /^(.+)\s+(TP|ALT)\s+(\d{2})-(\d{2})$/;
+const GROUPE_REGEX = /^(.*?\S)\s+(TP|ALT)\s+(\d{2})-(\d{2})$/;
 
 function capitalize(s: string): string {
   if (!s) return '';

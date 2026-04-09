@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { computeAttendanceStatus } from '@/lib/utils/attendance';
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,12 +29,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Calculer présent ou en retard
-    const now = new Date();
-    const expTime = new Date(session.expiration);
-    const openTime = new Date(session.created_at);
-    const totalMin = (expTime.getTime() - openTime.getTime()) / 60000;
-    const elapsed = (now.getTime() - openTime.getTime()) / 60000;
-    const statut_presence = elapsed > totalMin * 0.5 ? 'en_retard' : 'present';
+    const statut_presence = computeAttendanceStatus(
+      new Date(session.created_at),
+      new Date(session.expiration),
+      new Date(),
+    );
 
     const { error } = await supabase.from('attendance_records').insert({
       session_id: session.id,
