@@ -62,7 +62,6 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
           { href: '/dashboard/pedagogie/cours', label: 'Cours', icon: BookOpen, permission: 'course_material.read' },
           { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban, permission: 'project_week.read' },
           { href: '/dashboard/pedagogie/notes', label: 'Mes notes', icon: ClipboardList, permission: 'grade.read_own' },
-          { href: '/dashboard/emargement', label: 'Émargement', icon: QrCode, permission: 'attendance.read_own' },
         ],
       },
       {
