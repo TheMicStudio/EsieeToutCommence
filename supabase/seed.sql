@@ -409,43 +409,6 @@ INSERT INTO public.class_channels (id, class_id, nom) VALUES
 -- PHASE 3 : Pédagogie — Cours, Notes, Messages
 -- ═══════════════════════════════════════════════════════════════
 
--- ─── Cours (course_materials) ───────────────────────────────
-INSERT INTO public.course_materials (id, class_id, teacher_id, titre, type, url, matiere) VALUES
-  -- SLAM2 — Sophie Bernard
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '22222222-2222-2222-2222-222222222222', 'Introduction aux algorithmes de tri', 'pdf', 'https://exemple.fr/cours/tri.pdf', 'Algorithmique'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '22222222-2222-2222-2222-222222222222', 'Probabilités et statistiques', 'lien', 'https://exemple.fr/cours/proba', 'Mathématiques'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '22222222-2222-2222-2222-222222222222', 'TD Récursivité', 'pdf', 'https://exemple.fr/td/recursivite.pdf', 'Algorithmique'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '22222222-2222-2222-2222-222222222222', 'DS Maths n°2 — Suites et séries', 'pdf', 'https://exemple.fr/ds/maths2.pdf', 'Mathématiques'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '22222222-2222-2222-2222-222222222222', 'Complexité algorithmique — Big O', 'video', 'https://exemple.fr/cours/big-o.mp4', 'Algorithmique'),
-  -- SLAM2 — Antoine Girard
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '99999999-9999-9999-9999-999999999999', 'Introduction à React & les hooks', 'video', 'https://exemple.fr/cours/react-hooks', 'Développement web'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '99999999-9999-9999-9999-999999999999', 'TP React — Création SPA', 'pdf', 'https://exemple.fr/tp/react-spa.pdf', 'Développement web'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '99999999-9999-9999-9999-999999999999', 'SQL avancé — Jointures et sous-requêtes', 'pdf', 'https://exemple.fr/cours/sql-avance.pdf', 'Bases de données'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '99999999-9999-9999-9999-999999999999', 'TP Modélisation MCD/MLD', 'pdf', 'https://exemple.fr/tp/bdd-mcd.pdf', 'Bases de données'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '99999999-9999-9999-9999-999999999999', 'API REST avec Node.js & Express', 'video', 'https://exemple.fr/cours/api-rest.mp4', 'Développement web'),
-  -- SLAM2 — Amélie Dumas
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'f0010000-0000-0000-0000-000000000002', 'Vocabulaire IT anglais', 'lien', 'https://exemple.fr/anglais/vocab-it', 'Anglais'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'f0010000-0000-0000-0000-000000000002', 'Writing professional emails', 'pdf', 'https://exemple.fr/anglais/emails.pdf', 'Anglais'),
-  -- SLAM1 — Sophie Bernard
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-bbbbbbbbbbbb', '22222222-2222-2222-2222-222222222222', 'Bases de l''algèbre', 'pdf', 'https://exemple.fr/cours/algebre.pdf', 'Mathématiques'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-bbbbbbbbbbbb', '22222222-2222-2222-2222-222222222222', 'Logique et ensembles', 'pdf', 'https://exemple.fr/cours/logique.pdf', 'Mathématiques'),
-  -- SLAM1 — Antoine Girard
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-bbbbbbbbbbbb', '99999999-9999-9999-9999-999999999999', 'HTML/CSS — Les fondamentaux', 'video', 'https://exemple.fr/cours/html-css.mp4', 'Développement web'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-bbbbbbbbbbbb', '99999999-9999-9999-9999-999999999999', 'JavaScript — Premiers pas', 'pdf', 'https://exemple.fr/cours/js-base.pdf', 'Développement web'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-bbbbbbbbbbbb', '99999999-9999-9999-9999-999999999999', 'SQL — SELECT, INSERT, UPDATE', 'pdf', 'https://exemple.fr/cours/sql-bases.pdf', 'Bases de données'),
-  -- SLAM1 — Hélène Noël
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-bbbbbbbbbbbb', 'f0010000-0000-0000-0000-000000000004', 'Support utilisateur — Méthodologie', 'pdf', 'https://exemple.fr/cours/support.pdf', 'Support et mise en service'),
-  -- SISR1 — Cyril Fontaine
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-cccccccccccc', 'f0010000-0000-0000-0000-000000000001', 'Modèle OSI et TCP/IP', 'pdf', 'https://exemple.fr/cours/osi.pdf', 'Réseaux'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-cccccccccccc', 'f0010000-0000-0000-0000-000000000001', 'TP Cisco Packet Tracer', 'lien', 'https://exemple.fr/tp/packet-tracer', 'Réseaux'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-cccccccccccc', 'f0010000-0000-0000-0000-000000000001', 'Introduction à la cybersécurité', 'video', 'https://exemple.fr/cours/cybersec.mp4', 'Cybersécurité'),
-  -- SISR1 — Hélène Noël
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-cccccccccccc', 'f0010000-0000-0000-0000-000000000004', 'Gestion de parc informatique', 'pdf', 'https://exemple.fr/cours/parc-info.pdf', 'SI et gestion de patrimoine'),
-  -- SISR2 — Cyril Fontaine
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-dddddddddddd', 'f0010000-0000-0000-0000-000000000001', 'Active Directory avancé', 'pdf', 'https://exemple.fr/cours/ad-avance.pdf', 'Administration systèmes'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-dddddddddddd', 'f0010000-0000-0000-0000-000000000001', 'TP Firewall pfSense', 'pdf', 'https://exemple.fr/tp/pfsense.pdf', 'Cybersécurité'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-dddddddddddd', 'f0010000-0000-0000-0000-000000000001', 'VLAN et routage inter-VLAN', 'video', 'https://exemple.fr/cours/vlan.mp4', 'Réseaux'),
-  (gen_random_uuid(), 'aaaaaaaa-aaaa-aaaa-aaaa-dddddddddddd', 'f0010000-0000-0000-0000-000000000001', 'Supervision réseau avec Nagios', 'lien', 'https://exemple.fr/cours/nagios', 'Administration systèmes');
 
 -- ─── Notes — Génération programmatique ──────────────────────
 -- Génère ~480 notes : chaque élève reçoit des notes dans chaque matière de sa classe
@@ -798,6 +761,39 @@ INSERT INTO public.project_weeks (id, class_id, title, start_date, end_date, cre
   ('c0010002-0000-0000-0000-000000000002', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'API REST Node.js', (NOW() + INTERVAL '25 days')::date, (NOW() + INTERVAL '29 days')::date, '99999999-9999-9999-9999-999999999999'),
   ('c0010003-0000-0000-0000-000000000003', 'aaaaaaaa-aaaa-aaaa-aaaa-bbbbbbbbbbbb', 'Site Vitrine WordPress', (NOW() - INTERVAL '28 days')::date, (NOW() - INTERVAL '24 days')::date, '99999999-9999-9999-9999-999999999999'),
   ('c0010004-0000-0000-0000-000000000004', 'aaaaaaaa-aaaa-aaaa-aaaa-cccccccccccc', 'Infrastructure réseau PME', (NOW() - INTERVAL '2 days')::date, (NOW() + INTERVAL '2 days')::date, 'f0010000-0000-0000-0000-000000000001');
+
+-- ─── Supports de cours (week_course_materials) ──────────────
+-- Les supports sont liés aux semaines projets ; la page "Cours" les répertorie
+INSERT INTO public.week_course_materials (week_id, uploaded_by, titre, type, url) VALUES
+  -- Semaine "App Mobile Flutter" (SLAM2, terminée)
+  ('c0010001-0000-0000-0000-000000000001', '99999999-9999-9999-9999-999999999999', 'Introduction à Flutter & Dart', 'pdf', 'https://exemple.fr/cours/flutter-intro.pdf'),
+  ('c0010001-0000-0000-0000-000000000001', '99999999-9999-9999-9999-999999999999', 'Architecture MVVM avec Flutter', 'pdf', 'https://exemple.fr/cours/flutter-mvvm.pdf'),
+  ('c0010001-0000-0000-0000-000000000001', '99999999-9999-9999-9999-999999999999', 'Firebase Auth & Firestore — Guide', 'lien', 'https://firebase.google.com/docs/flutter/setup'),
+  ('c0010001-0000-0000-0000-000000000001', '99999999-9999-9999-9999-999999999999', 'Tuto vidéo : premier projet Flutter', 'video', 'https://exemple.fr/videos/flutter-starter.mp4'),
+  ('c0010001-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'Algorithmes de tri pour optimisation mobile', 'pdf', 'https://exemple.fr/cours/algo-tri-mobile.pdf'),
+  ('c0010001-0000-0000-0000-000000000001', 'f0010000-0000-0000-0000-000000000002', 'Vocabulaire mobile development (EN)', 'pdf', 'https://exemple.fr/anglais/mobile-dev-vocab.pdf'),
+  -- Semaine "API REST Node.js" (SLAM2, à venir)
+  ('c0010002-0000-0000-0000-000000000002', '99999999-9999-9999-9999-999999999999', 'Cahier des charges — API REST', 'pdf', 'https://exemple.fr/cours/cdc-api-rest.pdf'),
+  ('c0010002-0000-0000-0000-000000000002', '99999999-9999-9999-9999-999999999999', 'Node.js & Express — Setup et routing', 'pdf', 'https://exemple.fr/cours/express-setup.pdf'),
+  ('c0010002-0000-0000-0000-000000000002', '99999999-9999-9999-9999-999999999999', 'JWT & Authentification API', 'video', 'https://exemple.fr/videos/jwt-auth.mp4'),
+  ('c0010002-0000-0000-0000-000000000002', '99999999-9999-9999-9999-999999999999', 'PostgreSQL — Modélisation relationnelle', 'pdf', 'https://exemple.fr/cours/pg-modelisation.pdf'),
+  ('c0010002-0000-0000-0000-000000000002', '99999999-9999-9999-9999-999999999999', 'Tests unitaires avec Jest', 'lien', 'https://jestjs.io/docs/getting-started'),
+  ('c0010002-0000-0000-0000-000000000002', 'f0010000-0000-0000-0000-000000000003', 'RGPD et API — Obligations légales', 'pdf', 'https://exemple.fr/cours/rgpd-api.pdf'),
+  -- Semaine "Site Vitrine WordPress" (SLAM1, terminée)
+  ('c0010003-0000-0000-0000-000000000003', '99999999-9999-9999-9999-999999999999', 'HTML/CSS — Les fondamentaux', 'video', 'https://exemple.fr/videos/html-css-bases.mp4'),
+  ('c0010003-0000-0000-0000-000000000003', '99999999-9999-9999-9999-999999999999', 'WordPress — Installation et configuration', 'pdf', 'https://exemple.fr/cours/wordpress-install.pdf'),
+  ('c0010003-0000-0000-0000-000000000003', '99999999-9999-9999-9999-999999999999', 'Responsive Design — Media Queries', 'pdf', 'https://exemple.fr/cours/responsive-design.pdf'),
+  ('c0010003-0000-0000-0000-000000000003', '99999999-9999-9999-9999-999999999999', 'Guide Figma — Maquettage web', 'lien', 'https://www.figma.com/resources/learn-design'),
+  ('c0010003-0000-0000-0000-000000000003', '22222222-2222-2222-2222-222222222222', 'Mathématiques appliquées au design', 'pdf', 'https://exemple.fr/cours/maths-design.pdf'),
+  ('c0010003-0000-0000-0000-000000000003', 'f0010000-0000-0000-0000-000000000004', 'Gestion de projet web — Méthodologie agile', 'pdf', 'https://exemple.fr/cours/agile-web.pdf'),
+  -- Semaine "Infrastructure réseau PME" (SISR1, en cours)
+  ('c0010004-0000-0000-0000-000000000004', 'f0010000-0000-0000-0000-000000000001', 'Modèle OSI et TCP/IP — Rappels', 'pdf', 'https://exemple.fr/cours/osi-rappels.pdf'),
+  ('c0010004-0000-0000-0000-000000000004', 'f0010000-0000-0000-0000-000000000001', 'Architecture réseau PME — Bonnes pratiques', 'pdf', 'https://exemple.fr/cours/archi-pme.pdf'),
+  ('c0010004-0000-0000-0000-000000000004', 'f0010000-0000-0000-0000-000000000001', 'TP Cisco Packet Tracer — VLAN & routage', 'lien', 'https://exemple.fr/tp/packet-tracer-vlan'),
+  ('c0010004-0000-0000-0000-000000000004', 'f0010000-0000-0000-0000-000000000001', 'Active Directory — Installation pas à pas', 'video', 'https://exemple.fr/videos/ad-install.mp4'),
+  ('c0010004-0000-0000-0000-000000000004', 'f0010000-0000-0000-0000-000000000001', 'DHCP, DNS — Configuration serveur', 'pdf', 'https://exemple.fr/cours/dhcp-dns.pdf'),
+  ('c0010004-0000-0000-0000-000000000004', 'f0010000-0000-0000-0000-000000000004', 'Gestion de parc informatique — GLPI', 'pdf', 'https://exemple.fr/cours/glpi-parc.pdf'),
+  ('c0010004-0000-0000-0000-000000000004', 'f0010000-0000-0000-0000-000000000003', 'Droit du numérique — Responsabilité SI', 'pdf', 'https://exemple.fr/cours/droit-si.pdf');
 
 INSERT INTO public.project_groups (id, week_id, group_name, repo_url, created_by) VALUES
   -- App Mobile Flutter (SLAM2 terminé)
