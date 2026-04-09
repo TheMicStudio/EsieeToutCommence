@@ -27,7 +27,7 @@ export default async function PedagogiePage() {
   const classes = isProf ? teacherClasses : allMyClasses;
 
   return (
-    <div className="space-y-6">
+    <div className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-[0_1px_0_rgba(15,23,42,0.06),0_10px_30px_rgba(15,23,42,0.06)] space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-[#061826]">
           {isProf ? 'Mes classes' : 'Espace pédagogique'}
@@ -133,3 +133,4 @@ export default async function PedagogiePage() {
     </div>
   );
 }
+
