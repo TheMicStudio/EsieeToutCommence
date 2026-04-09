@@ -92,7 +92,7 @@ export function ShareModal({ target, targetType, onClose }: ShareModalProps) {
               const expired =
                 link.expires_at && new Date(link.expires_at) < new Date();
               const maxed =
-                link.max_uses !== null && link.uses_count >= link.max_uses;
+                link.max_uses != null && link.uses_count >= link.max_uses;
               const inactive = expired || maxed;
 
               return (
@@ -112,7 +112,7 @@ export function ShareModal({ target, targetType, onClose }: ShareModalProps) {
                     )}
                     <p className="text-xs text-slate-500">
                       {formatExpiry(link.expires_at)}
-                      {link.max_uses !== null && (
+                      {link.max_uses != null && (
                         <> · {link.uses_count}/{link.max_uses} accès</>
                       )}
                     </p>

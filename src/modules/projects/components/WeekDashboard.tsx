@@ -406,7 +406,7 @@ export function WeekDashboard({
                                 </button>
                               )}
                               {isProf && (
-                                <GradeGroupForm groupId={group.id} initialNote={group.note} initialFeedback={group.feedback_prof} />
+                                <GradeGroupForm groupId={group.id} groupName={group.group_name} initialNote={group.note} initialFeedback={group.feedback_prof} />
                               )}
                             </div>
                           </div>

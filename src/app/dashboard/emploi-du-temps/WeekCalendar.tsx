@@ -790,8 +790,6 @@ export function WeekCalendar({ sessions, showConflicts = true, showFilters = fal
           </div>
         </div>
 
-        {/* Liste des matières (navigation rapide) */}
-        <CourseListPanel sessions={sessions} classColorMap={classColorMap} onNavigate={handleWeekClick} />
 
         {/* Barre de navigation semaine (visible en vue semaine et mois) */}
         {viewMode === 'week' && (

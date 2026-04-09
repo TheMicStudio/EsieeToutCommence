@@ -33,6 +33,7 @@ type NavItem = {
   icon: React.ElementType;
   badge?: number;
   permission?: string; // si absent → toujours visible
+  exact?: boolean; // si true → match uniquement le chemin exact
 };
 
 type NavSection = {
@@ -79,9 +80,7 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
         title: 'Pédagogie',
         items: [
           { href: '/dashboard/emploi-du-temps', label: 'Emploi du temps', icon: CalendarDays, permission: 'class.read' },
-          { href: '/dashboard/pedagogie/disponibilites', label: 'Mes disponibilités', icon: Clock, permission: 'class.read' },
-          { href: '/dashboard/pedagogie', label: 'Mes classes', icon: GraduationCap, permission: 'class.read' },
-          { href: '/dashboard/pedagogie/cours', label: 'Cours', icon: BookOpen, permission: 'course_material.read' },
+          { href: '/dashboard/pedagogie', label: 'Mes classes', icon: GraduationCap, permission: 'class.read', exact: true },
           { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban, permission: 'project_week.read' },
         ],
       },
@@ -90,6 +89,12 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
         items: [
           { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.read' },
           { href: '/dashboard/communication', label: 'Messagerie staff', icon: MessageSquare, permission: 'staff_channel.participate' },
+        ],
+      },
+      {
+        title: 'Paramètres',
+        items: [
+          { href: '/dashboard/pedagogie/disponibilites', label: 'Mes disponibilités', icon: Clock, permission: 'class.read' },
         ],
       },
     ],
@@ -104,7 +109,7 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
       {
         title: 'Pédagogie',
         items: [
-          { href: '/dashboard/pedagogie', label: 'Classes', icon: GraduationCap, permission: 'class.read' },
+          { href: '/dashboard/pedagogie', label: 'Classes', icon: GraduationCap, permission: 'class.read', exact: true },
           { href: '/dashboard/pedagogie/cours', label: 'Cours', icon: BookOpen, permission: 'course_material.read' },
           { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban, permission: 'project_week.read' },
           { href: '/dashboard/pedagogie/notes', label: 'Notes & moyennes', icon: ClipboardList, permission: 'grade.read_class' },
@@ -132,11 +137,11 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
       {
         title: 'Administration',
         items: [
-          { href: '/dashboard/admin', label: 'Administration', icon: UserRound, permission: 'career_event.manage' },
           { href: '/dashboard/carriere/job-board', label: 'Job Board', icon: Briefcase, permission: 'job.manage' },
           { href: '/dashboard/carriere/evenements', label: 'Événements', icon: BookOpen, permission: 'career_event.manage' },
-          { href: '/dashboard/support/admin', label: 'Support', icon: LifeBuoy, permission: 'support.manage' },
           { href: '/dashboard/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.read' },
+          { href: '/dashboard/documents', label: 'Documents', icon: FolderOpen, permission: 'doc.access' },
+          { href: '/dashboard/support/admin', label: 'Support', icon: LifeBuoy, permission: 'support.manage' },
           { href: '/dashboard/communication', label: 'Messagerie staff', icon: MessageSquare, permission: 'staff_channel.participate' },
         ],
       },
@@ -263,8 +268,8 @@ export function DashboardSidebar({ userProfile, permissions }: DashboardSidebarP
     });
   }
 
-  function isActive(href: string) {
-    if (href === '/dashboard') return pathname === href;
+  function isActive(href: string, exact?: boolean) {
+    if (href === '/dashboard' || exact) return pathname === href;
     return pathname === href || pathname.startsWith(href + '/');
   }
 
@@ -321,7 +326,7 @@ export function DashboardSidebar({ userProfile, permissions }: DashboardSidebarP
               {(isOpen || collapsed) && (
                 <div className="px-2 space-y-0.5">
                   {section.items.map((item) => {
-                    const active = isActive(item.href);
+                    const active = isActive(item.href, item.exact);
                     const Icon = item.icon;
                     const colorClass = SECTION_ICON_COLORS[colorIdx++ % SECTION_ICON_COLORS.length];
                     return (

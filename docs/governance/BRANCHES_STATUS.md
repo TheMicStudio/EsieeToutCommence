@@ -4,8 +4,8 @@
 > Il DOIT être mis à jour par chaque IA (ou développeur) après chaque session de travail.
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
-**Dernière mise à jour :** 2026-04-08
-**Mis à jour par :** Claude (Module 8 Espace Documentaire + redesign pages pédagogie — notes, cours, émargement, sidebar)
+**Dernière mise à jour :** 2026-04-09
+**Mis à jour par :** Antigravity (Fix TypeScript 'link.max_uses' dans ShareModal.tsx, et packages warnings dans package.json)
 
 ---
 

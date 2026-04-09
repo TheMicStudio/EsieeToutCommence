@@ -99,7 +99,7 @@ export function FileCard({ file, onShare }: FileCardProps) {
     <>
       <div
         className={[
-          'group relative flex items-start gap-3 rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm transition-all',
+          'group relative flex min-w-0 items-start gap-3 rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm transition-all',
           deleting ? 'opacity-50 pointer-events-none' : 'hover:shadow-md hover:border-slate-300',
         ].join(' ')}
       >
@@ -109,12 +109,12 @@ export function FileCard({ file, onShare }: FileCardProps) {
         </div>
 
         {/* Infos */}
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 overflow-hidden">
           <button
             type="button"
             onClick={handlePreview}
             disabled={loadingPreview}
-            className="block truncate text-left text-sm font-medium text-slate-800 hover:text-[#0471a6] transition-colors disabled:opacity-60"
+            className="w-full truncate text-left text-sm font-medium text-slate-800 hover:text-[#0471a6] transition-colors disabled:opacity-60"
             title={file.name}
           >
             {loadingPreview ? 'Chargement…' : file.name}
@@ -143,7 +143,7 @@ export function FileCard({ file, onShare }: FileCardProps) {
         </div>
 
         {/* Actions rapides (visibles au hover) */}
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="flex shrink-0 items-center gap-1 self-start">
           {canPreview && (
             <button
               type="button"

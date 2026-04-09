@@ -262,19 +262,62 @@ export async function gradeGroup(
   feedbackProf: string,
 ): Promise<{ error?: string }> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') {
+  if (!userProfile || (userProfile.role !== 'professeur' && userProfile.role !== 'coordinateur' && userProfile.role !== 'admin')) {
     return { error: 'Seuls les professeurs peuvent noter un groupe.' };
   }
 
-  // Admin client pour la même raison (récursion RLS sur project_groups UPDATE)
   const admin = createAdminClient();
+
+  // 1. Sauvegarder note + feedback sur le groupe
   const { error } = await admin
     .from('project_groups')
     .update({ note, feedback_prof: feedbackProf, note_par: userProfile.profile.id })
     .eq('id', groupId);
 
   if (error) return { error: error.message };
+
+  // 2. Récupérer les membres du groupe + infos de la semaine (class_id)
+  const { data: group } = await admin
+    .from('project_groups')
+    .select('week_id, group_name, group_members(student_id), project_weeks(class_id, title)')
+    .eq('id', groupId)
+    .maybeSingle();
+
+  if (group) {
+    const weekMeta = group.project_weeks as unknown as { class_id: string; title: string } | null;
+    const classId = weekMeta?.class_id;
+    const weekTitle = weekMeta?.title ?? '';
+    const members = (group.group_members as unknown as { student_id: string }[]) ?? [];
+    const examen = weekTitle ? `${weekTitle} — ${group.group_name}` : group.group_name;
+
+    if (classId && members.length > 0) {
+      // Supprimer les anciennes notes pour ce groupe (évite les doublons)
+      await admin
+        .from('grades')
+        .delete()
+        .eq('class_id', classId)
+        .eq('matiere', 'Projet')
+        .eq('examen', examen)
+        .in('student_id', members.map((m) => m.student_id));
+
+      // Insérer la nouvelle note pour chaque membre
+      const rows = members.map((m) => ({
+        student_id: m.student_id,
+        teacher_id: userProfile.profile.id,
+        class_id: classId,
+        matiere: 'Projet',
+        examen,
+        note,
+        coefficient: 1,
+      }));
+
+      await admin.from('grades').insert(rows);
+    }
+  }
+
+  revalidatePath('/dashboard/projets');
   revalidatePath('/dashboard/pedagogie/projets');
+  revalidatePath('/dashboard/pedagogie/notes');
   return {};
 }
 

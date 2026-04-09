@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { getUserPermissions } from '@/lib/permissions';
 import type { NewsPost, PostCategory } from './types';
 
 // ── Lecture ──────────────────────────────────────────────────
@@ -71,9 +72,9 @@ export async function togglePinPost(
   pinned: boolean,
 ): Promise<{ error?: string }> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || !['admin', 'professeur'].includes(userProfile.role)) {
-    return { error: 'Non autorisé.' };
-  }
+  if (!userProfile) return { error: 'Non autorisé.' };
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('news.moderate')) return { error: 'Non autorisé.' };
 
   const admin = createAdminClient();
   const { error } = await admin
@@ -94,8 +95,9 @@ export async function deleteNewsPost(postId: string): Promise<{ error?: string }
 
   const admin = createAdminClient();
 
-  // Vérifier que l'utilisateur est admin ou auteur du post
-  if (userProfile.role !== 'admin') {
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  // Vérifier que l'utilisateur est modérateur ou auteur du post
+  if (!perms.has('news.moderate')) {
     const { data: post } = await admin.from('news_posts').select('author_id').eq('id', postId).maybeSingle();
     if (!post || post.author_id !== userProfile.profile.id) {
       return { error: 'Non autorisé.' };

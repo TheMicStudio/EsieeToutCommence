@@ -39,12 +39,12 @@ export function FolderCard({ folder, onRename, onPermissions, onShare }: FolderC
     >
       <Link
         href={`/dashboard/documents/${folder.id}`}
-        className="flex items-center gap-3 p-4"
+        className="flex min-w-0 items-center gap-3 p-4 pr-10"
       >
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50">
           <Folder className="h-5 w-5 text-amber-400" />
         </div>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 overflow-hidden">
           <p className="truncate text-sm font-medium text-slate-800">{folder.name}</p>
           {folder.description && (
             <p className="mt-0.5 truncate text-xs text-slate-500">{folder.description}</p>

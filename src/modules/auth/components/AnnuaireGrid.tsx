@@ -97,7 +97,15 @@ export function AnnuaireGrid({ eleves, professeurs, coordinateurs = [], admins =
   // Local-only state
   const [filterSearch, setFilterSearch] = useState('');
   const [activeTab, setActiveTab]       = useState<Tab>('tous');
-  const [favorites, setFavorites]           = useState<Set<string>>(new Set());
+  const [favorites, setFavorites] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set();
+    try {
+      const stored = localStorage.getItem('annuaire_favorites');
+      return stored ? new Set<string>(JSON.parse(stored)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
   const [copiedPhoneId, setCopiedPhoneId]   = useState<string | null>(null);
   const [copiedFixedId, setCopiedFixedId]   = useState<string | null>(null);
   const [copiedEmailId, setCopiedEmailId]   = useState<string | null>(null);
@@ -228,6 +236,7 @@ export function AnnuaireGrid({ eleves, professeurs, coordinateurs = [], admins =
     setFavorites((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
+      try { localStorage.setItem('annuaire_favorites', JSON.stringify([...next])); } catch {}
       return next;
     });
   };

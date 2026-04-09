@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:www.fontshare.com)"
+      "WebFetch(domain:www.fontshare.com)",
+      "Bash(git push:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(grep -h \"ADD COLUMN\\\\|ALTER TABLE.*student_profiles\\\\|ALTER TABLE.*teacher_profiles\\\\|ALTER TABLE.*admin_profiles\" /home/mateis/EsieeToutCommence/supabase/migrations/*.sql)",
+      "Bash(grep -h \"CREATE TABLE\" /home/mateis/EsieeToutCommence/supabase/migrations/*.sql)"
     ]
   }
 }

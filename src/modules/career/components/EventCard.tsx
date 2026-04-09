@@ -1,18 +1,22 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Calendar, MapPin, CheckCircle2 } from 'lucide-react';
-import { registerToEvent, unregisterFromEvent } from '../actions';
+import { Calendar, MapPin, CheckCircle2, Trash2 } from 'lucide-react';
+import { registerToEvent, unregisterFromEvent, deleteCareerEvent } from '../actions';
 import type { CareerEvent } from '../types';
+import { useState } from 'react';
 
 interface EventCardProps {
   event: CareerEvent;
   isRegistered: boolean;
   canParticipate: boolean;
+  canDelete?: boolean;
 }
 
-export function EventCard({ event, isRegistered, canParticipate }: EventCardProps) {
+export function EventCard({ event, isRegistered, canParticipate, canDelete }: EventCardProps) {
   const router = useRouter();
+  const [deleted, setDeleted] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const dateDebut = new Date(event.date_debut);
   const isPast = dateDebut < new Date();
 
@@ -25,16 +29,42 @@ export function EventCard({ event, isRegistered, canParticipate }: EventCardProp
     router.refresh();
   }
 
+  async function handleDelete() {
+    if (!confirm(`Supprimer l'événement "${event.titre}" ? Cette action est irréversible.`)) return;
+    setDeleting(true);
+    const result = await deleteCareerEvent(event.id);
+    if (result.error) { alert(result.error); setDeleting(false); return; }
+    setDeleted(true);
+  }
+
+  if (deleted) return null;
+
   return (
-    <div className="flex flex-col rounded-3xl border border-slate-200/70 bg-white shadow-card p-5 transition-all hover:shadow-md hover:-translate-y-0.5">
+    <div className={[
+      'group relative flex flex-col rounded-3xl border border-slate-200/70 bg-white shadow-card p-5 transition-all hover:shadow-md hover:-translate-y-0.5',
+      deleting ? 'opacity-50 pointer-events-none' : '',
+    ].join(' ')}>
       <div className="flex items-start justify-between gap-2">
         <h3 className="text-sm font-semibold text-[#061826] leading-snug">{event.titre}</h3>
-        {isRegistered && !isPast && (
-          <span className="shrink-0 flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700">
-            <CheckCircle2 className="h-3 w-3" />
-            Inscrit
-          </span>
-        )}
+        <div className="flex shrink-0 items-center gap-1">
+          {isRegistered && !isPast && (
+            <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700">
+              <CheckCircle2 className="h-3 w-3" />
+              Inscrit
+            </span>
+          )}
+          {canDelete && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleting}
+              title="Supprimer l'événement"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-300 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 disabled:opacity-40"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="mt-3 flex flex-col gap-1.5">

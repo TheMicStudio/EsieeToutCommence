@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { ArrowLeft, Briefcase, Plus } from 'lucide-react';
+import { ArrowLeft, Briefcase } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { requirePermission, getRequestPermissions } from '@/lib/permissions';
 import { getJobOffers } from '@/modules/career/actions';
 import { JobBoard } from '@/modules/career/components/JobBoard';
-import { PublishJobForm } from '@/modules/career/components/PublishJobForm';
+import { PublishJobModal } from '@/modules/career/components/PublishJobModal';
 
 export const metadata = { title: 'Job Board — EsieeToutCommence' };
 
@@ -38,23 +38,16 @@ export default async function JobBoardPage() {
               <p className="mt-0.5 text-sm text-slate-500">Offres de stages et d&apos;alternance sélectionnées</p>
             </div>
           </div>
-          <span className="rounded-2xl bg-[#89aae6]/10 px-3.5 py-2 text-sm font-semibold text-[#3685b5]">
-            {offers.length} offre{offers.length > 1 ? 's' : ''}
-          </span>
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="rounded-2xl bg-[#89aae6]/10 px-3.5 py-2 text-sm font-semibold text-[#3685b5]">
+              {offers.length} offre{offers.length > 1 ? 's' : ''}
+            </span>
+            {canManage && <PublishJobModal />}
+          </div>
         </div>
       </div>
 
-      {canManage && (
-        <div className="rounded-3xl border border-slate-200/70 bg-white shadow-card px-6 py-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Plus className="h-4 w-4 text-[#0471a6]" />
-            <h2 className="text-sm font-semibold text-[#061826]">Publier une offre</h2>
-          </div>
-          <PublishJobForm />
-        </div>
-      )}
-
-      <JobBoard offers={offers} />
+      <JobBoard offers={offers} canDelete={canManage} />
     </div>
   );
 }

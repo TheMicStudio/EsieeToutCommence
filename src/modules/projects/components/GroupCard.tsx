@@ -125,6 +125,7 @@ export function GroupCard({ group, weekId, currentUserId, isProf }: GroupCardPro
           {isProf && (
             <GradeGroupForm
               groupId={group.id}
+              groupName={group.group_name}
               initialNote={group.note}
               initialFeedback={group.feedback_prof}
             />

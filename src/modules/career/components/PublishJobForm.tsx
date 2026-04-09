@@ -1,18 +1,20 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
 import { publishJobOffer } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export function PublishJobForm() {
+export function PublishJobForm({ onSuccess }: { onSuccess?: () => void }) {
   const [state, action, pending] = useActionState(publishJobOffer, null);
 
-  return (
-    <form action={action} className="space-y-4 rounded-xl border bg-card p-5">
-      <h3 className="font-semibold">Publier une offre</h3>
+  useEffect(() => {
+    if (state?.success && onSuccess) onSuccess();
+  }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  return (
+    <form action={action} className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="titre">Titre du poste</Label>

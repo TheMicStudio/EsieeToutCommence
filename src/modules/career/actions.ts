@@ -30,7 +30,9 @@ export async function publishJobOffer(
   formData: FormData
 ): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+  if (!userProfile) return { error: 'Accès refusé.' };
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('job.manage')) return { error: 'Accès refusé.' };
 
   const titre = formData.get('titre') as string;
   const entreprise = formData.get('entreprise') as string;
@@ -57,7 +59,9 @@ export async function publishJobOffer(
 
 export async function toggleJobOffer(offerId: string, actif: boolean): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+  if (!userProfile) return { error: 'Accès refusé.' };
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('job.manage')) return { error: 'Accès refusé.' };
 
   const supabase = await createClient();
   const { error } = await supabase

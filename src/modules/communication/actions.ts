@@ -3,10 +3,11 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { getUserPermissions } from '@/lib/permissions';
 import type { ActionState, StaffChannel, StaffContact, StaffMessage } from './types';
 
 function isStaffRole(role: string) {
-  return role === 'professeur' || role === 'admin';
+  return ['professeur', 'admin', 'coordinateur', 'staff'].includes(role);
 }
 
 export async function getStaffChannels(): Promise<StaffChannel[]> {
@@ -24,7 +25,9 @@ export async function createStaffChannel(
   formData: FormData
 ): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+  if (!userProfile) return { error: 'Accès refusé.' };
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('staff_channel.manage')) return { error: 'Accès refusé.' };
 
   const nom = formData.get('nom') as string;
   if (!nom?.trim()) return { error: 'Le nom du canal est requis.' };
@@ -43,7 +46,9 @@ export async function createStaffChannel(
 
 export async function deleteStaffChannel(channelId: string): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+  if (!userProfile) return { error: 'Accès refusé.' };
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('staff_channel.manage')) return { error: 'Accès refusé.' };
 
   const supabase = await createClient();
   const { error } = await supabase

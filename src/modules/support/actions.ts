@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
+import { getUserPermissions } from '@/lib/permissions';
 import type { ActionState, AdminContact, FaqArticle, Ticket, TicketCategorie, TicketMessage, TicketStatut } from './types';
 
 // ─── Tickets ──────────────────────────────────────────────────────────────────
@@ -63,7 +64,9 @@ export async function getMyTickets(): Promise<Ticket[]> {
 
 export async function getAllTickets(): Promise<Ticket[]> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return [];
+  if (!userProfile) return [];
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('support.manage')) return [];
 
   const supabase = await createClient();
   const { data } = await supabase
@@ -86,7 +89,9 @@ export async function updateTicketStatus(
   statut: TicketStatut
 ): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+  if (!userProfile) return { error: 'Accès refusé.' };
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('support.manage')) return { error: 'Accès refusé.' };
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -155,7 +160,9 @@ export async function createFaqArticle(
   formData: FormData
 ): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+  if (!userProfile) return { error: 'Accès refusé.' };
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('support.manage')) return { error: 'Accès refusé.' };
 
   const question = formData.get('question') as string;
   const reponse = formData.get('reponse') as string;
@@ -176,7 +183,9 @@ export async function createFaqArticle(
 
 export async function assignTicket(ticketId: string, adminId: string): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+  if (!userProfile) return { error: 'Accès refusé.' };
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('support.manage')) return { error: 'Accès refusé.' };
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -191,7 +200,9 @@ export async function assignTicket(ticketId: string, adminId: string): Promise<A
 
 export async function getAdminList(): Promise<AdminContact[]> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return [];
+  if (!userProfile) return [];
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('support.manage')) return [];
 
   const admin = createAdminClient();
   const { data } = await admin
@@ -202,7 +213,9 @@ export async function getAdminList(): Promise<AdminContact[]> {
 
 export async function convertTicketToFaq(ticketId: string): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') return { error: 'Accès refusé.' };
+  if (!userProfile) return { error: 'Accès refusé.' };
+  const perms = await getUserPermissions(userProfile.profile.id, userProfile.role);
+  if (!perms.has('support.manage')) return { error: 'Accès refusé.' };
 
   const supabase = await createClient();
   const { data: ticket } = await supabase

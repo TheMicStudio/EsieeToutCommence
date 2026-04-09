@@ -20,7 +20,7 @@ export async function resolveFolderPermission(
 
   while (currentId && ancestors.length < 20) {
     ancestors.push(currentId);
-    const { data: folder } = await admin
+    const { data: folder }: { data: { parent_id: string | null } | null } = await admin
       .from('doc_folders')
       .select('parent_id')
       .eq('id', currentId)

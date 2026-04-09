@@ -1,5 +1,9 @@
-import { Briefcase, ExternalLink, MapPin } from 'lucide-react';
+'use client';
+
+import { useState } from 'react';
+import { Briefcase, ExternalLink, MapPin, Trash2 } from 'lucide-react';
 import { CONTRAT_LABELS, type JobOffer } from '../types';
+import { deleteJobOffer } from '../actions';
 
 const CONTRAT_COLORS: Record<string, string> = {
   stage:      'bg-amber-100 text-amber-700',
@@ -10,11 +14,41 @@ const CONTRAT_COLORS: Record<string, string> = {
 
 interface JobOfferCardProps {
   offer: JobOffer;
+  canDelete?: boolean;
 }
 
-export function JobOfferCard({ offer }: JobOfferCardProps) {
+export function JobOfferCard({ offer, canDelete }: JobOfferCardProps) {
+  const [deleted, setDeleted] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  if (deleted) return null;
+
+  async function handleDelete() {
+    if (!confirm(`Supprimer l'offre "${offer.titre}" ? Cette action est irréversible.`)) return;
+    setDeleting(true);
+    const result = await deleteJobOffer(offer.id);
+    if (result.error) { alert(result.error); setDeleting(false); return; }
+    setDeleted(true);
+  }
+
   return (
-    <div className="group flex flex-col rounded-3xl border border-slate-200/70 bg-white shadow-card p-5 transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-[#89aae6]/40 min-w-0">
+    <div className={[
+      'group relative flex flex-col rounded-3xl border border-slate-200/70 bg-white shadow-card p-5 transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-[#89aae6]/40 min-w-0',
+      deleting ? 'opacity-50 pointer-events-none' : '',
+    ].join(' ')}>
+
+      {/* Bouton suppression */}
+      {canDelete && (
+        <button
+          type="button"
+          onClick={handleDelete}
+          disabled={deleting}
+          title="Supprimer l'offre"
+          className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-lg text-slate-300 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 disabled:opacity-40"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      )}
 
       {/* Header : icône + titre/entreprise + badge */}
       <div className="flex items-start gap-3 min-w-0">
@@ -22,7 +56,6 @@ export function JobOfferCard({ offer }: JobOfferCardProps) {
           <Briefcase className="h-5 w-5 text-[#3685b5]" />
         </div>
 
-        {/* Texte — prend tout l'espace restant, contraint par min-w-0 */}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-[#061826] leading-snug line-clamp-2 break-words">
             {offer.titre}
@@ -32,7 +65,6 @@ export function JobOfferCard({ offer }: JobOfferCardProps) {
           </p>
         </div>
 
-        {/* Badge contrat — ne rétrécit jamais */}
         <span className={[
           'shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold whitespace-nowrap',
           CONTRAT_COLORS[offer.type_contrat] ?? 'bg-slate-100 text-slate-600',

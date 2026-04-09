@@ -15,9 +15,10 @@ const FILTERS: { value: 'tous' | ContratType; label: string }[] = [
 
 interface JobBoardProps {
   offers: JobOffer[];
+  canDelete?: boolean;
 }
 
-export function JobBoard({ offers }: JobBoardProps) {
+export function JobBoard({ offers, canDelete }: JobBoardProps) {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'tous' | ContratType>('tous');
 
@@ -77,7 +78,7 @@ export function JobBoard({ offers }: JobBoardProps) {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((offer) => (
-            <JobOfferCard key={offer.id} offer={offer} />
+            <JobOfferCard key={offer.id} offer={offer} canDelete={canDelete} />
           ))}
         </div>
       )}

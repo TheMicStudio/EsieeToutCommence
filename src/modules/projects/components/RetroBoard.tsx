@@ -125,11 +125,6 @@ export function RetroBoard({ board, initialPostits, currentUserId, currentUserNa
         onAdd={handleAdd}
       />
 
-      {isProf && (
-        <div className="flex justify-end">
-          <ExportRetroButton postits={postits} />
-        </div>
-      )}
     </div>
   );
 }

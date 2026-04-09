@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Plus } from 'lucide-react';
+import { ArrowLeft, Calendar } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { requirePermission, getRequestPermissions } from '@/lib/permissions';
 import { getCareerEvents, getMyEventRegistrations } from '@/modules/career/actions';
 import { EventCard } from '@/modules/career/components/EventCard';
-import { CreateEventForm } from '@/modules/career/components/CreateEventForm';
+import { CreateEventModal } from '@/modules/career/components/CreateEventModal';
 
 export const metadata = { title: 'Événements — EsieeToutCommence' };
 
@@ -46,11 +46,6 @@ export default async function EvenementsPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            {canManage && (
-              <span className="rounded-2xl bg-[#0471a6]/10 px-3.5 py-2 text-sm font-semibold text-[#0471a6]">
-                Mode gestion
-              </span>
-            )}
             {upcoming.length > 0 && (
               <span className="rounded-2xl bg-amber-100 px-3.5 py-2 text-sm font-semibold text-amber-700">
                 {upcoming.length} à venir
@@ -61,19 +56,10 @@ export default async function EvenementsPage() {
                 {past.length} passé{past.length > 1 ? 's' : ''}
               </span>
             )}
+            {canManage && <CreateEventModal />}
           </div>
         </div>
       </div>
-
-      {canManage && (
-        <div className="rounded-3xl border border-slate-200/70 bg-white shadow-card px-6 py-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Plus className="h-4 w-4 text-[#0471a6]" />
-            <h2 className="text-sm font-semibold text-[#061826]">Créer un événement</h2>
-          </div>
-          <CreateEventForm />
-        </div>
-      )}
 
       {upcoming.length > 0 && (
         <div className="space-y-4">
@@ -85,6 +71,7 @@ export default async function EvenementsPage() {
                 event={event}
                 isRegistered={registrations.includes(event.id)}
                 canParticipate={canParticipate}
+                canDelete={canManage}
               />
             ))}
           </div>
@@ -101,6 +88,7 @@ export default async function EvenementsPage() {
                 event={event}
                 isRegistered={registrations.includes(event.id)}
                 canParticipate={canParticipate}
+                canDelete={canManage}
               />
             ))}
           </div>
