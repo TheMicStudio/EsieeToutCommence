@@ -36,5 +36,5 @@ jobs:
       uses: anchore/sbom-action@v0
       with:
         image: ${{ env.IMAGE_NAME }}
-        artifact-name: sbom-spdx
+        artifact-name: sbom-spdx.json
         dependency-snapshot: true
