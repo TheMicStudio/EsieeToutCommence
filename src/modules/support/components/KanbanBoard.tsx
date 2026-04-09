@@ -82,6 +82,9 @@ export function KanbanBoard({ tickets: initialTickets, admins = [] }: Readonly<K
             <tbody className="divide-y divide-slate-100">
               {tickets.map((ticket) => {
                 const assignedAdmin = admins.find((a) => a.id === ticket.assigne_a);
+                const assignedAdminLabel = assignedAdmin
+                  ? `${assignedAdmin.prenom} ${assignedAdmin.nom}`
+                  : '—';
                 return (
                   <tr key={ticket.id} className="hover:bg-slate-50/60 transition-colors">
                     <td className="px-4 py-3">
@@ -111,7 +114,7 @@ export function KanbanBoard({ tickets: initialTickets, admins = [] }: Readonly<K
                           ))}
                         </select>
                       ) : (
-                        assignedAdmin ? `${assignedAdmin.prenom} ${assignedAdmin.nom}` : '—'
+                        assignedAdminLabel
                       )}
                     </td>
                     <td className="hidden px-4 py-3 text-xs text-slate-400 lg:table-cell">

@@ -149,10 +149,16 @@ export function GradeTableView({ grades, students, canDelete = false }: Readonly
                         </td>
                         {examens.map((e) => {
                           const grade = index.get(s.id)?.get(e.examen);
+                          if (!grade) {
+                            return (
+                              <td key={e.examen} className="px-4 py-3 text-center">
+                                <span className="text-slate-200 text-sm">—</span>
+                              </td>
+                            );
+                          }
                           return (
                             <td key={e.examen} className="px-4 py-3 text-center">
-                              {grade ? (
-                                editing === grade.id ? (
+                              {editing === grade.id ? (
                                   <div className="inline-flex items-center gap-1">
                                     <input
                                       ref={editRef}
@@ -212,9 +218,6 @@ export function GradeTableView({ grades, students, canDelete = false }: Readonly
                                       </div>
                                     )}
                                   </div>
-                                )
-                              ) : (
-                                <span className="text-slate-200 text-sm">—</span>
                               )}
                             </td>
                           );

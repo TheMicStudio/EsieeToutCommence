@@ -37,6 +37,11 @@ function ConfigForm({
 
   if (state?.success) return null;
 
+  let submitLabel: string;
+  if (pending) { submitLabel = 'Enregistrement…'; }
+  else if (alternant.chat_id) { submitLabel = 'Reconfigurer'; }
+  else { submitLabel = 'Configurer'; }
+
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="student_id" value={alternant.id} />
@@ -89,7 +94,7 @@ function ConfigForm({
           className="inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 disabled:opacity-50 transition-all"
         >
           <MessageSquare className="h-4 w-4" />
-          {pending ? 'Enregistrement…' : alternant.chat_id ? 'Reconfigurer' : 'Configurer'}
+          {submitLabel}
         </button>
         {onCancel && (
           <button

@@ -106,7 +106,7 @@ export default async function SharePage({ params }: Readonly<Props>) {
             <div>
               <h1 className="text-lg font-bold text-slate-800">{result.folderName ?? 'Dossier partagé'}</h1>
               <p className="text-sm text-slate-500">
-                {result.folderFiles.length} fichier{result.folderFiles.length !== 1 ? 's' : ''}
+                {result.folderFiles.length} fichier{result.folderFiles.length === 1 ? '' : 's'}
               </p>
             </div>
           </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { updateGroupLinks } from '../actions';
@@ -72,6 +72,38 @@ export function SubmitLinksForm({ groupId, initialRepo, initialSlides, initialSl
     setTimeout(() => setSuccess(false), 3000);
   }
 
+  let slidesInput: React.ReactNode;
+  if (slidesMode === 'link') {
+    slidesInput = (
+      <input
+        value={slidesUrl}
+        onChange={(e) => setSlidesUrl(e.target.value)}
+        placeholder="https://docs.google.com/…"
+        className={inputCls}
+      />
+    );
+  } else if (slidesFileName) {
+    slidesInput = (
+      <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+        <Paperclip className="h-4 w-4 shrink-0 text-[#0471a6]" />
+        <span className="flex-1 truncate text-sm text-slate-700">{slidesFileName}</span>
+        <button
+          type="button"
+          onClick={removeFile}
+          className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 transition-colors"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    );
+  } else {
+    slidesInput = null; // will be rendered below as upload button
+  }
+  let submitBtnLabel: React.ReactNode;
+  if (success) { submitBtnLabel = <><Check className="h-4 w-4" /> Enregistré !</>; }
+  else if (loading) { submitBtnLabel = 'Enregistrement…'; }
+  else { submitBtnLabel = 'Déposer les livrables'; }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* GitHub */}
@@ -118,26 +150,7 @@ export function SubmitLinksForm({ groupId, initialRepo, initialSlides, initialSl
           </div>
         </div>
 
-        {slidesMode === 'link' ? (
-          <input
-            value={slidesUrl}
-            onChange={(e) => setSlidesUrl(e.target.value)}
-            placeholder="https://docs.google.com/…"
-            className={inputCls}
-          />
-        ) : slidesFileName ? (
-          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <Paperclip className="h-4 w-4 shrink-0 text-[#0471a6]" />
-            <span className="flex-1 truncate text-sm text-slate-700">{slidesFileName}</span>
-            <button
-              type="button"
-              onClick={removeFile}
-              className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 transition-colors"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        ) : (
+        {slidesInput ?? (
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
@@ -165,10 +178,7 @@ export function SubmitLinksForm({ groupId, initialRepo, initialSlides, initialSl
         disabled={loading || uploading}
         className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 disabled:opacity-50 transition-all"
       >
-        {success
-          ? <><Check className="h-4 w-4" /> Enregistré !</>
-          : loading ? 'Enregistrement…'
-          : 'Déposer les livrables'}
+        {submitBtnLabel}
       </button>
     </form>
   );

@@ -32,6 +32,12 @@ export default async function SoutenancesPage({ params }: Readonly<SoutenancesPa
     ? groups.find((g) => g.members?.some((m) => m.student_id === currentUserId))
     : undefined;
 
+  const slotPlural = slots.length > 1 ? 'x' : '';
+  const groupPlural = groups.length > 1 ? 's' : '';
+  const slotsSummary = slots.length > 0
+    ? `${slots.length} créneau${slotPlural} · ${groups.length} groupe${groupPlural}`
+    : 'Aucun créneau défini';
+
   return (
     <div className="space-y-6">
       <div>
@@ -44,9 +50,7 @@ export default async function SoutenancesPage({ params }: Readonly<SoutenancesPa
         </Link>
         <h1 className="text-2xl font-bold text-[#061826]">Passages oraux</h1>
         <p className="text-sm text-slate-500">
-          {slots.length > 0
-            ? `${slots.length} créneau${slots.length > 1 ? 'x' : ''} · ${groups.length} groupe${groups.length > 1 ? 's' : ''}`
-            : 'Aucun créneau défini'}
+          {slotsSummary}
         </p>
       </div>
 

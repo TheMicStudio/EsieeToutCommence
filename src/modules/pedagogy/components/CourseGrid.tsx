@@ -422,18 +422,20 @@ export function CourseGrid({
         <div className="flex h-40 items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white">
           <p className="text-[13px] text-slate-400">Aucun cours trouvé.</p>
         </div>
-      ) : mode === 'grid' ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 transition-all duration-300">
-          {displayMaterials.map((m) => (
-            <GridCard key={m.id} material={m} onPreview={setPreviewMaterial} />
-          ))}
-        </div>
       ) : (
-        <div className="space-y-3 transition-all duration-300">
-          {displayMaterials.map((m) => (
-            <ListRow key={m.id} material={m} onPreview={setPreviewMaterial} />
-          ))}
-        </div>
+        mode === 'grid' ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 transition-all duration-300">
+            {displayMaterials.map((m) => (
+              <GridCard key={m.id} material={m} onPreview={setPreviewMaterial} />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3 transition-all duration-300">
+            {displayMaterials.map((m) => (
+              <ListRow key={m.id} material={m} onPreview={setPreviewMaterial} />
+            ))}
+          </div>
+        )
       )}
     </div>
   );

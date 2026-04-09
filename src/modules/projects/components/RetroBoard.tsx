@@ -78,6 +78,11 @@ export function RetroBoard({ board, initialPostits, currentUserId, currentUserNa
     });
   }
 
+  let toggleLabel: string;
+  if (toggling) { toggleLabel = '…'; }
+  else if (isOpen) { toggleLabel = 'Fermer le board'; }
+  else { toggleLabel = 'Ouvrir le board'; }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/60 bg-white px-4 py-3 shadow-sm">
@@ -100,7 +105,7 @@ export function RetroBoard({ board, initialPostits, currentUserId, currentUserNa
             ].join(' ')}
           >
             {isOpen ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
-            {toggling ? '…' : isOpen ? 'Fermer le board' : 'Ouvrir le board'}
+            {toggleLabel}
           </button>
         )}
       </div>

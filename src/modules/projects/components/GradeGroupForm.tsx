@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { gradeGroup } from '../actions';
 import { Star, Check, X, ClipboardEdit } from 'lucide-react';
@@ -38,6 +38,11 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
       }, 1500);
     }
   }
+
+  let submitLabel: React.ReactNode;
+  if (success) { submitLabel = <><Check className="h-4 w-4" /> Note enregistrée !</>; }
+  else if (loading) { submitLabel = 'Enregistrement…'; }
+  else { submitLabel = 'Enregistrer la note'; }
 
   return (
     <>
@@ -132,11 +137,7 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
                 disabled={loading || success}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 disabled:opacity-60 transition-all"
               >
-                {success
-                  ? <><Check className="h-4 w-4" /> Note enregistrée !</>
-                  : loading
-                    ? 'Enregistrement…'
-                    : 'Enregistrer la note'}
+                {submitLabel}
               </button>
             </form>
           </div>

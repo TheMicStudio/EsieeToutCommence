@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import {
@@ -598,24 +598,29 @@ export function RightSidebar({ userProfile }: Readonly<RightSidebarProps>) {
 
   const noWrapper = isAnnuaire || isNotes || isProjets || isEmargement || isEmargementSession;
 
+  let sidebarContent: React.ReactNode;
+  if (isAnnuaire) {
+    sidebarContent = (
+      <Suspense fallback={<div className="flex-1 animate-pulse rounded-2xl bg-slate-100" />}>
+        <AnnuaireSidebarContent />
+      </Suspense>
+    );
+  } else if (isNotes && userProfile.role === 'eleve') {
+    sidebarContent = <GradesWidget studentId={userProfile.profile.id} />;
+  } else if (isProjets || isEmargementSession) {
+    sidebarContent = <ProjetsSidebarContent />;
+  } else if (isEmargement) {
+    sidebarContent = <EmargementSidebarContent />;
+  } else {
+    sidebarContent = <DefaultSidebar userProfile={userProfile} />;
+  }
+
   return (
     <aside className={[
       'hidden xl:flex xl:flex-col w-[220px] shrink-0',
       noWrapper ? '' : 'rounded-3xl bg-white shadow-card border border-slate-200/70 overflow-hidden p-4',
     ].join(' ')}>
-      {isAnnuaire ? (
-        <Suspense fallback={<div className="flex-1 animate-pulse rounded-2xl bg-slate-100" />}>
-          <AnnuaireSidebarContent />
-        </Suspense>
-      ) : isNotes && userProfile.role === 'eleve' ? (
-        <GradesWidget studentId={userProfile.profile.id} />
-      ) : isProjets || isEmargementSession ? (
-        <ProjetsSidebarContent />
-      ) : isEmargement ? (
-        <EmargementSidebarContent />
-      ) : (
-        <DefaultSidebar userProfile={userProfile} />
-      )}
+      {sidebarContent}
     </aside>
   );
 }

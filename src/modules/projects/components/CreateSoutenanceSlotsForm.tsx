@@ -55,6 +55,10 @@ export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Read
   const [success, setSuccess] = useState('');
 
   const preview = generateSlots(date, startTime, duration, count);
+  let generateLabel: string;
+  if (loading) { generateLabel = 'Génération…'; }
+  else if (hasSlots) { generateLabel = 'Regénérer les créneaux'; }
+  else { generateLabel = 'Générer les créneaux'; }
 
   async function handleGenerate() {
     if (!date || preview.length === 0) { setError('Remplissez la date et l\'heure'); return; }
@@ -96,7 +100,7 @@ export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Read
     <div className="rounded-2xl border border-slate-200/60 bg-white shadow-sm overflow-hidden">
       <div className="border-b border-slate-100 bg-slate-50/60 px-5 py-4">
         <p className="font-semibold text-[#061826]">Configurer les passages oraux</p>
-        <p className="mt-0.5 text-xs text-slate-400">{groupCount} groupe{groupCount !== 1 ? 's' : ''} dans cette semaine</p>
+        <p className="mt-0.5 text-xs text-slate-400">{groupCount} groupe{groupCount === 1 ? '' : 's'} dans cette semaine</p>
       </div>
 
       <div className="p-5 space-y-5">
@@ -181,7 +185,7 @@ export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Read
             className="inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 disabled:opacity-50 transition-all"
           >
             <Plus className="h-4 w-4" />
-            {loading ? 'Génération…' : hasSlots ? 'Regénérer les créneaux' : 'Générer les créneaux'}
+            {generateLabel}
           </button>
 
           {hasSlots && (

@@ -102,9 +102,9 @@ export function FolderTree({ folders, currentFolderId }: Readonly<FolderTreeProp
         href="/dashboard/documents"
         className={[
           'flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm transition-colors',
-          !currentFolderId
-            ? 'bg-[#0471a6]/10 text-[#0471a6] font-medium'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800',
+          currentFolderId
+            ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            : 'bg-[#0471a6]/10 text-[#0471a6] font-medium',
         ].join(' ')}
       >
         <FolderOpen className="h-4 w-4 shrink-0 text-[#0471a6]" />

@@ -131,7 +131,7 @@ function CreateUserForm({
         {role === 'professeur' && (
           <div>
             <p className={labelCls}>
-              Matières enseignées ({selectedMatieres.length} sélectionnée{selectedMatieres.length !== 1 ? 's' : ''})
+              Matières enseignées ({selectedMatieres.length} sélectionnée{selectedMatieres.length === 1 ? '' : 's'})
             </p>
             {subjects.length === 0 ? (
               <p className="text-xs text-amber-600 rounded-xl bg-amber-50 px-3 py-2">
@@ -349,7 +349,7 @@ function EditUserForm({
           <div className="space-y-4">
             <div>
               <p className={labelCls}>
-                Matières enseignées ({selectedMatieres.length} sélectionnée{selectedMatieres.length !== 1 ? 's' : ''})
+                Matières enseignées ({selectedMatieres.length} sélectionnée{selectedMatieres.length === 1 ? '' : 's'})
               </p>
               {subjects.length === 0 ? (
                 <p className="text-xs text-amber-600 rounded-xl bg-amber-50 px-3 py-2">

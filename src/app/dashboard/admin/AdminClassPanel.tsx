@@ -184,9 +184,9 @@ function StudentsSection({
                 </label>
               ))}
             </div>
-          ) : search ? (
-            <p className="text-xs text-slate-400 px-1">Aucun élève trouvé pour &quot;{search}&quot;</p>
-          ) : null}
+          ) : (
+            search ? <p className="text-xs text-slate-400 px-1">Aucun élève trouvé pour &quot;{search}&quot;</p> : null
+          )}
 
           <button
             type="submit"
@@ -317,9 +317,9 @@ export function AdminClassPanel({ classes, students }: Readonly<Props>) {
                     <p className="text-xs text-slate-400">
                       Promo {cls.annee}
                       <span className="mx-1.5">·</span>
-                      <span className="text-blue-500">{cls.member_count} élève{cls.member_count !== 1 ? 's' : ''}</span>
+                      <span className="text-blue-500">{cls.member_count} élève{cls.member_count === 1 ? '' : 's'}</span>
                       <span className="mx-1.5">·</span>
-                      <span className="text-purple-500">{cls.teacher_count} enseignant{cls.teacher_count !== 1 ? 's' : ''}</span>
+                      <span className="text-purple-500">{cls.teacher_count} enseignant{cls.teacher_count === 1 ? '' : 's'}</span>
                     </p>
                   </div>
                   {expanded === cls.id

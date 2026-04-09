@@ -364,11 +364,14 @@ function AnnualView({ sessions, currentMonday, onWeekClick }: Readonly<{
                   else if (info?.draft) { bgColor = '#10b981'; textColor = '#fff'; }
                   else if (info?.conflict) { bgColor = '#f87171'; textColor = '#fff'; }
 
+                  const conflictSuffix = info?.conflict ? `, ${info.conflict} conflit(s)` : '';
+                  const weekTitle = `Sem. du ${monday.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', timeZone: 'UTC' })}${info ? ` — ${info.draft} cours${conflictSuffix}` : ' — Vide'}`;
+
                   return (
                     <button
                       key={weekStr}
                       onClick={() => onWeekClick(monday)}
-                      title={`Sem. du ${monday.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', timeZone: 'UTC' })}${info ? ` — ${info.draft} cours${info.conflict ? `, ${info.conflict} conflit(s)` : ''}` : ' — Vide'}`}
+                      title={weekTitle}
                       className={[
                         'relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold transition-all hover:opacity-80',
                         isCurrent ? 'ring-2 ring-offset-1 ring-[#0471a6]' : '',
@@ -468,18 +471,24 @@ function MonthView({ sessions, initialMonday, onDayClick, showConflicts }: Reado
             const isWE     = day.getUTCDay() === 6 || day.getUTCDay() === 0;
             const hasData  = info && (info.draft.length + info.conflict.length) > 0;
 
+            let dayCellCls: string;
+            if (isWE) { dayCellCls = 'bg-slate-50/60 cursor-default'; }
+            else if (hasData) { dayCellCls = 'hover:bg-[#0471a6]/3 cursor-pointer'; }
+            else { dayCellCls = 'cursor-default'; }
+            let dayNumCls: string;
+            if (isToday) { dayNumCls = 'bg-[#0471a6] text-white'; }
+            else if (isWE) { dayNumCls = 'text-slate-300'; }
+            else { dayNumCls = 'text-slate-500'; }
+
             return (
               <button
                 key={dayStr}
                 onClick={() => hasData && !isWE && onDayClick(getMonday(day))}
-                className={[
-                  'min-h-[90px] p-1.5 text-left transition-all',
-                  isWE ? 'bg-slate-50/60 cursor-default' : hasData ? 'hover:bg-[#0471a6]/3 cursor-pointer' : 'cursor-default',
-                ].join(' ')}
+                className={['min-h-[90px] p-1.5 text-left transition-all', dayCellCls].join(' ')}
               >
                 <span className={[
                   'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold',
-                  isToday ? 'bg-[#0471a6] text-white' : isWE ? 'text-slate-300' : 'text-slate-500',
+                  dayNumCls,
                 ].join(' ')}>
                   {day.getUTCDate()}
                 </span>

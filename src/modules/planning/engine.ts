@@ -581,8 +581,10 @@ export async function generatePlanning(
     // Classe sans semaines d'école → erreur explicite sur toutes les matières
     if (schoolWeeks.length === 0) {
       const weeksBeforeClosures = allMondays.filter((m) => isSchoolWeek(m, cls, manualWeeks)).length;
-      const modeLabel = cls.calendar_mode === 'FULL_TIME' ? 'Temps plein' :
-                        cls.calendar_mode === 'MANUAL'    ? 'Manuel' : 'Alternance';
+      let modeLabel: string;
+      if (cls.calendar_mode === 'FULL_TIME') { modeLabel = 'Temps plein'; }
+      else if (cls.calendar_mode === 'MANUAL') { modeLabel = 'Manuel'; }
+      else { modeLabel = 'Alternance'; }
       const diagReason = `Classe en mode "${modeLabel}" mais 0 semaine d'école trouvée. ` +
         (cls.calendar_mode === 'MANUAL' && manualWeeks.size > 0
           ? `Le calendrier manuel a ${manualWeeks.size} entrée(s) dont aucune n'est 'SCHOOL'. `

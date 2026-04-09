@@ -98,10 +98,10 @@ async function ChatWrapper({
 
   const participantNames: Record<string, { nom: string; role: 'student' | 'referent' | 'maitre' }> = {};
   for (const p of allProfiles) {
-    const role =
-      p.id === chat.student_id ? 'student'
-      : p.id === chat.referent_id ? 'referent'
-      : 'maitre';
+    let role: 'student' | 'referent' | 'maitre';
+    if (p.id === chat.student_id) { role = 'student'; }
+    else if (p.id === chat.referent_id) { role = 'referent'; }
+    else { role = 'maitre'; }
     participantNames[p.id] = { nom: `${p.prenom} ${p.nom}`, role };
   }
 

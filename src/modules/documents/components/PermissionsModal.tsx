@@ -91,18 +91,20 @@ export function PermissionsModal({ folder, onClose }: Readonly<PermissionsModalP
             {!loading && permissions.length === 0 && (
               <p className="text-sm text-slate-400">Aucune règle — accès par défaut.</p>
             )}
-            {permissions.map((perm) => (
+            {permissions.map((perm) => {
+              const targetUser = users.find((u) => u.id === perm.user_target);
+              let permLabel: string;
+              if (perm.role_target) { permLabel = ROLE_LABELS[perm.role_target as keyof typeof ROLE_LABELS] ?? perm.role_target; }
+              else if (targetUser) { permLabel = `${targetUser.prenom} ${targetUser.nom}`; }
+              else { permLabel = perm.user_target?.slice(0, 8) ?? '—'; }
+              return (
               <div
                 key={perm.id}
                 className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
               >
                 <div className="min-w-0">
                   <span className="text-sm font-medium text-slate-700">
-                    {perm.role_target
-                      ? ROLE_LABELS[perm.role_target as keyof typeof ROLE_LABELS] ?? perm.role_target
-                      : users.find((u) => u.id === perm.user_target)
-                          ? `${users.find((u) => u.id === perm.user_target)!.prenom} ${users.find((u) => u.id === perm.user_target)!.nom}`
-                          : perm.user_target?.slice(0, 8) ?? '—'}
+                    {permLabel}
                   </span>
                   <span className="ml-2 rounded-md bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-500 border border-slate-200">
                     {LEVEL_LABELS[perm.level]}
@@ -116,7 +118,8 @@ export function PermissionsModal({ folder, onClose }: Readonly<PermissionsModalP
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Formulaire d'ajout */}

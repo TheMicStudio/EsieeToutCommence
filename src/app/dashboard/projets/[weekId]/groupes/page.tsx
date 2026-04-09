@@ -64,7 +64,7 @@ export default async function GroupesPage({ params }: Readonly<GroupesPageProps>
             {week?.title ?? 'Groupes'}
           </h1>
           <p className="text-sm text-slate-400">
-            {groups.length} groupe{groups.length !== 1 ? 's' : ''} · {groups.reduce((n, g) => n + (g.members?.length ?? 0), 0)} participant{groups.reduce((n, g) => n + (g.members?.length ?? 0), 0) !== 1 ? 's' : ''}
+            {groups.length} groupe{groups.length === 1 ? '' : 's'} · {groups.reduce((n, g) => n + (g.members?.length ?? 0), 0)} participant{groups.reduce((n, g) => n + (g.members?.length ?? 0), 0) === 1 ? '' : 's'}
           </p>
         </div>
       </div>

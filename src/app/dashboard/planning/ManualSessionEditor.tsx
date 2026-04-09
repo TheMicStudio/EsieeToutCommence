@@ -607,7 +607,7 @@ export function ManualSessionEditor({
       {/* Compteur de la semaine */}
       {totalWeek > 0 && (
         <p className="text-xs text-slate-400">
-          {totalWeek} session{totalWeek !== 1 ? 's' : ''} cette semaine
+          {totalWeek} session{totalWeek === 1 ? '' : 's'} cette semaine
           {filterClassId ? ` · ${presentClasses.find((c) => c.id === filterClassId)?.nom}` : ''}
         </p>
       )}
@@ -648,9 +648,9 @@ export function ManualSessionEditor({
                     />
                   ))}
                 </div>
-              ) : !isWeekend ? (
-                <p className="pl-2 text-xs text-slate-300 italic">Aucune session</p>
-              ) : null}
+              ) : (
+                !isWeekend ? <p className="pl-2 text-xs text-slate-300 italic">Aucune session</p> : null
+              )}
             </div>
           );
         })}

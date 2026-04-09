@@ -25,12 +25,18 @@ export function StaffDirectoryList({ contacts }: Readonly<StaffDirectoryListProp
       <div className="flex flex-col gap-3 sm:flex-row">
         <Input placeholder="Rechercher…" value={search} onChange={(e) => setSearch(e.target.value)} className="sm:max-w-xs" />
         <div className="flex gap-2">
-          {(['tous', 'professeur', 'admin'] as const).map((f) => (
-            <button key={f} type="button" onClick={() => setFilter(f)}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${filter === f ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
-              {f === 'tous' ? 'Tous' : f === 'professeur' ? 'Professeurs' : 'Administration'}
-            </button>
-          ))}
+          {(['tous', 'professeur', 'admin'] as const).map((f) => {
+            let filterLabel: string;
+            if (f === 'tous') { filterLabel = 'Tous'; }
+            else if (f === 'professeur') { filterLabel = 'Professeurs'; }
+            else { filterLabel = 'Administration'; }
+            return (
+              <button key={f} type="button" onClick={() => setFilter(f)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${filter === f ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
+                {filterLabel}
+              </button>
+            );
+          })}
         </div>
       </div>
 
