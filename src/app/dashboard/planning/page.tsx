@@ -1,16 +1,22 @@
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { redirect } from 'next/navigation';
-import { getRooms, getClosures } from '@/modules/admin/planning-actions';
 import {
-  Upload,
-  DoorOpen,
-  CalendarOff,
-  Calendar,
+  getRooms, getClosures,
+  getClassesWithCalendar, getCalendarWeeks,
+  getTeachersForPlanning, getTeacherAvailabilities,
+  getSubjectRequirements,
+} from '@/modules/admin/planning-actions';
+import {
+  Upload, DoorOpen, CalendarOff, Calendar,
+  Clock, BookOpen,
 } from 'lucide-react';
 import Link from 'next/link';
-import { CsvImportPanel } from './CsvImportPanel';
-import { RoomsPanel } from './RoomsPanel';
-import { ClosuresPanel } from './ClosuresPanel';
+import { CsvImportPanel }            from './CsvImportPanel';
+import { RoomsPanel }                from './RoomsPanel';
+import { ClosuresPanel }             from './ClosuresPanel';
+import { CalendarPanel }             from './CalendarPanel';
+import { AvailabilityPanel }         from './AvailabilityPanel';
+import { SubjectRequirementsPanel }  from './SubjectRequirementsPanel';
 
 export const metadata = { title: 'Planning — EsieeToutCommence' };
 
@@ -19,6 +25,8 @@ const TABS = [
   { id: 'salles',    label: 'Salles',        icon: DoorOpen },
   { id: 'fermetures',label: 'Fermetures',    icon: CalendarOff },
   { id: 'calendrier',label: 'Calendrier',    icon: Calendar },
+  { id: 'dispos',    label: 'Disponibilités',icon: Clock },
+  { id: 'matieres',  label: 'Matières',      icon: BookOpen },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];
@@ -36,10 +44,79 @@ export default async function PlanningPage({
     ? (rawTab as TabId)
     : 'import';
 
-  const [rooms, closures] = await Promise.all([
-    tab === 'salles'     ? getRooms()    : Promise.resolve([]),
-    tab === 'fermetures' ? getClosures() : Promise.resolve([]),
+  // Chargement conditionnel selon l'onglet actif
+  const [rooms, closures, classes, teachers] = await Promise.all([
+    tab === 'salles'     ? getRooms()                : Promise.resolve([]),
+    tab === 'fermetures' ? getClosures()             : Promise.resolve([]),
+    (tab === 'calendrier' || tab === 'matieres') ? getClassesWithCalendar() : Promise.resolve([]),
+    (tab === 'dispos'    || tab === 'matieres')  ? getTeachersForPlanning() : Promise.resolve([]),
   ]);
+
+  // Disponibilités : une query par prof
+  const slotsByTeacher: Record<string, Awaited<ReturnType<typeof getTeacherAvailabilities>>> = {};
+  if (tab === 'dispos') {
+    await Promise.all(
+      teachers.map(async (t) => {
+        slotsByTeacher[t.id] = await getTeacherAvailabilities(t.id);
+      })
+    );
+  }
+
+  // Calendrier : une query par classe
+  const weeksByClass: Record<string, Awaited<ReturnType<typeof getCalendarWeeks>>> = {};
+  if (tab === 'calendrier') {
+    await Promise.all(
+      classes.map(async (c) => {
+        weeksByClass[c.id] = await getCalendarWeeks(c.id);
+      })
+    );
+  }
+
+  // Besoins matières : une query par classe
+  const requirementsByClass: Record<string, Awaited<ReturnType<typeof getSubjectRequirements>>> = {};
+  if (tab === 'matieres') {
+    await Promise.all(
+      classes.map(async (c) => {
+        requirementsByClass[c.id] = await getSubjectRequirements(c.id);
+      })
+    );
+  }
+
+  const TAB_META: Record<TabId, { title: string; desc: string; iconBg: string; icon: React.ElementType; iconColor: string }> = {
+    import: {
+      title: 'Import CSV — Étudiants',
+      desc: 'Importez le fichier exporté depuis votre logiciel de gestion. Les comptes sont créés automatiquement avec un mot de passe temporaire.',
+      iconBg: 'bg-[#89aae6]/20', icon: Upload, iconColor: 'text-[#3685b5]',
+    },
+    salles: {
+      title: 'Salles de cours',
+      desc: 'Configurez les salles disponibles. Le moteur de planning vérifie les conflits de salle automatiquement.',
+      iconBg: 'bg-purple-100', icon: DoorOpen, iconColor: 'text-purple-600',
+    },
+    fermetures: {
+      title: 'Fermetures scolaires',
+      desc: 'Vacances, jours fériés, fermetures exceptionnelles. Le moteur n\'y planifiera aucune session.',
+      iconBg: 'bg-amber-100', icon: CalendarOff, iconColor: 'text-amber-600',
+    },
+    calendrier: {
+      title: 'Calendrier école / entreprise',
+      desc: 'Configurez le rythme de présence de chaque classe : Temps plein, Pattern fixe (alternance) ou Manuel semaine par semaine.',
+      iconBg: 'bg-emerald-100', icon: Calendar, iconColor: 'text-emerald-600',
+    },
+    dispos: {
+      title: 'Disponibilités des professeurs',
+      desc: 'Définissez les créneaux horaires disponibles de chaque professeur. Le moteur n\'affectera aucune session hors de ces plages.',
+      iconBg: 'bg-blue-100', icon: Clock, iconColor: 'text-blue-600',
+    },
+    matieres: {
+      title: 'Besoins par matière',
+      desc: 'Définissez pour chaque classe le volume horaire total par matière, le professeur assigné et la durée type d\'une séance.',
+      iconBg: 'bg-rose-100', icon: BookOpen, iconColor: 'text-rose-600',
+    },
+  };
+
+  const meta = TAB_META[tab];
+  const MetaIcon = meta.icon;
 
   return (
     <div className="space-y-5">
@@ -47,7 +124,7 @@ export default async function PlanningPage({
       <div>
         <h1 className="text-2xl font-bold text-[#061826]">Gestion du Planning</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Importez les étudiants, configurez les salles, les fermetures et générez le planning annuel.
+          Importez les étudiants, configurez les salles, les fermetures, le calendrier et générez le planning annuel.
         </p>
       </div>
 
@@ -61,103 +138,56 @@ export default async function PlanningPage({
               key={t.id}
               href={`/dashboard/planning?tab=${t.id}`}
               className={[
-                'flex flex-1 min-w-fit items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all whitespace-nowrap',
+                'flex flex-1 min-w-fit items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all whitespace-nowrap',
                 isActive
                   ? 'bg-white text-[#0471a6] shadow-sm border border-slate-200/60'
                   : 'text-slate-500 hover:text-[#061826] hover:bg-white/60',
               ].join(' ')}
             >
               <Icon className="h-4 w-4" />
-              {t.label}
+              <span className="hidden sm:inline">{t.label}</span>
             </Link>
           );
         })}
       </div>
 
-      {/* Contenu par onglet */}
+      {/* Contenu */}
       <div className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-card">
-        {tab === 'import' && (
-          <div className="space-y-5">
-            <div className="flex items-start gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#89aae6]/20">
-                <Upload className="h-5 w-5 text-[#3685b5]" />
-              </div>
-              <div>
-                <h2 className="font-bold text-[#061826]">Import CSV — Étudiants</h2>
-                <p className="mt-0.5 text-sm text-slate-500">
-                  Importez le fichier exporté depuis votre logiciel de gestion.
-                  Les comptes sont créés automatiquement avec un mot de passe temporaire.
-                </p>
-              </div>
-            </div>
-            <div className="h-px bg-slate-100" />
-            <CsvImportPanel />
+        {/* Header de section */}
+        <div className="flex items-start gap-4 mb-5">
+          <div className={['flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl', meta.iconBg].join(' ')}>
+            <MetaIcon className={['h-5 w-5', meta.iconColor].join(' ')} />
           </div>
-        )}
+          <div>
+            <h2 className="font-bold text-[#061826]">{meta.title}</h2>
+            <p className="mt-0.5 text-sm text-slate-500">{meta.desc}</p>
+          </div>
+        </div>
+        <div className="h-px bg-slate-100 mb-5" />
 
-        {tab === 'salles' && (
-          <div className="space-y-5">
-            <div className="flex items-start gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-purple-100">
-                <DoorOpen className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <h2 className="font-bold text-[#061826]">Salles de cours</h2>
-                <p className="mt-0.5 text-sm text-slate-500">
-                  Configurez les salles disponibles. Elles seront assignées lors de la génération
-                  du planning. La vérification de conflit de salle est automatique.
-                </p>
-              </div>
-            </div>
-            <div className="h-px bg-slate-100" />
-            <RoomsPanel rooms={rooms} />
-          </div>
-        )}
+        {tab === 'import' && <CsvImportPanel />}
 
-        {tab === 'fermetures' && (
-          <div className="space-y-5">
-            <div className="flex items-start gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-100">
-                <CalendarOff className="h-5 w-5 text-amber-600" />
-              </div>
-              <div>
-                <h2 className="font-bold text-[#061826]">Fermetures scolaires</h2>
-                <p className="mt-0.5 text-sm text-slate-500">
-                  Définissez les vacances, jours fériés et fermetures exceptionnelles.
-                  Le moteur de planning ne planifiera aucune session sur ces périodes.
-                </p>
-              </div>
-            </div>
-            <div className="h-px bg-slate-100" />
-            <ClosuresPanel closures={closures} />
-          </div>
-        )}
+        {tab === 'salles' && <RoomsPanel rooms={rooms} />}
+
+        {tab === 'fermetures' && <ClosuresPanel closures={closures} />}
 
         {tab === 'calendrier' && (
-          <div className="space-y-5">
-            <div className="flex items-start gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-100">
-                <Calendar className="h-5 w-5 text-emerald-600" />
-              </div>
-              <div>
-                <h2 className="font-bold text-[#061826]">Calendrier école / entreprise</h2>
-                <p className="mt-0.5 text-sm text-slate-500">
-                  Configurez le rythme de présence de chaque classe. Disponible après import CSV.
-                </p>
-              </div>
-            </div>
-            <div className="h-px bg-slate-100" />
-            <div className="flex flex-col items-center gap-3 py-10 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
-                <Calendar className="h-7 w-7 text-slate-400" />
-              </div>
-              <p className="text-sm font-semibold text-slate-500">Bientôt disponible</p>
-              <p className="text-xs text-slate-400 max-w-xs">
-                Cette section sera active après l&apos;import des classes via CSV.
-                Vous pourrez configurer le mode (Temps plein, Pattern fixe ou Manuel).
-              </p>
-            </div>
-          </div>
+          <CalendarPanel classes={classes} weeksByClass={weeksByClass} />
+        )}
+
+        {tab === 'dispos' && (
+          <AvailabilityPanel
+            teachers={teachers}
+            slotsByTeacher={slotsByTeacher}
+          />
+        )}
+
+        {tab === 'matieres' && (
+          <SubjectRequirementsPanel
+            classes={classes}
+            teachers={teachers}
+            requirementsByClass={requirementsByClass}
+          />
         )}
       </div>
     </div>

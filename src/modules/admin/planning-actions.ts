@@ -328,3 +328,243 @@ export async function deleteClosure(id: string): Promise<{ error?: string }> {
   revalidatePath('/dashboard/planning');
   return {};
 }
+
+// ─── Calendrier classe ────────────────────────────────────────────────────────
+
+export interface ClassWithCalendar {
+  id: string;
+  nom: string;
+  annee: number;
+  calendar_mode: 'FULL_TIME' | 'FIXED_PATTERN' | 'MANUAL';
+  pattern_school_weeks: number | null;
+  pattern_company_weeks: number | null;
+  pattern_reference_date: string | null;
+}
+
+export interface CalendarWeek {
+  id: string;
+  class_id: string;
+  week_start: string;
+  location: 'SCHOOL' | 'COMPANY';
+}
+
+export async function getClassesWithCalendar(): Promise<ClassWithCalendar[]> {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('classes')
+    .select('id, nom, annee, calendar_mode, pattern_school_weeks, pattern_company_weeks, pattern_reference_date')
+    .order('annee', { ascending: false });
+  return (data ?? []) as ClassWithCalendar[];
+}
+
+export async function updateCalendarMode(
+  classId: string,
+  formData: FormData
+): Promise<{ error?: string }> {
+  await requireAdmin();
+  const admin = createAdminClient();
+
+  const mode = formData.get('calendar_mode') as string;
+  const patch: Record<string, unknown> = { calendar_mode: mode };
+
+  if (mode === 'FIXED_PATTERN') {
+    const schoolWeeks  = parseInt(formData.get('pattern_school_weeks') as string);
+    const companyWeeks = parseInt(formData.get('pattern_company_weeks') as string);
+    const refDate      = formData.get('pattern_reference_date') as string;
+    if (!schoolWeeks || !companyWeeks || !refDate)
+      return { error: 'Renseignez le nombre de semaines et la date de référence.' };
+    patch.pattern_school_weeks  = schoolWeeks;
+    patch.pattern_company_weeks = companyWeeks;
+    patch.pattern_reference_date = refDate;
+  }
+
+  const { error } = await admin.from('classes').update(patch).eq('id', classId);
+  if (error) return { error: error.message };
+
+  revalidatePath('/dashboard/planning');
+  return {};
+}
+
+export async function getCalendarWeeks(classId: string): Promise<CalendarWeek[]> {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('school_calendar')
+    .select('*')
+    .eq('class_id', classId)
+    .order('week_start');
+  return (data ?? []) as CalendarWeek[];
+}
+
+export async function upsertCalendarWeek(
+  classId: string,
+  weekStart: string,
+  location: 'SCHOOL' | 'COMPANY'
+): Promise<{ error?: string }> {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from('school_calendar')
+    .upsert({ class_id: classId, week_start: weekStart, location }, { onConflict: 'class_id,week_start' });
+  if (error) return { error: error.message };
+  revalidatePath('/dashboard/planning');
+  return {};
+}
+
+export async function deleteCalendarWeek(id: string): Promise<{ error?: string }> {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const { error } = await admin.from('school_calendar').delete().eq('id', id);
+  if (error) return { error: error.message };
+  revalidatePath('/dashboard/planning');
+  return {};
+}
+
+// ─── Disponibilités professeurs ───────────────────────────────────────────────
+
+export interface AvailabilitySlot {
+  id: string;
+  teacher_id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
+}
+
+export interface TeacherForPlanning {
+  id: string;
+  nom: string;
+  prenom: string;
+  matieres_enseignees: string[];
+}
+
+export async function getTeachersForPlanning(): Promise<TeacherForPlanning[]> {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('teacher_profiles')
+    .select('id, nom, prenom, matieres_enseignees')
+    .order('nom');
+  return (data ?? []) as TeacherForPlanning[];
+}
+
+export async function getTeacherAvailabilities(teacherId: string): Promise<AvailabilitySlot[]> {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('teacher_availabilities')
+    .select('*')
+    .eq('teacher_id', teacherId)
+    .order('day_of_week')
+    .order('start_time');
+  return (data ?? []) as AvailabilitySlot[];
+}
+
+export async function upsertAvailabilitySlot(
+  teacherId: string,
+  dayOfWeek: number,
+  startTime: string,
+  endTime: string,
+  isAvailable: boolean
+): Promise<{ error?: string }> {
+  await requireAdmin();
+  const admin = createAdminClient();
+
+  if (endTime <= startTime) return { error: "L'heure de fin doit être après le début." };
+
+  const { error } = await admin.from('teacher_availabilities').upsert(
+    { teacher_id: teacherId, day_of_week: dayOfWeek, start_time: startTime, end_time: endTime, is_available: isAvailable },
+    { onConflict: 'teacher_id,day_of_week,start_time' }
+  );
+  if (error) return { error: error.message };
+  revalidatePath('/dashboard/planning');
+  return {};
+}
+
+export async function deleteAvailabilitySlot(id: string): Promise<{ error?: string }> {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const { error } = await admin.from('teacher_availabilities').delete().eq('id', id);
+  if (error) return { error: error.message };
+  revalidatePath('/dashboard/planning');
+  return {};
+}
+
+// ─── Besoins horaires par matière ─────────────────────────────────────────────
+
+export interface SubjectRequirement {
+  id: string;
+  class_id: string;
+  teacher_id: string;
+  subject_name: string;
+  total_hours_required: number;
+  session_duration_h: number;
+  teacher_nom?: string;
+  teacher_prenom?: string;
+}
+
+export async function getSubjectRequirements(classId: string): Promise<SubjectRequirement[]> {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('subject_requirements')
+    .select('*, teacher_profiles(nom, prenom)')
+    .eq('class_id', classId)
+    .order('subject_name');
+
+  return (data ?? []).map((r: Record<string, unknown>) => {
+    const tp = r.teacher_profiles as { nom: string; prenom: string } | null;
+    return {
+      id: r.id as string,
+      class_id: r.class_id as string,
+      teacher_id: r.teacher_id as string,
+      subject_name: r.subject_name as string,
+      total_hours_required: r.total_hours_required as number,
+      session_duration_h: r.session_duration_h as number,
+      teacher_nom: tp?.nom,
+      teacher_prenom: tp?.prenom,
+    };
+  });
+}
+
+export async function createSubjectRequirement(
+  formData: FormData
+): Promise<{ error?: string }> {
+  await requireAdmin();
+  const admin = createAdminClient();
+
+  const class_id             = formData.get('class_id') as string;
+  const teacher_id           = formData.get('teacher_id') as string;
+  const subject_name         = formData.get('subject_name') as string;
+  const total_hours_required = parseFloat(formData.get('total_hours_required') as string);
+  const session_duration_h   = parseFloat(formData.get('session_duration_h') as string);
+
+  if (!class_id || !teacher_id || !subject_name || !total_hours_required)
+    return { error: 'Tous les champs sont requis.' };
+  if (isNaN(total_hours_required) || total_hours_required <= 0)
+    return { error: 'Le volume horaire doit être positif.' };
+
+  const { error } = await admin.from('subject_requirements').insert({
+    class_id,
+    teacher_id,
+    subject_name: subject_name.trim(),
+    total_hours_required,
+    session_duration_h: isNaN(session_duration_h) ? 2.0 : session_duration_h,
+  });
+
+  if (error?.code === '23505') return { error: 'Cette matière est déjà assignée à ce prof pour cette classe.' };
+  if (error) return { error: error.message };
+
+  revalidatePath('/dashboard/planning');
+  return {};
+}
+
+export async function deleteSubjectRequirement(id: string): Promise<{ error?: string }> {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const { error } = await admin.from('subject_requirements').delete().eq('id', id);
+  if (error) return { error: error.message };
+  revalidatePath('/dashboard/planning');
+  return {};
+}
