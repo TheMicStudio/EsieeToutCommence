@@ -1,0 +1,29 @@
+# ============================================================
+# Docker Compose — Production (NAS)
+# ============================================================
+# Usage:
+#   1. Créer un fichier .env à côté de ce fichier avec :
+#      NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+#      NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+#      SUPABASE_SERVICE_ROLE_KEY=eyJ...
+#
+#   2. docker compose -f docker-compose.prod.yml up -d
+#
+#   Watchtower détecte automatiquement les nouvelles images
+#   poussées sur ghcr.io et redéploie le conteneur.
+# ============================================================
+
+services:
+  app:
+    image: ghcr.io/themicstudio/esieetoutcommence:latest
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      - HOSTNAME=0.0.0.0
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"

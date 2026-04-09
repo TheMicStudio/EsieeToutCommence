@@ -18,6 +18,12 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Variables Supabase injectées au build (NEXT_PUBLIC_* doit être présent à la compilation)
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+
 RUN npm run build
 
 # ============================================================
