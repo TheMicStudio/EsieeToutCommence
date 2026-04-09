@@ -52,7 +52,7 @@ export default async function PlanningPage({
     tab === 'salles'     ? getRooms()                : Promise.resolve([]),
     tab === 'fermetures' ? getClosures()             : Promise.resolve([]),
     (tab === 'calendrier' || tab === 'matieres' || tab === 'moteur') ? getClassesWithCalendar() : Promise.resolve([]),
-    (tab === 'dispos'    || tab === 'matieres')  ? getTeachersForPlanning() : Promise.resolve([]),
+    (tab === 'dispos' || tab === 'matieres') ? getTeachersForPlanning() : Promise.resolve([]),
     tab === 'moteur' ? getPlanningRuns()         : Promise.resolve([]),
   ]);
 

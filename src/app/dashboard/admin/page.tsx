@@ -3,7 +3,7 @@ import { getUserPermissions } from '@/lib/permissions';
 import { getPermissionsMatrix } from '@/modules/admin/permissions-actions';
 import type { UserProfile } from '@/modules/auth/types';
 import { redirect } from 'next/navigation';
-import { getClasses, getStudents, getTeachers } from '@/modules/admin/actions';
+import { getClasses, getStudents } from '@/modules/admin/actions';
 import { getAllUsers, getAlternants } from '@/modules/admin/users-actions';
 import {
   getSubjects,
@@ -65,11 +65,10 @@ export default async function AdminPage({
   const { tab: rawTab = visibleTabs[0] } = await searchParams;
   const tab = visibleTabs.includes(rawTab as TabId) ? rawTab : visibleTabs[0];
 
-  const [classes, students, teachers, users, alternants, subjects, adminFunctionsList, secondaryRolesList] =
+  const [classes, students, users, alternants, subjects, adminFunctionsList, secondaryRolesList] =
     await Promise.all([
       effectivePermissions.has('class.manage') ? getClasses() : Promise.resolve([]),
       effectivePermissions.has('class.manage') ? getStudents() : Promise.resolve([]),
-      effectivePermissions.has('class.manage') ? getTeachers() : Promise.resolve([]),
       effectivePermissions.has('user.manage') ? getAllUsers() : Promise.resolve([]),
       effectivePermissions.has('alternance.validate') ? getAlternants() : Promise.resolve([]),
       getSubjects(),
@@ -106,7 +105,7 @@ export default async function AdminPage({
       <AdminTabs activeTab={tab} visibleTabs={visibleTabs} />
 
       {tab === 'classes' && effectivePermissions.has('class.manage') && (
-        <AdminClassPanel classes={classes} students={students} teachers={teachers} />
+        <AdminClassPanel classes={classes} students={students} />
       )}
       {tab === 'users' && effectivePermissions.has('user.manage') && (
         <UsersPanel

@@ -14,12 +14,6 @@ async function requireAdmin() {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface CsvRow {
-  nom_groupe: string;
-  nom: string;
-  prenom: string;
-  email: string;
-}
 
 export interface ParsedStudent {
   nom: string;

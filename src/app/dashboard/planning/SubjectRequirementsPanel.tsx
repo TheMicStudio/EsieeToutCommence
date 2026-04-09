@@ -190,7 +190,6 @@ function AddRequirementForm({
                 <option key={w} value={w}>{w} semaine{w > 1 ? 's' : ''} complète{w > 1 ? 's' : ''}</option>
               ))}
             </select>
-            {/* Champs requis mais non utilisés pour ce type */}
             <input type="hidden" name="total_hours_required" value="40" />
             <input type="hidden" name="session_duration_h" value="8" />
           </div>
@@ -230,6 +229,7 @@ function AddRequirementForm({
           </div>
         </div>
       )}
+
       {error && (
         <div className="flex items-center gap-2 rounded-lg bg-rose-50 border border-rose-200 px-3 py-2 text-xs text-rose-700">
           <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {error}
@@ -425,6 +425,9 @@ export function SubjectRequirementsPanel({
     <div className="space-y-3">
       <p className="text-sm font-semibold text-[#061826]">
         {classes.length} classe{classes.length > 1 ? 's' : ''} — définissez les volumes horaires par matière et professeur
+      </p>
+      <p className="text-xs text-slate-400">
+        Assigner un professeur ici lui donne automatiquement accès à la classe (chat, notes, émargement…).
       </p>
       {classes.map((classe) => (
         <ClassRequirementsCard
