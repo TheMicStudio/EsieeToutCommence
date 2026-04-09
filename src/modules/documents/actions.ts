@@ -82,7 +82,7 @@ export async function getBreadcrumb(folderId: string): Promise<DocBreadcrumb[]> 
   let currentId: string | null = folderId;
 
   while (currentId && crumbs.length < 20) {
-    const { data } = await admin
+    const { data }: { data: { id: string; name: string; parent_id: string | null } | null } = await admin
       .from('doc_folders')
       .select('id, name, parent_id')
       .eq('id', currentId)
