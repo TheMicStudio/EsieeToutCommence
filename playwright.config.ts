@@ -17,10 +17,10 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        command: 'npm start',
+        command: process.env.CI ? 'PORT=3000 node .next/standalone/server.js' : 'npm run dev',
         url: 'http://localhost:3000',
         reuseExistingServer: !process.env.CI,
-        timeout: 60_000,
+        timeout: 120_000,
       },
 
   projects: [
