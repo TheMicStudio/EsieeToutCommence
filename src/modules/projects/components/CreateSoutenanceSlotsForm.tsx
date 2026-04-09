@@ -103,16 +103,16 @@ export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Crea
         {/* Paramètres */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="sm:col-span-2">
-            <label className={labelCls}>Date des oraux</label>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
+            <label htmlFor="ss-date" className={labelCls}>Date des oraux</label>
+            <input id="ss-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>Début</label>
-            <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputCls} />
+            <label htmlFor="ss-startTime" className={labelCls}>Début</label>
+            <input id="ss-startTime" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>Durée / groupe</label>
-            <select value={duration} onChange={(e) => setDuration(Number(e.target.value))} className={inputCls}>
+            <label htmlFor="ss-duration" className={labelCls}>Durée / groupe</label>
+            <select id="ss-duration" value={duration} onChange={(e) => setDuration(Number(e.target.value))} className={inputCls}>
               <option value={5}>5 min</option>
               <option value={8}>8 min</option>
               <option value={10}>10 min</option>
@@ -136,7 +136,7 @@ export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Crea
         </div>
 
         <div className="flex items-center gap-3">
-          <label className={labelCls + ' mb-0'}>Nombre de créneaux</label>
+          <p className={labelCls + ' mb-0'}>Nombre de créneaux</p>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setCount(Math.max(1, count - 1))} className="h-8 w-8 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 flex items-center justify-center font-bold">−</button>
             <span className="w-8 text-center text-sm font-semibold text-slate-700">{count}</span>

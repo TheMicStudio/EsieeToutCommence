@@ -66,10 +66,11 @@ export function NewWeekModal({ classId, classes = [], label = 'Créer une semain
         <div className="p-6 space-y-4">
           {showSelector && (
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+              <label htmlFor="nw-classId" className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
                 Classe *
               </label>
               <select
+                id="nw-classId"
                 value={selectedClassId}
                 onChange={(e) => setSelectedClassId(e.target.value)}
                 className="flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all"

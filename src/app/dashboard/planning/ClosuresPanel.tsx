@@ -47,8 +47,9 @@ function CreateClosureForm({ onDone }: { onDone: () => void }) {
       </div>
       <form action={action} className="space-y-3">
         <div>
-          <label className={labelCls}>Libellé</label>
+          <label htmlFor="label" className={labelCls}>Libellé</label>
           <input
+            id="label"
             name="label"
             placeholder="Ex: Vacances de Noël 2025, Férié 14 juillet"
             required
@@ -57,12 +58,12 @@ function CreateClosureForm({ onDone }: { onDone: () => void }) {
         </div>
         <div className="flex gap-3">
           <div className="flex-1">
-            <label className={labelCls}>Date de début</label>
-            <input name="date_start" type="date" required className={inputCls} />
+            <label htmlFor="date_start" className={labelCls}>Date de début</label>
+            <input id="date_start" name="date_start" type="date" required className={inputCls} />
           </div>
           <div className="flex-1">
-            <label className={labelCls}>Date de fin (incluse)</label>
-            <input name="date_end" type="date" required className={inputCls} />
+            <label htmlFor="date_end" className={labelCls}>Date de fin (incluse)</label>
+            <input id="date_end" name="date_end" type="date" required className={inputCls} />
           </div>
         </div>
         <div className="flex items-center gap-3 pt-1">

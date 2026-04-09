@@ -76,10 +76,11 @@ export function SubmitLinksForm({ groupId, initialRepo, initialSlides, initialSl
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* GitHub */}
       <div>
-        <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <label htmlFor="sl-repo" className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
           <GitBranch className="h-3.5 w-3.5" /> Dépôt GitHub
         </label>
         <input
+          id="sl-repo"
           value={repo}
           onChange={(e) => setRepo(e.target.value)}
           placeholder="https://github.com/…"
@@ -90,9 +91,9 @@ export function SubmitLinksForm({ groupId, initialRepo, initialSlides, initialSl
       {/* Slides — toggle lien / fichier */}
       <div>
         <div className="mb-1.5 flex items-center justify-between">
-          <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
             <Presentation className="h-3.5 w-3.5" /> Slides / Présentation
-          </label>
+          </p>
           <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs">
             <button
               type="button"

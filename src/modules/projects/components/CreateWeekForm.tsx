@@ -35,8 +35,9 @@ export function CreateWeekForm({ classId, onClose }: { classId: string; onClose?
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className={labelCls}>Titre *</label>
+        <label htmlFor="cw-title" className={labelCls}>Titre *</label>
         <input
+          id="cw-title"
           name="title"
           placeholder="ex: Semaine Intelligence Artificielle"
           required
@@ -46,12 +47,12 @@ export function CreateWeekForm({ classId, onClose }: { classId: string; onClose?
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelCls}>Date de début *</label>
-          <input name="start_date" type="date" required className={inputCls} />
+          <label htmlFor="cw-start_date" className={labelCls}>Date de début *</label>
+          <input id="cw-start_date" name="start_date" type="date" required className={inputCls} />
         </div>
         <div>
-          <label className={labelCls}>Date de fin *</label>
-          <input name="end_date" type="date" required className={inputCls} />
+          <label htmlFor="cw-end_date" className={labelCls}>Date de fin *</label>
+          <input id="cw-end_date" name="end_date" type="date" required className={inputCls} />
         </div>
       </div>
 

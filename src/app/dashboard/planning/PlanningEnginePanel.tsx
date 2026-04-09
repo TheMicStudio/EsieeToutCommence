@@ -576,7 +576,7 @@ function GenerateForm({
 
       {/* Sélection des classes */}
       <div>
-        <label className={labelCls}>Classes concernées</label>
+        <p className={labelCls}>Classes concernées</p>
         <div className="space-y-1.5 max-h-40 overflow-y-auto">
           {classes.map((cls) => (
             <label key={cls.id} className="flex items-center gap-3 rounded-xl border border-slate-200 px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">

@@ -118,8 +118,9 @@ function SessionRow({
         </div>
         <div className="grid grid-cols-3 gap-2">
           <div>
-            <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Date</label>
+            <label htmlFor="edit-date" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Date</label>
             <input
+              id="edit-date"
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
@@ -127,8 +128,9 @@ function SessionRow({
             />
           </div>
           <div>
-            <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Début</label>
+            <label htmlFor="edit-startTime" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Début</label>
             <input
+              id="edit-startTime"
               type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
@@ -136,8 +138,9 @@ function SessionRow({
             />
           </div>
           <div>
-            <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Fin</label>
+            <label htmlFor="edit-endTime" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Fin</label>
             <input
+              id="edit-endTime"
               type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
@@ -283,8 +286,9 @@ function AddSessionForm({
 
       {/* Classe */}
       <div>
-        <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Classe</label>
+        <label htmlFor="add-classId" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Classe</label>
         <select
+          id="add-classId"
           value={classId}
           onChange={(e) => { setClassId(e.target.value); setSubjectName(''); setTeacherId(''); }}
           className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40"
@@ -297,7 +301,7 @@ function AddSessionForm({
 
       {/* Matière + Prof (depuis les sessions existantes) */}
       <div>
-        <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">
+        <label htmlFor="add-subjectName" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">
           Matière & Professeur
         </label>
         {classOptions.length > 0 ? (
@@ -324,6 +328,7 @@ function AddSessionForm({
         {/* Saisie manuelle si pas de correspondance ou nouvelle matière */}
         <div className="grid grid-cols-2 gap-2">
           <input
+            id="add-subjectName"
             type="text"
             placeholder="Nom de la matière"
             value={subjectName}
@@ -343,8 +348,9 @@ function AddSessionForm({
       {/* Date + Horaires */}
       <div className="grid grid-cols-3 gap-2">
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Date</label>
+          <label htmlFor="add-date" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Date</label>
           <input
+            id="add-date"
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
@@ -352,8 +358,9 @@ function AddSessionForm({
           />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Début</label>
+          <label htmlFor="add-startTime" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Début</label>
           <input
+            id="add-startTime"
             type="time"
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
@@ -361,8 +368,9 @@ function AddSessionForm({
           />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Fin</label>
+          <label htmlFor="add-endTime" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Fin</label>
           <input
+            id="add-endTime"
             type="time"
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}

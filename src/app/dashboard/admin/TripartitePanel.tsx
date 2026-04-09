@@ -43,8 +43,9 @@ function ConfigForm({
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label className={labelCls}>Référent administratif</label>
+          <label htmlFor="referent_id" className={labelCls}>Référent administratif</label>
           <select
+            id="referent_id"
             name="referent_id"
             required
             className={inputCls}
@@ -59,8 +60,9 @@ function ConfigForm({
           </select>
         </div>
         <div>
-          <label className={labelCls}>Maître d&apos;apprentissage</label>
+          <label htmlFor="maitre_id" className={labelCls}>Maître d&apos;apprentissage</label>
           <select
+            id="maitre_id"
             name="maitre_id"
             required
             className={inputCls}

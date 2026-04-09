@@ -101,8 +101,9 @@ function FixedPatternForm({
     <form onSubmit={handleSubmit} className="mt-3 space-y-3 rounded-xl bg-white border border-slate-200 p-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={labelCls}>Semaines école</label>
+          <label htmlFor="pattern_school_weeks" className={labelCls}>Semaines école</label>
           <input
+            id="pattern_school_weeks"
             name="pattern_school_weeks"
             type="number" min={1} max={20}
             defaultValue={classe.pattern_school_weeks ?? 1}
@@ -110,8 +111,9 @@ function FixedPatternForm({
           />
         </div>
         <div>
-          <label className={labelCls}>Semaines entreprise</label>
+          <label htmlFor="pattern_company_weeks" className={labelCls}>Semaines entreprise</label>
           <input
+            id="pattern_company_weeks"
             name="pattern_company_weeks"
             type="number" min={1} max={20}
             defaultValue={classe.pattern_company_weeks ?? 3}
@@ -120,8 +122,9 @@ function FixedPatternForm({
         </div>
       </div>
       <div>
-        <label className={labelCls}>Lundi de référence (première semaine école)</label>
+        <label htmlFor="pattern_reference_date" className={labelCls}>Lundi de référence (première semaine école)</label>
         <input
+          id="pattern_reference_date"
           name="pattern_reference_date"
           type="date"
           defaultValue={classe.pattern_reference_date ?? ''}

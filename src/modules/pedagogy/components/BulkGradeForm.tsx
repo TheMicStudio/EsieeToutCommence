@@ -92,15 +92,16 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
       {/* Infos du devoir */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
-          <label className={labelCls}>Matière</label>
+          <label htmlFor="bg-matiere" className={labelCls}>Matière</label>
           {matieres.length > 0 ? (
-            <select value={matiere} onChange={(e) => setMatiere(e.target.value)} className={inputCls}>
+            <select id="bg-matiere" value={matiere} onChange={(e) => setMatiere(e.target.value)} className={inputCls}>
               {matieres.map((m) => <option key={m} value={m}>{m}</option>)}
               <option value="">Autre…</option>
             </select>
           ) : null}
           {(matiere === '' || matieres.length === 0) && (
             <input
+              id="bg-matiere"
               type="text"
               value={customMatiere}
               onChange={(e) => setCustomMatiere(e.target.value)}
@@ -110,8 +111,9 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
           )}
         </div>
         <div>
-          <label className={labelCls}>Intitulé de l&apos;examen</label>
+          <label htmlFor="bg-examen" className={labelCls}>Intitulé de l&apos;examen</label>
           <input
+            id="bg-examen"
             type="text"
             value={examen}
             onChange={(e) => setExamen(e.target.value)}
@@ -120,8 +122,9 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
           />
         </div>
         <div>
-          <label className={labelCls}>Coefficient</label>
+          <label htmlFor="bg-coefficient" className={labelCls}>Coefficient</label>
           <input
+            id="bg-coefficient"
             type="number"
             value={coefficient}
             onChange={(e) => setCoefficient(e.target.value)}
@@ -159,8 +162,9 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
         {mode === 'groupe' && (
           <div className="mt-3 grid grid-cols-2 gap-3">
             <div>
-              <label className={labelCls}>Semaine projet</label>
+              <label htmlFor="bg-selectedWeekId" className={labelCls}>Semaine projet</label>
               <select
+                id="bg-selectedWeekId"
                 value={selectedWeekId}
                 onChange={(e) => { setSelectedWeekId(e.target.value); setSelectedGroupId(''); }}
                 className={inputCls}
@@ -173,8 +177,9 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
             </div>
             {selectedWeek && (
               <div>
-                <label className={labelCls}>Groupe</label>
+                <label htmlFor="bg-selectedGroupId" className={labelCls}>Groupe</label>
                 <select
+                  id="bg-selectedGroupId"
                   value={selectedGroupId}
                   onChange={(e) => {
                     setSelectedGroupId(e.target.value);

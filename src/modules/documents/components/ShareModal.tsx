@@ -168,8 +168,9 @@ export function ShareModal({ target, targetType, onClose }: ShareModalProps) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-xs text-slate-500">Expiration</label>
+                  <label htmlFor="share-expires_at" className="mb-1 block text-xs text-slate-500">Expiration</label>
                   <input
+                    id="share-expires_at"
                     type="date"
                     name="expires_at"
                     min={new Date().toISOString().split('T')[0]}
@@ -177,8 +178,9 @@ export function ShareModal({ target, targetType, onClose }: ShareModalProps) {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-slate-500">Max. accès</label>
+                  <label htmlFor="share-max_uses" className="mb-1 block text-xs text-slate-500">Max. accès</label>
                   <input
+                    id="share-max_uses"
                     type="number"
                     name="max_uses"
                     placeholder="Illimité"

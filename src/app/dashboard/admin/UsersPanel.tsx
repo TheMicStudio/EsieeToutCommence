@@ -84,24 +84,25 @@ function CreateUserForm({
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className={labelCls}>Prénom *</label>
-            <input name="prenom" required placeholder="Jean" className={inputCls} />
+            <label htmlFor="create-prenom" className={labelCls}>Prénom *</label>
+            <input id="create-prenom" name="prenom" required placeholder="Jean" className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>Nom *</label>
-            <input name="nom" required placeholder="Dupont" className={inputCls} />
+            <label htmlFor="create-nom" className={labelCls}>Nom *</label>
+            <input id="create-nom" name="nom" required placeholder="Dupont" className={inputCls} />
           </div>
           <div className="sm:col-span-2">
-            <label className={labelCls}>Email *</label>
-            <input name="email" type="email" required placeholder="jean.dupont@ecole.fr" className={inputCls} />
+            <label htmlFor="create-email" className={labelCls}>Email *</label>
+            <input id="create-email" name="email" type="email" required placeholder="jean.dupont@ecole.fr" className={inputCls} />
           </div>
           <div className="sm:col-span-2">
-            <label className={labelCls}>Mot de passe * (8 car. min.)</label>
-            <input name="password" type="password" required minLength={8} placeholder="••••••••" className={inputCls} />
+            <label htmlFor="create-password" className={labelCls}>Mot de passe * (8 car. min.)</label>
+            <input id="create-password" name="password" type="password" required minLength={8} placeholder="••••••••" className={inputCls} />
           </div>
           <div className="sm:col-span-2">
-            <label className={labelCls}>Rôle *</label>
+            <label htmlFor="create-role" className={labelCls}>Rôle *</label>
             <select
+              id="create-role"
               name="role"
               value={role}
               onChange={(e) => { setRole(e.target.value); setSelectedMatieres([]); }}
@@ -117,8 +118,8 @@ function CreateUserForm({
 
         {role === 'eleve' && (
           <div>
-            <label className={labelCls}>Type de parcours</label>
-            <select name="type_parcours" className={inputCls}>
+            <label htmlFor="create-type_parcours" className={labelCls}>Type de parcours</label>
+            <select id="create-type_parcours" name="type_parcours" className={inputCls}>
               <option value="temps_plein">Temps plein</option>
               <option value="alternant">Alternant</option>
             </select>
@@ -127,9 +128,9 @@ function CreateUserForm({
 
         {role === 'professeur' && (
           <div>
-            <label className={labelCls}>
+            <p className={labelCls}>
               Matières enseignées ({selectedMatieres.length} sélectionnée{selectedMatieres.length !== 1 ? 's' : ''})
-            </label>
+            </p>
             {subjects.length === 0 ? (
               <p className="text-xs text-amber-600 rounded-xl bg-amber-50 px-3 py-2">
                 Aucune matière configurée. Ajoutez-en dans l&apos;onglet Configuration.
@@ -173,8 +174,8 @@ function CreateUserForm({
 
         {role === 'admin' && (
           <div>
-            <label className={labelCls}>Fonction</label>
-            <select name="fonction" className={inputCls}>
+            <label htmlFor="create-fonction" className={labelCls}>Fonction</label>
+            <select id="create-fonction" name="fonction" className={inputCls}>
               <option value="">— Sélectionner —</option>
               {adminFunctions.length > 0
                 ? adminFunctions.map((f) => <option key={f} value={f}>{f}</option>)
@@ -187,12 +188,12 @@ function CreateUserForm({
         {role === 'entreprise' && (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className={labelCls}>Entreprise *</label>
-              <input name="entreprise" required placeholder="Acme Corp" className={inputCls} />
+              <label htmlFor="create-entreprise" className={labelCls}>Entreprise *</label>
+              <input id="create-entreprise" name="entreprise" required placeholder="Acme Corp" className={inputCls} />
             </div>
             <div>
-              <label className={labelCls}>Poste</label>
-              <input name="poste" placeholder="Maître d&apos;apprentissage" className={inputCls} />
+              <label htmlFor="create-poste" className={labelCls}>Poste</label>
+              <input id="create-poste" name="poste" placeholder="Maître d&apos;apprentissage" className={inputCls} />
             </div>
           </div>
         )}
@@ -271,26 +272,26 @@ function EditUserForm({
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <label className={labelCls}>Prénom</label>
-            <input name="prenom" defaultValue={user.prenom} required className={inputCls} />
+            <label htmlFor="edit-prenom" className={labelCls}>Prénom</label>
+            <input id="edit-prenom" name="prenom" defaultValue={user.prenom} required className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>Nom</label>
-            <input name="nom" defaultValue={user.nom} required className={inputCls} />
+            <label htmlFor="edit-nom" className={labelCls}>Nom</label>
+            <input id="edit-nom" name="nom" defaultValue={user.nom} required className={inputCls} />
           </div>
 
           {user.role === 'eleve' && (
             <>
               <div>
-                <label className={labelCls}>Parcours</label>
-                <select name="type_parcours" defaultValue={user.extra ?? 'temps_plein'} className={inputCls}>
+                <label htmlFor="edit-type_parcours" className={labelCls}>Parcours</label>
+                <select id="edit-type_parcours" name="type_parcours" defaultValue={user.extra ?? 'temps_plein'} className={inputCls}>
                   <option value="temps_plein">Temps plein</option>
                   <option value="alternant">Alternant</option>
                 </select>
               </div>
               <div>
-                <label className={labelCls}>Rôle secondaire</label>
-                <select name="role_secondaire" defaultValue={user.role_secondaire ?? ''} className={inputCls}>
+                <label htmlFor="edit-role_secondaire-eleve" className={labelCls}>Rôle secondaire</label>
+                <select id="edit-role_secondaire-eleve" name="role_secondaire" defaultValue={user.role_secondaire ?? ''} className={inputCls}>
                   <option value="">— Aucun —</option>
                   {secondaryRoles.length > 0
                     ? secondaryRoles.map((r) => (
@@ -306,8 +307,8 @@ function EditUserForm({
           {user.role === 'admin' && (
             <>
               <div>
-                <label className={labelCls}>Fonction</label>
-                <select name="fonction" defaultValue={user.extra ?? ''} className={inputCls}>
+                <label htmlFor="edit-fonction" className={labelCls}>Fonction</label>
+                <select id="edit-fonction" name="fonction" defaultValue={user.extra ?? ''} className={inputCls}>
                   <option value="">— Sélectionner —</option>
                   {adminFunctions.length > 0
                     ? adminFunctions.map((f) => <option key={f} value={f}>{f}</option>)
@@ -316,8 +317,8 @@ function EditUserForm({
                 </select>
               </div>
               <div>
-                <label className={labelCls}>Rôle secondaire</label>
-                <select name="role_secondaire" defaultValue={user.role_secondaire ?? ''} className={inputCls}>
+                <label htmlFor="edit-role_secondaire-admin" className={labelCls}>Rôle secondaire</label>
+                <select id="edit-role_secondaire-admin" name="role_secondaire" defaultValue={user.role_secondaire ?? ''} className={inputCls}>
                   <option value="">— Aucun —</option>
                   {secondaryRoles.length > 0
                     ? secondaryRoles.map((r) => (
@@ -333,12 +334,12 @@ function EditUserForm({
           {user.role === 'entreprise' && (
             <>
               <div>
-                <label className={labelCls}>Entreprise</label>
-                <input name="entreprise" defaultValue={user.extra ?? ''} className={inputCls} />
+                <label htmlFor="edit-entreprise" className={labelCls}>Entreprise</label>
+                <input id="edit-entreprise" name="entreprise" defaultValue={user.extra ?? ''} className={inputCls} />
               </div>
               <div>
-                <label className={labelCls}>Poste</label>
-                <input name="poste" className={inputCls} />
+                <label htmlFor="edit-poste" className={labelCls}>Poste</label>
+                <input id="edit-poste" name="poste" className={inputCls} />
               </div>
             </>
           )}
@@ -347,9 +348,9 @@ function EditUserForm({
         {user.role === 'professeur' && (
           <div className="space-y-4">
             <div>
-              <label className={labelCls}>
+              <p className={labelCls}>
                 Matières enseignées ({selectedMatieres.length} sélectionnée{selectedMatieres.length !== 1 ? 's' : ''})
-              </label>
+              </p>
               {subjects.length === 0 ? (
                 <p className="text-xs text-amber-600 rounded-xl bg-amber-50 px-3 py-2">
                   Aucune matière configurée. Ajoutez-en dans l&apos;onglet Configuration.
@@ -390,8 +391,8 @@ function EditUserForm({
               )}
             </div>
             <div>
-              <label className={labelCls}>Rôle secondaire</label>
-              <select name="role_secondaire" defaultValue={user.role_secondaire ?? ''} className={inputCls}>
+              <label htmlFor="edit-role_secondaire-prof" className={labelCls}>Rôle secondaire</label>
+              <select id="edit-role_secondaire-prof" name="role_secondaire" defaultValue={user.role_secondaire ?? ''} className={inputCls}>
                 <option value="">— Aucun —</option>
                 {secondaryRoles.length > 0
                   ? secondaryRoles.map((r) => (

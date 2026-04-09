@@ -50,8 +50,9 @@ function CreateClassForm() {
       </div>
       <form action={action} className="flex flex-wrap gap-3">
         <div className="flex-1 min-w-[160px]">
-          <label className={labelCls}>Nom</label>
+          <label htmlFor="nom" className={labelCls}>Nom</label>
           <input
+            id="nom"
             name="nom"
             placeholder="Ex: BTS SIO SLAM"
             required
@@ -59,8 +60,9 @@ function CreateClassForm() {
           />
         </div>
         <div className="w-36">
-          <label className={labelCls}>Promotion</label>
+          <label htmlFor="annee" className={labelCls}>Promotion</label>
           <input
+            id="annee"
             name="annee"
             type="number"
             placeholder="2025"

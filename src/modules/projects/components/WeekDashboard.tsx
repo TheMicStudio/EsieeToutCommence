@@ -248,8 +248,9 @@ export function WeekDashboard({
                         onKeyDown={(e) => e.key === 'Enter' && handleCreateGroup()}
                       />
                       <div className="flex items-center gap-2">
-                        <label className="text-[12px] text-slate-500 whitespace-nowrap">Capacité max</label>
+                        <label htmlFor="wd-newGroupCap" className="text-[12px] text-slate-500 whitespace-nowrap">Capacité max</label>
                         <input
+                          id="wd-newGroupCap"
                           type="number"
                           min="1" max="20"
                           value={newGroupCap}

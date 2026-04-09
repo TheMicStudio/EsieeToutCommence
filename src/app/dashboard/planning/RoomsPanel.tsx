@@ -29,12 +29,13 @@ function CreateRoomForm({ onDone }: { onDone: () => void }) {
       </div>
       <form action={action} className="flex flex-wrap items-end gap-3">
         <div className="flex-1 min-w-[160px]">
-          <label className={labelCls}>Nom de la salle</label>
-          <input name="nom" placeholder="Ex: Salle 201, Amphi A" required className={inputCls} />
+          <label htmlFor="room-nom" className={labelCls}>Nom de la salle</label>
+          <input id="room-nom" name="nom" placeholder="Ex: Salle 201, Amphi A" required className={inputCls} />
         </div>
         <div className="w-32">
-          <label className={labelCls}>Capacité</label>
+          <label htmlFor="room-capacite" className={labelCls}>Capacité</label>
           <input
+            id="room-capacite"
             name="capacite"
             type="number"
             min={1}

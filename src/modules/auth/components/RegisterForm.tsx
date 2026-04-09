@@ -114,7 +114,7 @@ export function RegisterForm() {
           </div>
 
           <div className="space-y-3">
-            <Label>Votre rôle</Label>
+            <p className="text-sm font-medium">Votre rôle</p>
             <div className="flex flex-col gap-2">
               {ROLES.map((r) => (
                 <label
@@ -179,7 +179,7 @@ export function RegisterForm() {
           {/* ── Élève ── */}
           {step1.role === 'eleve' && (
             <div className="space-y-2">
-              <Label>Type de parcours</Label>
+              <p className="text-sm font-medium">Type de parcours</p>
               <div className="flex flex-col gap-2">
                 {[
                   { value: 'temps_plein', label: 'Temps plein', desc: 'Formation initiale classique' },

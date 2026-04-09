@@ -83,11 +83,12 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
             <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
               {/* Note */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+                <label htmlFor="gg-note" className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
                   Note /20 *
                 </label>
                 <div className="flex items-center gap-3">
                   <input
+                    id="gg-note"
                     type="number"
                     min={0} max={20} step={0.5}
                     value={note}
@@ -106,10 +107,11 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
 
               {/* Feedback */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+                <label htmlFor="gg-feedback" className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
                   Feedback (optionnel)
                 </label>
                 <textarea
+                  id="gg-feedback"
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
                   rows={4}
