@@ -5,7 +5,7 @@
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
 **Dernière mise à jour :** 2026-04-08
-**Mis à jour par :** Claude (Module 8 Espace Documentaire : spec + code complet — SQL, types, actions, 9 composants, 3 pages, sidebar ; SQL à exécuter dans Supabase Studio)
+**Mis à jour par :** Claude (Module 8 Espace Documentaire + redesign pages pédagogie — notes, cours, émargement, sidebar)
 
 ---
 
@@ -43,7 +43,8 @@ main  ← développement centralisé (tous modules codés sur main)
 - `src/app/dashboard/annuaire/page.tsx` — Trombinoscope filtrable
 - `src/modules/auth/types/index.ts` — Types TypeScript complets
 - `src/modules/auth/actions.ts` — signIn / signUp / signOut / getCurrentUserProfile / updateProfile
-- `src/modules/auth/components/LoginForm.tsx`
+- `src/modules/auth/components/LoginForm.tsx` — redesign complet (icônes mail/lock, bouton cyan, OAuth buttons, "or" divider)
+- `src/app/auth/login/page.tsx` — layout 2 panneaux 50/50 100vh, trust card, panneau navy + illustration SVG + glassmorphism card
 - `src/modules/auth/components/RegisterForm.tsx`
 - `src/modules/auth/components/ProfileCard.tsx`
 - `src/modules/auth/components/ProfileEditForm.tsx`
@@ -87,7 +88,8 @@ _Aucun pour l'instant_
 - [ ] SQL exécuté (classes, course_materials, grades, channels, messages + fonctions RLS)
 - [ ] `src/modules/pedagogy/types/index.ts` créé
 - [ ] Actions pédagogie (cours, notes, chat)
-- [ ] Pages pédagogie
+- [x] Page notes — redesign vue élève : accordéons collapsibles, badges #0471a6, sidebar droite 280px (moyenne générale + progress bars)
+- [x] Page cours — redesign complet : CourseGrid (filter/sort/grid-list toggle), cards gradient thumbnail + category badge, sidebar droite (Active Courses 4 statuts, Quick Stats progress bar, Recent Activity), fix bug requirePermission misplacé
 - [ ] Chat temps réel Supabase Realtime
 
 **Module Émargement**

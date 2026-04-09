@@ -64,6 +64,7 @@ export interface WeekCourseMaterial {
   titre: string;
   type: 'video' | 'pdf' | 'lien';
   url: string;
+  file_size?: string;
   created_at: string;
 }
 

@@ -59,7 +59,7 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
       {
         title: 'Pédagogie',
         items: [
-          { href: '/dashboard/emploi-du-temps', label: 'Emploi du temps', icon: CalendarDays, permission: 'class.read' },
+          { href: '/dashboard/pedagogie/cours', label: 'Cours', icon: BookOpen, permission: 'course_material.read' },
           { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban, permission: 'project_week.read' },
           { href: '/dashboard/pedagogie/notes', label: 'Mes notes', icon: ClipboardList, permission: 'grade.read_own' },
           { href: '/dashboard/emargement', label: 'Émargement', icon: QrCode, permission: 'attendance.read_own' },
@@ -88,6 +88,7 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
           { href: '/dashboard/emploi-du-temps', label: 'Emploi du temps', icon: CalendarDays, permission: 'class.read' },
           { href: '/dashboard/pedagogie/disponibilites', label: 'Mes disponibilités', icon: Clock, permission: 'class.read' },
           { href: '/dashboard/pedagogie', label: 'Mes classes', icon: GraduationCap, permission: 'class.read' },
+          { href: '/dashboard/pedagogie/cours', label: 'Cours', icon: BookOpen, permission: 'course_material.read' },
           { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban, permission: 'project_week.read' },
         ],
       },
@@ -111,6 +112,7 @@ function getNavSections(role: UserProfile['role']): NavSection[] {
         title: 'Pédagogie',
         items: [
           { href: '/dashboard/pedagogie', label: 'Classes', icon: GraduationCap, permission: 'class.read' },
+          { href: '/dashboard/pedagogie/cours', label: 'Cours', icon: BookOpen, permission: 'course_material.read' },
           { href: '/dashboard/projets', label: 'Projets', icon: FolderKanban, permission: 'project_week.read' },
           { href: '/dashboard/pedagogie/notes', label: 'Notes & moyennes', icon: ClipboardList, permission: 'grade.read_class' },
         ],
