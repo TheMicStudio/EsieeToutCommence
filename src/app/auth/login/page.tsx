@@ -58,7 +58,7 @@ export default function LoginPage() {
         >
           {/* Overlapping avatars */}
           <div className="flex items-center">
-            {AVATARS.map((av) => (
+            {AVATARS.map((av, i) => (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 key={av.src}
