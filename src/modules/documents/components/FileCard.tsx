@@ -79,7 +79,7 @@ export function FileCard({ file, onShare }: Readonly<FileCardProps>) {
 
   async function handlePreview() {
     setMenuOpen(false);
-    if (previewUrl) { setPreviewUrl(previewUrl); return; } // déjà chargée
+    if (previewUrl) return; // déjà chargée
     setLoadingPreview(true);
     const { url, error } = await getSignedDownloadUrl(file.id);
     setLoadingPreview(false);

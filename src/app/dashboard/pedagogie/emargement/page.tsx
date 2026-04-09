@@ -219,14 +219,13 @@ export default async function EmargementPage({ searchParams }: Readonly<Emargeme
             ))}
           </ul>
         ) : (
-          <div
+          <output
             className="flex h-24 items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-slate-50/60"
-            role="status"
           >
             <p className="text-[13px] font-medium text-[#6b7a90]">
               Aucune session terminée pour cette classe.
             </p>
-          </div>
+          </output>
         )}
       </section>
 

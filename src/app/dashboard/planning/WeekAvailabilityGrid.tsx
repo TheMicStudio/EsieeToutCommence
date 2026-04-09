@@ -198,15 +198,15 @@ export function WeekAvailabilityGrid({ teacherId, initialWeeks }: Readonly<WeekA
       {/* Légende */}
       <div className="flex items-center gap-4 pt-2 border-t border-slate-100 text-[11px] text-slate-400">
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded-md bg-emerald-500 inline-block" />
+          <span className="h-3 w-3 rounded-md bg-emerald-500 inline-block" />{' '}
           Disponible
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded-md bg-slate-100 border border-slate-200 inline-block" />
+          <span className="h-3 w-3 rounded-md bg-slate-100 border border-slate-200 inline-block" />{' '}
           Indisponible
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded-full ring-2 ring-[#0471a6]/50 inline-block bg-slate-100 border border-slate-200" />
+          <span className="h-3 w-3 rounded-full ring-2 ring-[#0471a6]/50 inline-block bg-slate-100 border border-slate-200" />{' '}
           Semaine actuelle
         </span>
         <span className="ml-auto italic">

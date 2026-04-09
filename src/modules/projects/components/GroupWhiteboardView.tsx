@@ -66,7 +66,7 @@ export function GroupWhiteboardView({ groupId, initialData }: Readonly<GroupWhit
       .subscribe();
     channelRef.current = channel;
     return () => { supabase.removeChannel(channel); };
-  }, [groupId, api]); // eslint-disable-line
+  }, [groupId, api]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Schedule auto-save to DB (10s after last change)
   const scheduleSave = useCallback((elements: unknown[]) => {

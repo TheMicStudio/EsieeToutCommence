@@ -6,6 +6,10 @@ import { deleteUser, createUser, updateUserProfile } from '@/modules/admin/users
 import type { UserRow } from '@/modules/admin/users-actions';
 import { Trash2, Search, Plus, X, Pencil, ChevronUp, Users } from 'lucide-react';
 
+function toggleItem(prev: string[], m: string) {
+  return prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m];
+}
+
 const ROLE_COLORS: Record<string, string> = {
   eleve: 'bg-[#89aae6]/20 text-[#3685b5]',
   professeur: 'bg-[#ac80a0]/20 text-[#ac80a0]',
@@ -61,9 +65,7 @@ function CreateUserForm({
   if (state?.success) return null;
 
   function toggleMatiere(m: string) {
-    setSelectedMatieres((prev) =>
-      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]
-    );
+    setSelectedMatieres((prev) => toggleItem(prev, m));
   }
 
   const filteredMatieres = subjects.filter((m) =>
@@ -250,9 +252,7 @@ function EditUserForm({
   if (state?.success) return null;
 
   function toggleMatiere(m: string) {
-    setSelectedMatieres((prev) =>
-      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]
-    );
+    setSelectedMatieres((prev) => toggleItem(prev, m));
   }
 
   const filteredMatieres = subjects.filter((m) =>

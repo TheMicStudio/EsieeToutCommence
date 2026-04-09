@@ -11,7 +11,7 @@ export default async function DocumentsPage() {
 
   const [allFolders, { folders, files }] = await Promise.all([
     getAllFolders(),
-    getFolderContents(undefined),
+    getFolderContents(),
   ]);
 
   return (

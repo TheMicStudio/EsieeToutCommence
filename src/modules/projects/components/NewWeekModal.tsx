@@ -30,10 +30,6 @@ export function NewWeekModal({ classId, classes = [], label = 'Créer une semain
     else dialogRef.current?.close();
   }, [open]);
 
-  function handleBackdrop(e: React.MouseEvent<HTMLDialogElement>) {
-    if (e.target === dialogRef.current) setOpen(false);
-  }
-
   const effectiveClassId = classId ?? selectedClassId;
   const showSelector = !classId && classes.length > 1;
 
@@ -50,8 +46,9 @@ export function NewWeekModal({ classId, classes = [], label = 'Créer une semain
 
       <dialog
         ref={dialogRef}
-        onClick={handleBackdrop}
+        aria-modal="true"
         className="m-auto w-full max-w-lg rounded-2xl border border-slate-200/60 bg-white p-0 shadow-2xl backdrop:bg-black/40 backdrop:backdrop-blur-sm"
+        onClose={() => setOpen(false)}
       >
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <h2 className="text-base font-bold text-[#061826]">Nouvelle semaine projet</h2>

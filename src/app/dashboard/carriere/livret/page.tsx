@@ -118,7 +118,7 @@ async function LivretContent({
             <List className="h-3.5 w-3.5 text-slate-500" />
           </div>
           <p className="text-[13px] font-semibold text-slate-800">
-            Tous les rendus
+            Tous les rendus{' '}
             <span className="ml-1.5 text-[12px] font-normal text-slate-400">({entries.length})</span>
           </p>
         </div>

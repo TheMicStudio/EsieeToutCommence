@@ -141,7 +141,7 @@ function AlternantCard({
             {alt.chat_id && (alt.referent_nom || alt.maitre_nom) && (
               <p className="text-xs text-slate-500 mt-0.5 truncate">
                 Référent : <strong>{alt.referent_nom ?? '—'}</strong>
-                <span className="mx-1.5">·</span>
+                <span className="mx-1.5">{' '}·{' '}</span>
                 Maître : <strong>{alt.maitre_nom ?? '—'}</strong>
               </p>
             )}

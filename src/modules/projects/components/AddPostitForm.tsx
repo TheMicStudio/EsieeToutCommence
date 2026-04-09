@@ -82,7 +82,7 @@ export function AddPostitForm({ boardId, isOpen, authorName, currentUserId, onAd
             checked={isAnonymous}
             onChange={(e) => setIsAnonymous(e.target.checked)}
             className="rounded border-slate-300"
-          />
+          />{' '}
           Anonyme
         </label>
         <button

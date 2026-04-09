@@ -224,7 +224,7 @@ function ImportResultView({
             Rappel : le mot de passe temporaire des nouveaux comptes est{' '}
             <code className="bg-blue-100 px-1.5 py-0.5 rounded text-xs font-mono">
               Prenom.NOM2025
-            </code>
+            </code>{' '}
             . Communiquez-le aux étudiants.
           </p>
         </div>

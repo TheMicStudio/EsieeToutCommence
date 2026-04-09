@@ -584,7 +584,6 @@ function WeekView({ sessions, currentMonday, showConflicts, showFilters, classCo
               {classOptions.map(([id, nom]) => {
                 const colorIdx = classColorMap.get(id) ?? 0;
                 const wc = WEEK_COLORS[colorIdx];
-                const p  = PALETTE[colorIdx];
                 const isActive = filterClass === id;
                 return (
                   <button

@@ -100,16 +100,12 @@ export function StartSessionForm({ classes, initialClassId }: Readonly<StartSess
 
         {/* Droite — Durée QR */}
         <div>
-          <p
-            id="duration-group-label"
-            className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#6b7a90]"
-          >
+          <fieldset className="border-0 p-0 m-0">
+          <legend className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#6b7a90]">
             Durée de validité du QR Code
-          </p>
+          </legend>
 
           <div
-            role="group"
-            aria-labelledby="duration-group-label"
             className="flex flex-wrap gap-2"
           >
             {DURATIONS.map((d) => {
@@ -136,6 +132,7 @@ export function StartSessionForm({ classes, initialClassId }: Readonly<StartSess
           <p className="mt-1.5 text-[12px] text-slate-500">
             Le code expirera automatiquement après ce délai.
           </p>
+          </fieldset>
         </div>
       </div>
 

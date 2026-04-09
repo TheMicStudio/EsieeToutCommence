@@ -55,7 +55,6 @@ export default async function EmploiDuTempsPage() {
     }
     sessions = await getSessionsForStudent(classId);
     contextLabel = `Classe • ${sessions[0]?.class_nom ?? 'Ma classe'}`;
-    contextIcon = 'student';
   } else {
     const profile = userProfile.profile as TeacherProfile;
     sessions = await getSessionsForTeacher(profile.id);
@@ -79,7 +78,7 @@ export default async function EmploiDuTempsPage() {
         </div>
         <div className="flex-1">
           <p className="text-sm font-semibold text-[#061826]">{contextLabel}</p>
-          <p className="text-xs text-slate-400">{totalSessions} session{totalSessions !== 1 ? 's' : ''} planifiée{totalSessions !== 1 ? 's' : ''}</p>
+          <p className="text-xs text-slate-400">{totalSessions} session{totalSessions === 1 ? '' : 's'} planifiée{totalSessions === 1 ? '' : 's'}</p>
         </div>
         <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
           Planning publié

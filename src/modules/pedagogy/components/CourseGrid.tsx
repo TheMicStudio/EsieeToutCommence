@@ -65,8 +65,6 @@ function formatDate(d: string) {
 function Thumbnail({ material, size }: Readonly<{ material: CourseMaterial; size: 'full' | 'compact' }>) {
   const Icon = TYPE_ICON[material.type];
   const grad = gradientFor(material.matiere);
-  const abbr = material.matiere.slice(0, 5);
-
   return (
     <div className={[
       'relative shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br',
