@@ -61,6 +61,117 @@ export interface ClosureRow {
   created_at: string;
 }
 
+// ─── Parser XLSX pur Node.js (sans dépendance npm) ───────────────────────────
+//
+// Un fichier XLSX est un ZIP contenant des XML.
+// On décompresse manuellement (format ZIP + DEFLATE via node:zlib),
+// puis on parse xl/sharedStrings.xml et xl/worksheets/sheet1.xml.
+
+function _u16(b: Buffer, o: number): number {
+  return (b[o] ?? 0) | ((b[o + 1] ?? 0) << 8);
+}
+function _u32(b: Buffer, o: number): number {
+  return (((b[o] ?? 0) | ((b[o + 1] ?? 0) << 8) | ((b[o + 2] ?? 0) << 16) | ((b[o + 3] ?? 0) << 24)) >>> 0);
+}
+
+function _parseZip(data: Buffer): Map<string, Buffer> {
+  const { inflateRawSync } = require('node:zlib') as typeof import('node:zlib');
+  const files = new Map<string, Buffer>();
+  let i = 0;
+  while (i + 30 <= data.length) {
+    if (_u32(data, i) !== 0x04034b50) { i++; continue; }
+    const method  = _u16(data, i + 8);
+    const csize   = _u32(data, i + 18);
+    const nameLen = _u16(data, i + 26);
+    const extLen  = _u16(data, i + 28);
+    const name    = data.slice(i + 30, i + 30 + nameLen).toString('utf8');
+    const off     = i + 30 + nameLen + extLen;
+    const raw     = data.slice(off, off + csize);
+    try {
+      files.set(name, method === 8 ? inflateRawSync(raw) : Buffer.from(raw));
+    } catch { /* ignore corrupt entries */ }
+    i = off + csize;
+  }
+  return files;
+}
+
+function _unescapeXml(s: string): string {
+  return s.replace(/&amp;/g, '&').replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'");
+}
+
+function _colIndex(letters: string): number {
+  let n = 0;
+  for (const ch of letters) n = n * 26 + ch.charCodeAt(0) - 64;
+  return n - 1;
+}
+
+function _xlsxBufferToCsv(buf: Buffer): string {
+  const zip = _parseZip(buf);
+
+  // Shared strings
+  const shared: string[] = [];
+  const ssXml = zip.get('xl/sharedStrings.xml');
+  if (ssXml) {
+    for (const m of ssXml.toString('utf8').matchAll(/<si>([\s\S]*?)<\/si>/g)) {
+      const t = [...m[1].matchAll(/<t(?:[^>]*)>([\s\S]*?)<\/t>/g)].map((x) => x[1]).join('');
+      shared.push(_unescapeXml(t));
+    }
+  }
+
+  // First sheet
+  const sheetBuf = zip.get('xl/worksheets/sheet1.xml') ?? zip.get('xl/worksheets/Sheet1.xml');
+  if (!sheetBuf) return '';
+  const sheetXml = sheetBuf.toString('utf8');
+
+  const csvRows: string[] = [];
+  for (const rowM of sheetXml.matchAll(/<row[^>]*>([\s\S]*?)<\/row>/g)) {
+    const cells: string[] = [];
+    for (const cM of rowM[1].matchAll(/<c([^>]*)>([\s\S]*?)<\/c>/g)) {
+      const attrs = cM[1], inner = cM[2];
+      const rM = attrs.match(/\br="([A-Z]+)\d+"/);
+      if (rM) {
+        const idx = _colIndex(rM[1]);
+        while (cells.length < idx) cells.push('');
+      }
+      const typeM = attrs.match(/\bt="([^"]+)"/);
+      const vM    = inner.match(/<v>([\s\S]*?)<\/v>/);
+      let val = '';
+      if (vM) {
+        val = typeM?.[1] === 's' ? (shared[parseInt(vM[1])] ?? '') : _unescapeXml(vM[1]);
+      } else {
+        // Inline string <is><t>…</t></is>
+        const isM = inner.match(/<t(?:[^>]*)>([\s\S]*?)<\/t>/);
+        if (isM) val = _unescapeXml(isM[1]);
+      }
+      cells.push(val);
+    }
+    csvRows.push(cells.join(';'));
+  }
+  return csvRows.join('\n');
+}
+
+/**
+ * Reçoit un fichier XLSX encodé en base64, retourne son contenu CSV (séparateur ;).
+ * Implémentation 100% Node.js natif — aucune dépendance npm.
+ */
+export async function parseXlsxToCSV(
+  base64: string
+): Promise<{ csv?: string; error?: string }> {
+  try {
+    const buf = Buffer.from(base64, 'base64');
+    // Vérifier signature ZIP (PK\x03\x04)
+    if (buf.length < 4 || buf[0] !== 0x50 || buf[1] !== 0x4B) {
+      return { error: 'Le fichier ne semble pas être un XLSX valide.' };
+    }
+    const csv = _xlsxBufferToCsv(buf);
+    if (!csv.trim()) return { error: 'Le fichier Excel semble vide ou dans un format non supporté.' };
+    return { csv };
+  } catch (e) {
+    return { error: `Erreur de lecture XLSX : ${(e as Error).message}` };
+  }
+}
+
 // ─── Parsing CSV ──────────────────────────────────────────────────────────────
 
 // Format NOM_GROUPE : "CC_TH6_BACH_DEV WEB SÉC 2 TP 25-26"
@@ -491,6 +602,91 @@ export async function deleteAvailabilitySlot(id: string): Promise<{ error?: stri
   return {};
 }
 
+// ─── Disponibilités par semaine (nouveau système) ─────────────────────────────
+
+/** Retourne les week_start (YYYY-MM-DD) des semaines disponibles d'un prof */
+export async function getTeacherWeekAvailabilities(teacherId: string): Promise<string[]> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('teacher_week_availabilities')
+    .select('week_start')
+    .eq('teacher_id', teacherId)
+    .order('week_start');
+  return (data ?? []).map((r: { week_start: string }) => r.week_start);
+}
+
+/** Charge toutes les dispo semaines de plusieurs profs en une requête */
+export async function getAllTeacherWeekAvailabilities(
+  teacherIds: string[]
+): Promise<Record<string, string[]>> {
+  if (teacherIds.length === 0) return {};
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('teacher_week_availabilities')
+    .select('teacher_id, week_start')
+    .in('teacher_id', teacherIds)
+    .order('week_start');
+
+  const result: Record<string, string[]> = {};
+  for (const r of data ?? []) {
+    if (!result[r.teacher_id]) result[r.teacher_id] = [];
+    result[r.teacher_id].push(r.week_start);
+  }
+  return result;
+}
+
+/** Toggle une semaine (insert si absente, delete si présente) */
+export async function toggleTeacherWeek(
+  teacherId: string,
+  weekStart: string
+): Promise<{ error?: string }> {
+  const profile = await getCurrentUserProfile();
+  if (!profile) return { error: 'Non authentifié.' };
+  if (profile.role !== 'admin' && profile.profile.id !== teacherId) {
+    return { error: 'Accès refusé.' };
+  }
+  const admin = createAdminClient();
+  const { data: existing } = await admin
+    .from('teacher_week_availabilities')
+    .select('teacher_id')
+    .eq('teacher_id', teacherId)
+    .eq('week_start', weekStart)
+    .maybeSingle();
+
+  if (existing) {
+    await admin.from('teacher_week_availabilities')
+      .delete().eq('teacher_id', teacherId).eq('week_start', weekStart);
+  } else {
+    await admin.from('teacher_week_availabilities')
+      .insert({ teacher_id: teacherId, week_start: weekStart });
+  }
+  revalidatePath('/dashboard/planning');
+  revalidatePath('/dashboard/pedagogie/disponibilites');
+  return {};
+}
+
+/** Remplace toutes les semaines d'un prof d'un coup (bulk set) */
+export async function setTeacherAllWeeks(
+  teacherId: string,
+  weekStarts: string[]
+): Promise<{ error?: string }> {
+  const profile = await getCurrentUserProfile();
+  if (!profile) return { error: 'Non authentifié.' };
+  if (profile.role !== 'admin' && profile.profile.id !== teacherId) {
+    return { error: 'Accès refusé.' };
+  }
+  const admin = createAdminClient();
+  await admin.from('teacher_week_availabilities').delete().eq('teacher_id', teacherId);
+  if (weekStarts.length > 0) {
+    await admin.from('teacher_week_availabilities').insert(
+      weekStarts.map((w) => ({ teacher_id: teacherId, week_start: w }))
+    );
+  }
+  revalidatePath('/dashboard/planning');
+  revalidatePath('/dashboard/pedagogie/disponibilites');
+  return {};
+}
+
 // ─── Besoins horaires par matière ─────────────────────────────────────────────
 
 export interface SubjectRequirement {
@@ -507,14 +703,27 @@ export interface SubjectRequirement {
 export async function getSubjectRequirements(classId: string): Promise<SubjectRequirement[]> {
   await requireAdmin();
   const admin = createAdminClient();
-  const { data } = await admin
+
+  // Deux requêtes séparées pour éviter le join indirect teacher_id → auth.users → teacher_profiles
+  const { data, error } = await admin
     .from('subject_requirements')
-    .select('*, teacher_profiles(nom, prenom)')
+    .select('*')
     .eq('class_id', classId)
     .order('subject_name');
 
-  return (data ?? []).map((r: Record<string, unknown>) => {
-    const tp = r.teacher_profiles as { nom: string; prenom: string } | null;
+  if (error) { console.error('[getSubjectRequirements]', error.message); return []; }
+  if (!data?.length) return [];
+
+  const teacherIds = [...new Set(data.map((r) => r.teacher_id as string))];
+  const { data: teachers } = await admin
+    .from('teacher_profiles')
+    .select('id, nom, prenom')
+    .in('id', teacherIds);
+
+  const teacherMap = new Map((teachers ?? []).map((t) => [t.id as string, t as { id: string; nom: string; prenom: string }]));
+
+  return data.map((r: Record<string, unknown>) => {
+    const tp = teacherMap.get(r.teacher_id as string);
     return {
       id: r.id as string,
       class_id: r.class_id as string,
@@ -528,36 +737,53 @@ export async function getSubjectRequirements(classId: string): Promise<SubjectRe
   });
 }
 
+export interface CreateSubjectRequirementInput {
+  class_id: string;
+  teacher_id: string;
+  subject_name: string;
+  total_hours_required: number;
+  session_duration_h: number;
+  session_type: 'CLASSIC' | 'INTENSIVE_BLOCK' | 'WEEKLY_DAY';
+  duration_weeks: number | null;
+  preferred_day: number | null;
+  weekly_occurrences: number | null;
+}
+
 export async function createSubjectRequirement(
-  formData: FormData
-): Promise<{ error?: string }> {
+  input: CreateSubjectRequirementInput
+): Promise<{ id?: string; error?: string }> {
   await requireAdmin();
   const admin = createAdminClient();
 
-  const class_id             = formData.get('class_id') as string;
-  const teacher_id           = formData.get('teacher_id') as string;
-  const subject_name         = formData.get('subject_name') as string;
-  const total_hours_required = parseFloat(formData.get('total_hours_required') as string);
-  const session_duration_h   = parseFloat(formData.get('session_duration_h') as string);
+  const { class_id, teacher_id, subject_name, total_hours_required,
+          session_duration_h, session_type, duration_weeks, preferred_day, weekly_occurrences } = input;
 
-  if (!class_id || !teacher_id || !subject_name || !total_hours_required)
+  if (!class_id || !teacher_id || !subject_name)
     return { error: 'Tous les champs sont requis.' };
-  if (isNaN(total_hours_required) || total_hours_required <= 0)
+  if (!total_hours_required || total_hours_required <= 0)
     return { error: 'Le volume horaire doit être positif.' };
 
-  const { error } = await admin.from('subject_requirements').insert({
-    class_id,
-    teacher_id,
-    subject_name: subject_name.trim(),
-    total_hours_required,
-    session_duration_h: isNaN(session_duration_h) ? 2.0 : session_duration_h,
-  });
+  const { data, error } = await admin
+    .from('subject_requirements')
+    .insert({
+      class_id,
+      teacher_id,
+      subject_name: subject_name.trim(),
+      total_hours_required,
+      session_duration_h,
+      session_type,
+      duration_weeks,
+      preferred_day,
+      weekly_occurrences,
+    })
+    .select('id')
+    .single();
 
-  if (error?.code === '23505') return { error: 'Cette matière est déjà assignée à ce prof pour cette classe.' };
+  if (error?.code === '23505') return { error: 'Cette matière est déjà configurée pour ce prof et cette classe.' };
   if (error) return { error: error.message };
 
   revalidatePath('/dashboard/planning');
-  return {};
+  return { id: data?.id };
 }
 
 export async function deleteSubjectRequirement(id: string): Promise<{ error?: string }> {
@@ -567,4 +793,191 @@ export async function deleteSubjectRequirement(id: string): Promise<{ error?: st
   if (error) return { error: error.message };
   revalidatePath('/dashboard/planning');
   return {};
+}
+
+// ─── Sessions calendrier ──────────────────────────────────────────────────────
+
+export interface SessionEvent {
+  id: string;
+  class_id: string;
+  class_nom: string;
+  teacher_id: string;
+  teacher_nom: string;
+  teacher_prenom: string;
+  subject_name: string;
+  room_id: string | null;
+  room_nom: string | null;
+  start_timestamp: string;
+  end_timestamp: string;
+  status: 'DRAFT' | 'VALIDATED' | 'CONFLICT_ERROR';
+  conflict_reason: string | null;
+}
+
+// Helper : enrichit des sessions brutes avec les noms de classes, profs et salles
+async function _enrichSessions(
+  rows: Record<string, unknown>[],
+  client: ReturnType<typeof createAdminClient>
+): Promise<SessionEvent[]> {
+  if (!rows.length) return [];
+
+  const classIds   = [...new Set(rows.map((r) => r.class_id as string))];
+  const teacherIds = [...new Set(rows.map((r) => r.teacher_id as string))];
+  const roomIds    = [...new Set(rows.map((r) => r.room_id as string | null).filter(Boolean))] as string[];
+
+  const [{ data: cls }, { data: tps }, { data: rms }] = await Promise.all([
+    client.from('classes').select('id, nom').in('id', classIds),
+    client.from('teacher_profiles').select('id, nom, prenom').in('id', teacherIds),
+    roomIds.length ? client.from('rooms').select('id, nom').in('id', roomIds) : Promise.resolve({ data: [] }),
+  ]);
+
+  const classMap   = new Map((cls  ?? []).map((c) => [c.id as string, c.nom as string]));
+  const teacherMap = new Map((tps  ?? []).map((t) => [t.id as string, t as { id: string; nom: string; prenom: string }]));
+  const roomMap    = new Map((rms  ?? []).map((r) => [r.id as string, r.nom as string]));
+
+  return rows.map((s) => ({
+    id:              s.id as string,
+    class_id:        s.class_id as string,
+    class_nom:       classMap.get(s.class_id as string) ?? '',
+    teacher_id:      s.teacher_id as string,
+    teacher_nom:     teacherMap.get(s.teacher_id as string)?.nom ?? '',
+    teacher_prenom:  teacherMap.get(s.teacher_id as string)?.prenom ?? '',
+    subject_name:    s.subject_name as string,
+    room_id:         s.room_id as string | null,
+    room_nom:        s.room_id ? (roomMap.get(s.room_id as string) ?? null) : null,
+    start_timestamp: s.start_timestamp as string,
+    end_timestamp:   s.end_timestamp as string,
+    status:          s.status as SessionEvent['status'],
+    conflict_reason: s.conflict_reason as string | null,
+  }));
+}
+
+/** Sessions d'un planning run (admin) */
+export async function getSessionsForRun(runId: string): Promise<SessionEvent[]> {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('scheduled_sessions')
+    .select('id, class_id, teacher_id, subject_name, room_id, start_timestamp, end_timestamp, status, conflict_reason')
+    .eq('run_id', runId)
+    .order('start_timestamp');
+  return _enrichSessions((data ?? []) as Record<string, unknown>[], admin);
+}
+
+// ─── Gestion manuelle des sessions ───────────────────────────────────────────
+
+/** Supprime une session et met à jour les compteurs du run */
+export async function deleteManualSession(sessionId: string): Promise<{ error?: string }> {
+  await requireAdmin();
+  const admin = createAdminClient();
+
+  // Récupérer le run_id avant suppression
+  const { data: sess } = await admin
+    .from('scheduled_sessions')
+    .select('run_id, status')
+    .eq('id', sessionId)
+    .maybeSingle();
+  if (!sess) return { error: 'Session introuvable.' };
+
+  const { error } = await admin.from('scheduled_sessions').delete().eq('id', sessionId);
+  if (error) return { error: error.message };
+
+  // Recompter
+  const [{ count: draftCount }, { count: validatedCount }, { count: conflictCount }] = await Promise.all([
+    admin.from('scheduled_sessions').select('id', { count: 'exact', head: true }).eq('run_id', sess.run_id).eq('status', 'DRAFT'),
+    admin.from('scheduled_sessions').select('id', { count: 'exact', head: true }).eq('run_id', sess.run_id).eq('status', 'VALIDATED'),
+    admin.from('scheduled_sessions').select('id', { count: 'exact', head: true }).eq('run_id', sess.run_id).eq('status', 'CONFLICT_ERROR'),
+  ]);
+  await admin.from('planning_runs').update({
+    total_sessions: (draftCount ?? 0) + (validatedCount ?? 0),
+    conflict_count: conflictCount ?? 0,
+  }).eq('id', sess.run_id);
+
+  revalidatePath('/dashboard/planning');
+  return {};
+}
+
+/** Déplace une session (change ses timestamps) */
+export async function moveManualSession(
+  sessionId: string,
+  newStart: string,
+  newEnd: string
+): Promise<{ error?: string }> {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from('scheduled_sessions')
+    .update({ start_timestamp: newStart, end_timestamp: newEnd })
+    .eq('id', sessionId);
+  if (error) return { error: error.message };
+  revalidatePath('/dashboard/planning');
+  return {};
+}
+
+/** Ajoute une session manuellement dans un run */
+export async function addManualSession(
+  runId: string,
+  data: {
+    class_id: string;
+    teacher_id: string;
+    subject_name: string;
+    start_timestamp: string;
+    end_timestamp: string;
+  }
+): Promise<{ error?: string; session?: SessionEvent }> {
+  await requireAdmin();
+  const admin = createAdminClient();
+
+  // Statut = même que les autres sessions du run
+  const { data: runData } = await admin
+    .from('planning_runs')
+    .select('status')
+    .eq('id', runId)
+    .single();
+  const sessionStatus = runData?.status === 'VALIDATED' ? 'VALIDATED' : 'DRAFT';
+
+  const { data: inserted, error } = await admin
+    .from('scheduled_sessions')
+    .insert({ run_id: runId, status: sessionStatus, ...data })
+    .select('id, class_id, teacher_id, subject_name, room_id, start_timestamp, end_timestamp, status, conflict_reason')
+    .single();
+  if (error || !inserted) return { error: error?.message ?? 'Erreur insertion.' };
+
+  // Recompter
+  const [{ count: draftCount }, { count: validatedCount }, { count: conflictCount }] = await Promise.all([
+    admin.from('scheduled_sessions').select('id', { count: 'exact', head: true }).eq('run_id', runId).eq('status', 'DRAFT'),
+    admin.from('scheduled_sessions').select('id', { count: 'exact', head: true }).eq('run_id', runId).eq('status', 'VALIDATED'),
+    admin.from('scheduled_sessions').select('id', { count: 'exact', head: true }).eq('run_id', runId).eq('status', 'CONFLICT_ERROR'),
+  ]);
+  await admin.from('planning_runs').update({
+    total_sessions: (draftCount ?? 0) + (validatedCount ?? 0),
+    conflict_count: conflictCount ?? 0,
+  }).eq('id', runId);
+
+  const [enriched] = await _enrichSessions([inserted as Record<string, unknown>], admin);
+  revalidatePath('/dashboard/planning');
+  return { session: enriched };
+}
+
+/** Sessions VALIDATED pour un élève (sa classe) */
+export async function getSessionsForStudent(classId: string): Promise<SessionEvent[]> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('scheduled_sessions')
+    .select('id, class_id, teacher_id, subject_name, room_id, start_timestamp, end_timestamp, status, conflict_reason')
+    .eq('class_id', classId)
+    .eq('status', 'VALIDATED')
+    .order('start_timestamp');
+  return _enrichSessions((data ?? []) as Record<string, unknown>[], admin);
+}
+
+/** Sessions VALIDATED pour un professeur */
+export async function getSessionsForTeacher(teacherId: string): Promise<SessionEvent[]> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('scheduled_sessions')
+    .select('id, class_id, teacher_id, subject_name, room_id, start_timestamp, end_timestamp, status, conflict_reason')
+    .eq('teacher_id', teacherId)
+    .eq('status', 'VALIDATED')
+    .order('start_timestamp');
+  return _enrichSessions((data ?? []) as Record<string, unknown>[], admin);
 }
