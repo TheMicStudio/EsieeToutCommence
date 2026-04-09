@@ -7,7 +7,7 @@
 
 ## Périmètre
 
-- Accès : rôles `admin` et `coordinateur` uniquement (RLS + middleware)
+- Accès : rôles `admin` et `coordinateur` et `responsable pedagogique`  uniquement (RLS + middleware)
 - Organisation : arborescence libre de dossiers imbriqués
 - Droits : configurables par dossier, hérités par sous-dossiers et fichiers
 - Permissions : par rôle ET par utilisateur individuel (lecture / écriture / admin)

@@ -1,0 +1,53 @@
+# Module 08 - Administration : Préparation de la Rentrée & Planning Engine
+**Assigné à :** Dev 4 (Admin & Data)
+**Dépendances :** Module 01 (Profiles), Module 02 (Classes)
+
+## 1. Objectifs & Backlog
+- Importation massive des étudiants via CSV.
+- Configuration des paramètres de rentrée (Disponibilités profs, volumes horaires par matière).
+- Algorithme de génération de planning automatisé (Constraint Satisfaction Problem).
+- Interface de validation pour la direction.
+- Publication automatique vers les agendas élèves et profs.
+
+## 2. Analyse du Fichier Source (CSV)
+Le système doit parser le fichier `Export-DataB2Cergy.xlsx` avec le mapping suivant :
+- `NOM_GROUPE_APPRENANT` -> Extraction de la Classe + Détection automatique du statut (TP ou ALT via le libellé).
+- `NOM_APPRENANT` & `PRENOM_APPRENANT` -> Création du `StudentProfile`.
+- `EMAIL_APPRENANT` -> Identifiant de connexion `User`.
+
+## 3. Base de Données (Supabase)
+**Tables à créer :**
+- `teacher_availabilities` : ID, teacher_id, day_of_week, start_time, end_time, is_available.
+- `subject_requirements` : ID, class_id, teacher_id, subject_name, total_hours_required.
+- `school_calendar` : ID, class_id, week_number, location (SCHOOL or COMPANY).
+- `scheduled_sessions` : ID, class_id, teacher_id, subject_name, start_timestamp, end_timestamp, status (DRAFT, VALIDATED).
+
+**Politiques RLS :**
+- `INSERT/UPDATE` : Uniquement pour les profils `Admin`.
+- `SELECT` : Public pour les profils concernés une fois le statut passé à `VALIDATED`.
+
+## 4. Algorithme de Planning (Logique Métier)
+L'algorithme doit fonctionner par itération pour chaque classe :
+1. **Filtre de période :** Vérifier via `school_calendar` si la classe est présente à l'école.
+2. **Matching Prof :** Identifier les profs assignés aux matières de la classe via `subject_requirements`.
+3. **Vérification de disponibilité :** - Le prof est-il disponible sur ce créneau (`teacher_availabilities`) ?
+   - Le prof est-il déjà pris par une autre classe sur ce créneau (`scheduled_sessions`) ?
+4. **Gestion des conflits :** - En cas de blocage, l'algorithme doit marquer la session en `CONFLICT_ERROR`.
+   - Proposer des solutions : "Déplacer au [Date]", "Changer de professeur (Suggestions basées sur la matière)".
+
+## 5. Architecture & UI (Next.js)
+- **Admin Dashboard :** Vue "Import CSV" avec feedback de succès/échec.
+- **Planning Builder :** Interface avec bouton "Générer le planning de l'année".
+- **Visualisation :** Calendrier interactif (type FullCalendar) avec drag-and-drop pour ajustements manuels par l'admin après génération.
+- **Validation :** Bouton "Publier pour tous" qui change le statut de `DRAFT` à `VALIDATED`.
+
+## 6. Checklist d'Exécution pas-à-pas
+- [ ] Étape 1 : Créer le script d'import CSV (parsing et création automatique des comptes Users + Profils).
+- [ ] Étape 2 : Créer les formulaires de saisie des disponibilités profs et besoins matières par classe.
+- [ ] Étape 3 : Développer le moteur de calcul (algorithme) en TypeScript (Server Action).
+- [ ] Étape 4 : Créer la vue Calendrier pour l'administration avec affichage visuel des conflits (couleur rouge).
+- [ ] Étape 5 : Implémenter la logique de publication vers les espaces Élèves et Profs.
+
+## 7. Limites et Anti-Collisions
+- L'import CSV ne doit pas créer de doublons si un élève existe déjà (vérification sur l'email).
+- L'algorithme ne doit jamais modifier les données de présence (Module 06) ou de notes (Module 02).
