@@ -47,6 +47,35 @@ export async function createProjectWeek(
   return { week: data };
 }
 
+export async function deleteProjectWeek(weekId: string): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Non authentifié' };
+
+  const profile = await getCurrentUserProfile();
+  if (!profile) return { error: 'Non authentifié' };
+
+  // Vérifier que l'utilisateur est le créateur ou admin/coordinateur
+  const { data: week } = await supabase
+    .from('project_weeks')
+    .select('cree_par')
+    .eq('id', weekId)
+    .maybeSingle();
+
+  const isAdmin = profile.role === 'admin' || profile.role === 'coordinateur';
+  if (!isAdmin && week?.cree_par !== user.id) {
+    return { error: 'Vous ne pouvez supprimer que les semaines que vous avez créées.' };
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin.from('project_weeks').delete().eq('id', weekId);
+  if (error) return { error: error.message };
+
+  revalidatePath('/dashboard/projets');
+  revalidatePath('/dashboard/pedagogie/projets');
+  return {};
+}
+
 // ── Groupes ──────────────────────────────────────────────────
 export async function getGroups(weekId: string): Promise<ProjectGroup[]> {
   const admin = createAdminClient();
@@ -100,7 +129,7 @@ export async function createGroup(
 
   const { data, error } = await supabase
     .from('project_groups')
-    .insert({ week_id: weekId, group_name: groupName, capacite_max: capaciteMax })
+    .insert({ week_id: weekId, group_name: groupName, capacite_max: capaciteMax, created_by: user.id })
     .select()
     .single();
 
@@ -111,6 +140,36 @@ export async function createGroup(
 
   revalidatePath(`/dashboard/pedagogie/projets/${weekId}/groupes`);
   return { group: data };
+}
+
+export async function deleteGroup(
+  groupId: string,
+  weekId: string,
+): Promise<{ error?: string }> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile) return { error: 'Non authentifié' };
+
+  const admin = createAdminClient();
+
+  // Vérifier les droits : prof/admin/coordinateur peuvent tout supprimer
+  // Un élève ne peut supprimer que le groupe qu'il a créé
+  if (!['professeur', 'coordinateur', 'admin'].includes(userProfile.role)) {
+    const { data: group } = await admin
+      .from('project_groups')
+      .select('created_by')
+      .eq('id', groupId)
+      .single();
+    if (!group || group.created_by !== userProfile.profile.id) {
+      return { error: 'Vous ne pouvez supprimer que les groupes que vous avez créés.' };
+    }
+  }
+
+  const { error } = await admin.from('project_groups').delete().eq('id', groupId);
+  if (error) return { error: error.message };
+
+  revalidatePath(`/dashboard/pedagogie/projets/${weekId}/groupes`);
+  revalidatePath(`/dashboard/projets/${weekId}`);
+  return {};
 }
 
 export async function joinGroup(
@@ -317,6 +376,28 @@ export async function updateSlot(
     .update({ heure_debut: heureDebut, heure_fin: heureFin })
     .eq('id', slotId);
   if (error) return { error: error.message };
+  revalidatePath(`/dashboard/pedagogie/projets/${weekId}/soutenances`);
+  return {};
+}
+
+export async function releaseSlot(
+  slotId: string,
+  groupId: string,
+  weekId: string,
+): Promise<{ error?: string }> {
+  const admin = createAdminClient();
+
+  // Vérifier que le créneau appartient bien au groupe
+  const { data: slot } = await admin.from('soutenance_slots').select('group_id').eq('id', slotId).single();
+  if (slot?.group_id !== groupId) return { error: 'Ce créneau ne vous appartient pas.' };
+
+  const { error } = await admin
+    .from('soutenance_slots')
+    .update({ group_id: null })
+    .eq('id', slotId);
+
+  if (error) return { error: error.message };
+  revalidatePath(`/dashboard/projets/${weekId}/soutenances`);
   revalidatePath(`/dashboard/pedagogie/projets/${weekId}/soutenances`);
   return {};
 }
@@ -577,4 +658,88 @@ export async function deleteWeekCourseMaterial(materialId: string, weekId: strin
   revalidatePath(`/dashboard/projets/${weekId}`);
   revalidatePath(`/dashboard/pedagogie/projets/${weekId}`);
   return {};
+}
+
+// ── Tous les supports accessibles (toutes semaines projets) ──────────────────
+
+export interface AccessibleMaterial extends WeekCourseMaterial {
+  week_title: string;
+  class_id: string;
+  class_nom: string;
+}
+
+export async function getAllAccessibleWeekMaterials(): Promise<AccessibleMaterial[]> {
+  const userProfile = await getCurrentUserProfile();
+  if (!userProfile) return [];
+
+  const admin = createAdminClient();
+
+  // Déterminer les classes accessibles selon le rôle
+  let classIds: string[] = [];
+
+  if (userProfile.role === 'admin' || userProfile.role === 'coordinateur') {
+    const { data } = await admin.from('classes').select('id');
+    classIds = (data ?? []).map((c: { id: string }) => c.id);
+  } else if (userProfile.role === 'professeur') {
+    const { data } = await admin
+      .from('teacher_classes')
+      .select('class_id')
+      .eq('teacher_id', userProfile.profile.id);
+    const seen = new Set<string>();
+    for (const r of data ?? []) seen.add((r as { class_id: string }).class_id);
+    classIds = [...seen];
+  } else {
+    // Étudiant — via class_members
+    const { data } = await admin
+      .from('class_members')
+      .select('class_id')
+      .eq('student_id', userProfile.profile.id)
+      .eq('is_current', true);
+    classIds = (data ?? []).map((r: { class_id: string }) => r.class_id);
+    // Fallback student_profiles.class_id
+    if (classIds.length === 0 && (userProfile.profile as { class_id?: string }).class_id) {
+      classIds = [(userProfile.profile as { class_id: string }).class_id];
+    }
+  }
+
+  if (classIds.length === 0) return [];
+
+  // Récupérer les semaines projet accessibles
+  const { data: weeks } = await admin
+    .from('project_weeks')
+    .select('id, title, class_id')
+    .in('class_id', classIds);
+
+  if (!weeks || weeks.length === 0) return [];
+
+  const weekIds = (weeks as { id: string; title: string; class_id: string }[]).map((w) => w.id);
+  const weekMap = new Map(
+    (weeks as { id: string; title: string; class_id: string }[]).map((w) => [w.id, w])
+  );
+
+  // Récupérer les noms des classes
+  const { data: classes } = await admin
+    .from('classes')
+    .select('id, nom')
+    .in('id', classIds);
+  const classMap = new Map((classes ?? []).map((c: { id: string; nom: string }) => [c.id, c.nom]));
+
+  // Récupérer les supports
+  const { data: materials } = await admin
+    .from('week_course_materials')
+    .select('*')
+    .in('week_id', weekIds)
+    .order('created_at', { ascending: false });
+
+  if (!materials) return [];
+
+  return (materials as WeekCourseMaterial[]).map((m) => {
+    const week = weekMap.get(m.week_id);
+    return {
+      ...m,
+      week_title: week?.title ?? '',
+      class_id: week?.class_id ?? '',
+      class_nom: classMap.get(week?.class_id ?? '') ?? '',
+    };
+  });
 }

@@ -1,30 +1,28 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import { requirePermission } from '@/lib/permissions';
+import { getRequestPermissions } from '@/lib/permissions';
 import { getProjectWeeks, getGroups } from '@/modules/projects/actions';
 import { getAllClasses, getMyTeacherClasses } from '@/modules/pedagogy/actions';
-import { ProjectWeekCard } from '@/modules/projects/components/ProjectWeekCard';
+import { ProjectWeekGrid, type WeekWithMeta } from '@/modules/projects/components/ProjectWeekGrid';
 import { NewWeekModal } from '@/modules/projects/components/NewWeekModal';
-import { ClassSelector } from '@/modules/pedagogy/components/ClassSelector';
 import { createClient } from '@/lib/supabase/server';
 
-interface ProjetsPageProps {
-  searchParams: Promise<{ classe?: string }>;
-}
+export const metadata = { title: 'Projets — EsieeToutCommence' };
 
-export default async function ProjetsPage({ searchParams }: ProjetsPageProps) {
-  const { classe: classeParam } = await searchParams;
+export default async function ProjetsPage() {
+  const perms = await getRequestPermissions();
+  if (!perms.has('project_week.read')) redirect('/dashboard');
+
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
-
-  await requirePermission('project_week.read');
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  let classId = '';
-  let className = '';
-  let teacherClasses: Awaited<ReturnType<typeof getMyTeacherClasses>> = [];
+  let weeks: WeekWithMeta[] = [];
+  const canManage = perms.has('project_week.manage');
+  const isCoord = profile.role === 'coordinateur' || profile.role === 'admin';
+  let newWeekClasses: { id: string; nom: string; annee: number; created_at: string }[] = [];
 
   if (profile.role === 'eleve') {
     const { data } = await supabase
@@ -33,63 +31,40 @@ export default async function ProjetsPage({ searchParams }: ProjetsPageProps) {
       .eq('student_id', user?.id ?? '')
       .eq('is_current', true)
       .maybeSingle();
-    classId = (data?.class_id as string) ?? '';
-    className = (data?.classes as unknown as { nom: string } | null)?.nom ?? '';
-  } else if (profile.role === 'coordinateur' || profile.role === 'admin') {
-    const allClasses = await getAllClasses();
-    teacherClasses = allClasses;
-    const activeClass = allClasses.find((c) => c.id === classeParam) ?? allClasses[0];
-    classId = activeClass?.id ?? '';
-    className = activeClass?.nom ?? '';
+
+    const classId = (data?.class_id as string) ?? '';
+    const classNom = (data?.classes as unknown as { nom: string } | null)?.nom ?? '';
+
+    const raw = classId ? await getProjectWeeks(classId) : [];
+    const counts = await Promise.all(raw.map((w) => getGroups(w.id).then((g) => g.length)));
+    weeks = raw.map((w, i) => ({ ...w, classId, classNom, groupCount: counts[i] }));
   } else {
-    teacherClasses = await getMyTeacherClasses();
-    const activeClass = teacherClasses.find((c) => c.id === classeParam) ?? teacherClasses[0];
-    classId = activeClass?.id ?? '';
-    className = activeClass?.nom ?? '';
+    const classes = isCoord ? await getAllClasses() : await getMyTeacherClasses();
+    newWeekClasses = classes;
+
+    const allRaw = await Promise.all(
+      classes.map(async (cls) => {
+        const ws = await getProjectWeeks(cls.id);
+        return ws.map((w) => ({ ...w, classId: cls.id, classNom: cls.nom }));
+      })
+    );
+    const flat = allRaw.flat();
+    const counts = await Promise.all(flat.map((w) => getGroups(w.id).then((g) => g.length)));
+    weeks = flat.map((w, i) => ({ ...w, groupCount: counts[i] }));
   }
 
-  const weeks = classId ? await getProjectWeeks(classId) : [];
-  const groupCounts: Record<string, number> = {};
-  await Promise.all(weeks.map(async (w) => {
-    groupCounts[w.id] = (await getGroups(w.id)).length;
-  }));
+  const headerSlot = canManage && newWeekClasses.length > 0 ? (
+    <NewWeekModal classes={newWeekClasses} />
+  ) : null;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-[#061826]">Semaines projets</h1>
-          {className && <p className="text-sm text-slate-500">{className}</p>}
-        </div>
-        {(profile.role === 'professeur' || profile.role === 'coordinateur' || profile.role === 'admin') && classId && (
-          <NewWeekModal classId={classId} />
-        )}
-      </div>
-
-      {/* Sélecteur de classe pour les profs avec plusieurs classes */}
-      {teacherClasses.length > 1 && (
-        <ClassSelector
-          classes={teacherClasses}
-          activeClassId={classId}
-          basePath="/dashboard/pedagogie/projets"
-        />
-      )}
-
-      {!classId ? (
-        <div className="flex h-40 items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60">
-          <p className="text-sm text-slate-400">Aucune classe assignée.</p>
-        </div>
-      ) : weeks.length === 0 ? (
-        <div className="flex h-40 items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60">
-          <p className="text-sm text-slate-400">Aucune semaine projet pour le moment.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {weeks.map((week) => (
-            <ProjectWeekCard key={week.id} week={week} groupCount={groupCounts[week.id] ?? 0} />
-          ))}
-        </div>
-      )}
-    </div>
+    <ProjectWeekGrid
+      weeks={weeks}
+      basePath="/dashboard/pedagogie/projets"
+      showClassLabel={profile.role !== 'eleve'}
+      headerSlot={headerSlot}
+      currentUserId={user?.id}
+      canDeleteAll={isCoord}
+    />
   );
 }

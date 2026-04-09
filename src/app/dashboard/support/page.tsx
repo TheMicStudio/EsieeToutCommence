@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { requirePermission } from '@/lib/permissions';
 import { getMyTickets } from '@/modules/support/actions';
 import { TicketList } from '@/modules/support/components/TicketList';
+import { NewTicketModal } from '@/modules/support/components/NewTicketModal';
 
 export default async function SupportPage() {
   await requirePermission('support.use');
@@ -25,13 +25,7 @@ export default async function SupportPage() {
           <h1 className="text-2xl font-bold text-[#061826]">Support</h1>
           <p className="mt-1 text-sm text-slate-500">Vos demandes et tickets d&apos;assistance</p>
         </div>
-        <Link
-          href="/dashboard/support/nouveau"
-          className="inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 transition-all hover:shadow-sm"
-        >
-          <Plus className="h-4 w-4" />
-          Nouveau ticket
-        </Link>
+        <NewTicketModal isDelegue={profile.role === 'eleve' && (profile.profile as { role_secondaire?: string }).role_secondaire === 'delegue'} />
       </div>
 
       {/* Stats rapides */}
@@ -59,12 +53,7 @@ export default async function SupportPage() {
             </div>
             <p className="font-semibold text-slate-700">Aucun ticket</p>
             <p className="text-sm text-slate-500">Créez votre premier ticket si vous avez une demande.</p>
-            <Link
-              href="/dashboard/support/nouveau"
-              className="mt-1 inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0471a6]/90 transition-colors"
-            >
-              <Plus className="h-4 w-4" /> Nouveau ticket
-            </Link>
+            <NewTicketModal isDelegue={profile.role === 'eleve' && (profile.profile as { role_secondaire?: string }).role_secondaire === 'delegue'} variant="ghost" />
           </div>
         ) : (
           <div className="p-4">

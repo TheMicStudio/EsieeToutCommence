@@ -15,8 +15,10 @@ import {
   CircleDot,
   ArrowUpDown,
   ChevronDown,
+  Eye,
 } from 'lucide-react';
 import { AddCourseMaterialForm } from './AddCourseMaterialForm';
+import { DocumentPreviewModal, detectPreviewMode } from '@/components/DocumentPreviewModal';
 import type { CourseMaterial } from '../types';
 
 // ─── Fallback data ──────────────────────────────────────────────────────────
@@ -79,47 +81,68 @@ function Thumbnail({ material, size }: { material: CourseMaterial; size: 'full' 
 }
 
 // ─── Grid Card ────────────────────────────────────────────────────────────────
-function GridCard({ material }: { material: CourseMaterial }) {
+function GridCard({ material, onPreview }: { material: CourseMaterial; onPreview: (m: CourseMaterial) => void }) {
   const status = STATUS[material.type];
+  const canPreview = detectPreviewMode(material.url, null, material.type) !== 'none';
 
   return (
     <div className="rounded-3xl border border-slate-200/70 bg-white p-5 shadow-[0_1px_0_rgba(15,23,42,0.06),0_10px_30px_rgba(15,23,42,0.06)] hover:shadow-[0_1px_0_rgba(15,23,42,0.08),0_14px_40px_rgba(15,23,42,0.1)] hover:border-[#0471a6]/30 transition-all duration-200 flex flex-col">
-      <Thumbnail material={material} size="full" />
+      <button
+        onClick={canPreview ? () => onPreview(material) : undefined}
+        className={['block w-full text-left focus:outline-none', canPreview ? 'cursor-pointer' : 'cursor-default'].join(' ')}
+      >
+        <Thumbnail material={material} size="full" />
+        <p className="mt-3 text-[15px] font-semibold text-slate-900 line-clamp-2 leading-snug">
+          {material.titre}
+        </p>
+      </button>
 
-      <p className="mt-3 text-[15px] font-semibold text-slate-900 line-clamp-2 leading-snug">
-        {material.titre}
-      </p>
-
-      <div className="mt-3 flex items-center justify-between mb-4 ">
+      <div className="mt-3 flex items-center justify-between mb-4">
         <span className="text-[12px] font-medium text-slate-500">{formatDate(material.created_at)}</span>
         <span className={['rounded-xl px-2 py-0.5 text-[11px] font-semibold', status.cls].join(' ')}>
           {status.label}
         </span>
       </div>
 
-      <a
-        href={material.url === '#' ? undefined : material.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-auto block w-full rounded-xl border border-slate-200 bg-white py-2 text-center text-[12px] font-bold text-slate-700 hover:bg-slate-50 transition-colors"
-      >
-        Accéder →
-      </a>
+      <div className="mt-auto flex gap-2">
+        {canPreview && (
+          <button
+            onClick={() => onPreview(material)}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white py-2 text-[12px] font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+          >
+            <Eye className="h-3.5 w-3.5" /> Aperçu
+          </button>
+        )}
+        <a
+          href={material.url === '#' ? undefined : material.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white py-2 text-[12px] font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+        >
+          Ouvrir →
+        </a>
+      </div>
     </div>
   );
 }
 
 // ─── List Row ─────────────────────────────────────────────────────────────────
-function ListRow({ material }: { material: CourseMaterial }) {
+function ListRow({ material, onPreview }: { material: CourseMaterial; onPreview: (m: CourseMaterial) => void }) {
   const status = STATUS[material.type];
+  const canPreview = detectPreviewMode(material.url, null, material.type) !== 'none';
 
   return (
     <div className="rounded-3xl border border-slate-200/70 bg-white p-3 shadow-[0_1px_0_rgba(15,23,42,0.06),0_10px_30px_rgba(15,23,42,0.06)] hover:shadow-[0_1px_0_rgba(15,23,42,0.08),0_14px_40px_rgba(15,23,42,0.1)] transition-all duration-200 flex items-center gap-4">
-      <Thumbnail material={material} size="compact" />
+      <button onClick={canPreview ? () => onPreview(material) : undefined} className="focus:outline-none">
+        <Thumbnail material={material} size="compact" />
+      </button>
 
-      <p className="flex-1 min-w-0 text-[15px] font-semibold text-slate-900 truncate">
-        {material.titre}
-      </p>
+      <button
+        onClick={canPreview ? () => onPreview(material) : undefined}
+        className={['flex-1 min-w-0 text-left focus:outline-none', canPreview ? 'cursor-pointer' : 'cursor-default'].join(' ')}
+      >
+        <p className="text-[15px] font-semibold text-slate-900 truncate">{material.titre}</p>
+      </button>
 
       <div className="flex items-center gap-3 shrink-0">
         <span className="text-[12px] font-medium text-slate-500 hidden sm:block">
@@ -128,13 +151,21 @@ function ListRow({ material }: { material: CourseMaterial }) {
         <span className={['rounded-xl px-2 py-0.5 text-[11px] font-semibold', status.cls].join(' ')}>
           {status.label}
         </span>
+        {canPreview && (
+          <button
+            onClick={() => onPreview(material)}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+          >
+            <Eye className="h-3.5 w-3.5" /> Aperçu
+          </button>
+        )}
         <a
           href={material.url === '#' ? undefined : material.url}
           target="_blank"
           rel="noopener noreferrer"
           className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-bold text-slate-700 hover:bg-slate-50 transition-colors"
         >
-          Accéder →
+          Ouvrir →
         </a>
       </div>
     </div>
@@ -147,6 +178,7 @@ interface CourseGridProps {
   canManage?: boolean;
   classId?: string;
   matieres?: string[];
+  categoryOptions?: string[];
 }
 
 export function CourseGrid({
@@ -154,6 +186,7 @@ export function CourseGrid({
   canManage = false,
   classId,
   matieres = [],
+  categoryOptions,
 }: CourseGridProps) {
   const [mode, setMode] = useState<'grid' | 'list'>('grid');
   const [search, setSearch] = useState('');
@@ -162,6 +195,7 @@ export function CourseGrid({
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [previewMaterial, setPreviewMaterial] = useState<CourseMaterial | null>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
 
   // Fermer les dropdowns au clic extérieur
@@ -176,7 +210,7 @@ export function CourseGrid({
   }, []);
 
   const source = materials.length === 0 ? FALLBACK_MATERIALS : materials;
-  const uniqueMatieres = [...new Set(source.map((m) => m.matiere))].sort();
+  const uniqueMatieres = categoryOptions ?? [...new Set(source.map((m) => m.matiere))].sort();
 
   const displayMaterials = useMemo(() => {
     let result = source.filter((m) => {
@@ -194,6 +228,14 @@ export function CourseGrid({
 
   return (
     <div className="space-y-5">
+      {previewMaterial && (
+        <DocumentPreviewModal
+          url={previewMaterial.url}
+          title={previewMaterial.titre}
+          fileType={previewMaterial.type}
+          onClose={() => setPreviewMaterial(null)}
+        />
+      )}
       {/* ── Title Section ──────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
@@ -231,7 +273,7 @@ export function CourseGrid({
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Rechercher un cours par titre, matière…"
+            placeholder="Rechercher un support par titre, semaine projet…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-11 pr-4 text-[13px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0471a6]/20 focus:border-[#0471a6] transition-all"
@@ -243,7 +285,7 @@ export function CourseGrid({
           {/* Left: filter pills */}
           <div className="flex items-center gap-2 flex-wrap">
 
-            {/* Category pill */}
+            {/* Category pill — Semaine projet */}
             <div className="relative">
               <button
                 onClick={() => setOpenDropdown(openDropdown === 'category' ? null : 'category')}
@@ -255,16 +297,16 @@ export function CourseGrid({
                 ].join(' ')}
               >
                 <Tag className="h-3.5 w-3.5" />
-                {categoryFilter ?? 'Matière'}
+                {categoryFilter ?? 'Semaine projet'}
                 <ChevronDown className="h-3 w-3 opacity-60" />
               </button>
               {openDropdown === 'category' && (
-                <div className="absolute left-0 top-full mt-1.5 z-20 min-w-[180px] rounded-2xl border border-slate-200 bg-white py-1.5 shadow-lg">
+                <div className="absolute left-0 top-full mt-1.5 z-20 min-w-[200px] rounded-2xl border border-slate-200 bg-white py-1.5 shadow-lg">
                   <button
                     onClick={() => { setCategoryFilter(null); setOpenDropdown(null); }}
                     className="block w-full px-4 py-2 text-left text-[13px] text-slate-500 hover:bg-slate-50"
                   >
-                    Toutes les matières
+                    Toutes les semaines
                   </button>
                   {uniqueMatieres.map((m) => (
                     <button
@@ -385,13 +427,13 @@ export function CourseGrid({
       ) : mode === 'grid' ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 transition-all duration-300">
           {displayMaterials.map((m) => (
-            <GridCard key={m.id} material={m} />
+            <GridCard key={m.id} material={m} onPreview={setPreviewMaterial} />
           ))}
         </div>
       ) : (
         <div className="space-y-3 transition-all duration-300">
           {displayMaterials.map((m) => (
-            <ListRow key={m.id} material={m} />
+            <ListRow key={m.id} material={m} onPreview={setPreviewMaterial} />
           ))}
         </div>
       )}
