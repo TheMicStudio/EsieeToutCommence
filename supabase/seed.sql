@@ -7,6 +7,10 @@
 -- ============================================================
 
 -- ─── Nettoyage (ordre inverse des FK) ───────────────────────
+DELETE FROM public.doc_share_links;
+DELETE FROM public.doc_permissions;
+DELETE FROM public.doc_files;
+DELETE FROM public.doc_folders;
 DELETE FROM public.scheduled_sessions;
 DELETE FROM public.planning_runs;
 DELETE FROM public.subject_requirements;
@@ -1006,5 +1010,147 @@ INSERT INTO public.news_posts (id, title, content, author_id, category, created_
   (gen_random_uuid(), 'Planning examens — Session mai 2026', 'Le planning des examens de mai est en cours de finalisation. Consultez régulièrement votre espace Planning.', '33333333-3333-3333-3333-333333333333', 'annonce', NOW() - INTERVAL '4 hours');
 
 -- ═══════════════════════════════════════════════════════════════
--- FIN DU SEED — 94 comptes, 4 classes, ~2000 enregistrements
+-- PHASE 9 : Espace Documentaire
+-- ═══════════════════════════════════════════════════════════════
+
+-- ─── Dossiers racines ────────────────────────────────────────
+INSERT INTO public.doc_folders (id, name, description, parent_id, created_by) VALUES
+  -- Niveau 0 : dossiers racines
+  ('f2010001-0000-0000-0000-000000000001', 'Administration', 'Documents administratifs et réglementaires', NULL, '33333333-3333-3333-3333-333333333333'),
+  ('f2010002-0000-0000-0000-000000000002', 'Pédagogie', 'Ressources et programmes pédagogiques', NULL, '55555555-5555-5555-5555-555555555555'),
+  ('f2010003-0000-0000-0000-000000000003', 'Vie scolaire', 'Règlement, charte, procédures', NULL, '66666666-6666-6666-6666-666666666666'),
+  ('f2010004-0000-0000-0000-000000000004', 'Examens & Évaluations', 'Sujets, corrigés, PV de jury', NULL, '55555555-5555-5555-5555-555555555555'),
+  ('f2010005-0000-0000-0000-000000000005', 'Alternance & Stages', 'Conventions, livrets, fiches entreprises', NULL, '55555555-5555-5555-5555-555555555555'),
+  ('f2010006-0000-0000-0000-000000000006', 'Communication', 'Templates, logos, supports de communication', NULL, '33333333-3333-3333-3333-333333333333'),
+  -- Niveau 1 : sous-dossiers Administration
+  ('f2020001-0000-0000-0000-000000000001', 'Inscriptions', 'Dossiers et formulaires d''inscription', 'f2010001-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333'),
+  ('f2020002-0000-0000-0000-000000000002', 'Comptabilité', 'Facturation, budgets, subventions', 'f2010001-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333'),
+  ('f2020003-0000-0000-0000-000000000003', 'Contrats & RH', 'Contrats enseignants, conventions', 'f2010001-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333'),
+  -- Niveau 1 : sous-dossiers Pédagogie
+  ('f2020004-0000-0000-0000-000000000004', 'BTS SIO SLAM', 'Programmes et ressources option SLAM', 'f2010002-0000-0000-0000-000000000002', '55555555-5555-5555-5555-555555555555'),
+  ('f2020005-0000-0000-0000-000000000005', 'BTS SIO SISR', 'Programmes et ressources option SISR', 'f2010002-0000-0000-0000-000000000002', 'f0010000-0000-0000-0000-000000000001'),
+  ('f2020006-0000-0000-0000-000000000006', 'Tronc commun', 'Matières communes SLAM/SISR', 'f2010002-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222'),
+  ('f2020007-0000-0000-0000-000000000007', 'Référentiels BTS', 'Référentiels nationaux et grilles', 'f2010002-0000-0000-0000-000000000002', '55555555-5555-5555-5555-555555555555'),
+  -- Niveau 1 : sous-dossiers Vie scolaire
+  ('f2020008-0000-0000-0000-000000000008', 'Règlement intérieur', 'Versions du règlement et annexes', 'f2010003-0000-0000-0000-000000000003', '66666666-6666-6666-6666-666666666666'),
+  ('f2020009-0000-0000-0000-000000000009', 'Conseils de classe', 'PV et comptes-rendus', 'f2010003-0000-0000-0000-000000000003', '33333333-3333-3333-3333-333333333333'),
+  -- Niveau 1 : sous-dossiers Examens
+  ('f2020010-0000-0000-0000-000000000010', 'Session 2026', 'Examens session mai/juin 2026', 'f2010004-0000-0000-0000-000000000004', '55555555-5555-5555-5555-555555555555'),
+  ('f2020011-0000-0000-0000-000000000011', 'Session 2025', 'Archives examens 2025', 'f2010004-0000-0000-0000-000000000004', '55555555-5555-5555-5555-555555555555'),
+  -- Niveau 1 : sous-dossiers Alternance
+  ('f2020012-0000-0000-0000-000000000012', 'Conventions type', 'Modèles de conventions tripartites', 'f2010005-0000-0000-0000-000000000005', '55555555-5555-5555-5555-555555555555'),
+  ('f2020013-0000-0000-0000-000000000013', 'Fiches entreprises', 'Fiches descriptives entreprises partenaires', 'f2010005-0000-0000-0000-000000000005', '55555555-5555-5555-5555-555555555555'),
+  -- Niveau 1 : sous-dossiers Communication
+  ('f2020014-0000-0000-0000-000000000014', 'Identité visuelle', 'Logos, charte graphique, polices', 'f2010006-0000-0000-0000-000000000006', '33333333-3333-3333-3333-333333333333'),
+  ('f2020015-0000-0000-0000-000000000015', 'Supports événements', 'Affiches, flyers, présentations', 'f2010006-0000-0000-0000-000000000006', '33333333-3333-3333-3333-333333333333'),
+  -- Niveau 2 : sous-sous-dossiers SLAM
+  ('f2030001-0000-0000-0000-000000000001', 'Développement Web', 'Cours et TP développement web', 'f2020004-0000-0000-0000-000000000004', '99999999-9999-9999-9999-999999999999'),
+  ('f2030002-0000-0000-0000-000000000002', 'Bases de données', 'Cours SQL, modélisation, TP', 'f2020004-0000-0000-0000-000000000004', '99999999-9999-9999-9999-999999999999'),
+  ('f2030003-0000-0000-0000-000000000003', 'Cybersécurité SLAM', 'OWASP, sécurité applicative', 'f2020004-0000-0000-0000-000000000004', '99999999-9999-9999-9999-999999999999'),
+  -- Niveau 2 : sous-sous-dossiers SISR
+  ('f2030004-0000-0000-0000-000000000004', 'Réseaux', 'Cours et TP réseaux', 'f2020005-0000-0000-0000-000000000005', 'f0010000-0000-0000-0000-000000000001'),
+  ('f2030005-0000-0000-0000-000000000005', 'Systèmes', 'Administration Windows/Linux', 'f2020005-0000-0000-0000-000000000005', 'f0010000-0000-0000-0000-000000000001'),
+  ('f2030006-0000-0000-0000-000000000006', 'Cybersécurité SISR', 'Audit, pentest, sécurité réseau', 'f2020005-0000-0000-0000-000000000005', 'f0010000-0000-0000-0000-000000000001');
+
+-- ─── Fichiers ────────────────────────────────────────────────
+INSERT INTO public.doc_files (id, folder_id, name, description, tags, mime_type, size_bytes, storage_path, uploaded_by) VALUES
+  -- Administration > Inscriptions
+  ('fa010001-0000-0000-0000-000000000001', 'f2020001-0000-0000-0000-000000000001', 'Formulaire_inscription_2026.pdf', 'Dossier d''inscription vierge rentrée 2026', ARRAY['inscription','formulaire','2026'], 'application/pdf', 245760, 'documents/admin/inscriptions/formulaire_2026.pdf', '33333333-3333-3333-3333-333333333333'),
+  ('fa010002-0000-0000-0000-000000000002', 'f2020001-0000-0000-0000-000000000001', 'Liste_pieces_justificatives.pdf', 'Pièces à fournir pour le dossier d''inscription', ARRAY['inscription','pièces'], 'application/pdf', 98304, 'documents/admin/inscriptions/pieces_justificatives.pdf', '33333333-3333-3333-3333-333333333333'),
+  ('fa010003-0000-0000-0000-000000000003', 'f2020001-0000-0000-0000-000000000001', 'Calendrier_admissions_2026.xlsx', 'Planning des phases d''admission', ARRAY['inscription','calendrier','2026'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 35840, 'documents/admin/inscriptions/calendrier_admissions.xlsx', '66666666-6666-6666-6666-666666666666'),
+  -- Administration > Comptabilité
+  ('fa010004-0000-0000-0000-000000000004', 'f2020002-0000-0000-0000-000000000002', 'Budget_previsionnel_2026.xlsx', 'Budget prévisionnel année scolaire 2025-2026', ARRAY['budget','comptabilité','2026'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 156672, 'documents/admin/compta/budget_2026.xlsx', '33333333-3333-3333-3333-333333333333'),
+  ('fa010005-0000-0000-0000-000000000005', 'f2020002-0000-0000-0000-000000000002', 'Factures_Q1_2026.pdf', 'Récapitulatif facturation 1er trimestre', ARRAY['factures','comptabilité','Q1'], 'application/pdf', 524288, 'documents/admin/compta/factures_q1.pdf', '33333333-3333-3333-3333-333333333333'),
+  -- Administration > Contrats
+  ('fa010006-0000-0000-0000-000000000006', 'f2020003-0000-0000-0000-000000000003', 'Modele_contrat_vacataire.docx', 'Template contrat enseignant vacataire', ARRAY['contrat','RH','modèle'], 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 45056, 'documents/admin/rh/contrat_vacataire.docx', '33333333-3333-3333-3333-333333333333'),
+  -- Pédagogie > SLAM > Dev Web
+  ('fa020001-0000-0000-0000-000000000001', 'f2030001-0000-0000-0000-000000000001', 'Cours_React_Hooks_Complet.pdf', 'Cours complet sur les Hooks React (useState, useEffect, useContext, custom hooks)', ARRAY['react','hooks','frontend','cours'], 'application/pdf', 2097152, 'documents/pedagogy/slam/devweb/react_hooks.pdf', '99999999-9999-9999-9999-999999999999'),
+  ('fa020002-0000-0000-0000-000000000002', 'f2030001-0000-0000-0000-000000000001', 'TP_API_REST_Express.pdf', 'TP noté : créer une API REST avec Express et JWT', ARRAY['api','express','tp','nodejs'], 'application/pdf', 1048576, 'documents/pedagogy/slam/devweb/tp_api_rest.pdf', '99999999-9999-9999-9999-999999999999'),
+  ('fa020003-0000-0000-0000-000000000003', 'f2030001-0000-0000-0000-000000000001', 'Cheatsheet_TypeScript.pdf', 'Aide-mémoire TypeScript : types, interfaces, generics', ARRAY['typescript','cheatsheet','référence'], 'application/pdf', 524288, 'documents/pedagogy/slam/devweb/cheatsheet_ts.pdf', '99999999-9999-9999-9999-999999999999'),
+  ('fa020004-0000-0000-0000-000000000004', 'f2030001-0000-0000-0000-000000000001', 'Projet_Next.js_Consignes.pdf', 'Consignes du projet Next.js : app full-stack avec Supabase', ARRAY['nextjs','projet','supabase','consignes'], 'application/pdf', 786432, 'documents/pedagogy/slam/devweb/projet_nextjs.pdf', '99999999-9999-9999-9999-999999999999'),
+  -- Pédagogie > SLAM > BDD
+  ('fa020005-0000-0000-0000-000000000005', 'f2030002-0000-0000-0000-000000000002', 'Cours_SQL_Avance.pdf', 'Jointures, sous-requêtes, vues, triggers, procédures stockées', ARRAY['sql','bdd','cours','avancé'], 'application/pdf', 1572864, 'documents/pedagogy/slam/bdd/sql_avance.pdf', '99999999-9999-9999-9999-999999999999'),
+  ('fa020006-0000-0000-0000-000000000006', 'f2030002-0000-0000-0000-000000000002', 'TP_Modelisation_MCD_MLD.pdf', 'TP : modéliser une base de données e-commerce', ARRAY['mcd','mld','modélisation','tp'], 'application/pdf', 655360, 'documents/pedagogy/slam/bdd/tp_modelisation.pdf', '99999999-9999-9999-9999-999999999999'),
+  ('fa020007-0000-0000-0000-000000000007', 'f2030002-0000-0000-0000-000000000002', 'Exercices_PostgreSQL.sql', 'Fichier SQL avec 30 exercices progressifs PostgreSQL', ARRAY['postgresql','exercices','sql'], 'application/sql', 32768, 'documents/pedagogy/slam/bdd/exercices_pg.sql', '99999999-9999-9999-9999-999999999999'),
+  -- Pédagogie > SISR > Réseaux
+  ('fa020008-0000-0000-0000-000000000008', 'f2030004-0000-0000-0000-000000000004', 'Cours_VLAN_Routage.pdf', 'VLANs, routage inter-VLAN, protocoles de routage', ARRAY['vlan','routage','cisco','cours'], 'application/pdf', 3145728, 'documents/pedagogy/sisr/reseaux/vlan_routage.pdf', 'f0010000-0000-0000-0000-000000000001'),
+  ('fa020009-0000-0000-0000-000000000009', 'f2030004-0000-0000-0000-000000000004', 'TP_Packet_Tracer_OSPF.pka', 'TP Packet Tracer : configuration OSPF multi-zones', ARRAY['ospf','packet-tracer','tp','routage'], 'application/octet-stream', 4194304, 'documents/pedagogy/sisr/reseaux/tp_ospf.pka', 'f0010000-0000-0000-0000-000000000001'),
+  ('fa020010-0000-0000-0000-000000000010', 'f2030004-0000-0000-0000-000000000004', 'Schema_Architecture_Reseau.png', 'Schéma type architecture réseau PME (30 postes)', ARRAY['schéma','architecture','réseau'], 'image/png', 1048576, 'documents/pedagogy/sisr/reseaux/archi_reseau.png', 'f0010000-0000-0000-0000-000000000001'),
+  -- Pédagogie > SISR > Systèmes
+  ('fa020011-0000-0000-0000-000000000011', 'f2030005-0000-0000-0000-000000000005', 'Guide_AD_Windows_Server.pdf', 'Installation et configuration Active Directory pas à pas', ARRAY['active-directory','windows','guide'], 'application/pdf', 2621440, 'documents/pedagogy/sisr/systemes/guide_ad.pdf', 'f0010000-0000-0000-0000-000000000001'),
+  ('fa020012-0000-0000-0000-000000000012', 'f2030005-0000-0000-0000-000000000005', 'TP_Linux_Administration.pdf', 'TP : gestion utilisateurs, permissions, cron, logs sous Debian', ARRAY['linux','debian','administration','tp'], 'application/pdf', 1310720, 'documents/pedagogy/sisr/systemes/tp_linux.pdf', 'f0010000-0000-0000-0000-000000000001'),
+  -- Pédagogie > SISR > Cybersécurité
+  ('fa020013-0000-0000-0000-000000000013', 'f2030006-0000-0000-0000-000000000006', 'Cours_Firewall_IDS_IPS.pdf', 'Firewalls, systèmes de détection et prévention d''intrusion', ARRAY['firewall','ids','ips','sécurité'], 'application/pdf', 1835008, 'documents/pedagogy/sisr/cybersec/firewall_ids.pdf', 'f0010000-0000-0000-0000-000000000001'),
+  ('fa020014-0000-0000-0000-000000000014', 'f2030006-0000-0000-0000-000000000006', 'Lab_CTF_Debutant.pdf', 'Guide du lab Capture The Flag pour débutants', ARRAY['ctf','lab','sécurité','débutant'], 'application/pdf', 917504, 'documents/pedagogy/sisr/cybersec/ctf_debutant.pdf', 'f0010000-0000-0000-0000-000000000001'),
+  -- Pédagogie > Tronc commun
+  ('fa020015-0000-0000-0000-000000000015', 'f2020006-0000-0000-0000-000000000006', 'Cours_Algo_Structures_Donnees.pdf', 'Algorithmes de tri, recherche, structures de données (listes, arbres, graphes)', ARRAY['algorithme','structures','cours'], 'application/pdf', 2097152, 'documents/pedagogy/commun/algo_structures.pdf', '22222222-2222-2222-2222-222222222222'),
+  ('fa020016-0000-0000-0000-000000000016', 'f2020006-0000-0000-0000-000000000006', 'Sujet_DS_Maths_Mars_2026.pdf', 'Devoir surveillé mathématiques — mars 2026', ARRAY['maths','ds','sujet','mars-2026'], 'application/pdf', 327680, 'documents/pedagogy/commun/ds_maths_mars.pdf', '22222222-2222-2222-2222-222222222222'),
+  ('fa020017-0000-0000-0000-000000000017', 'f2020006-0000-0000-0000-000000000006', 'Corrige_DS_Maths_Mars_2026.pdf', 'Corrigé du DS mathématiques — mars 2026', ARRAY['maths','ds','corrigé','mars-2026'], 'application/pdf', 491520, 'documents/pedagogy/commun/corrige_maths_mars.pdf', '22222222-2222-2222-2222-222222222222'),
+  -- Pédagogie > Référentiels
+  ('fa020018-0000-0000-0000-000000000018', 'f2020007-0000-0000-0000-000000000007', 'Referentiel_BTS_SIO_2025.pdf', 'Référentiel national BTS SIO — édition 2025', ARRAY['référentiel','bts','national','officiel'], 'application/pdf', 4718592, 'documents/pedagogy/referentiels/ref_bts_sio_2025.pdf', '55555555-5555-5555-5555-555555555555'),
+  ('fa020019-0000-0000-0000-000000000019', 'f2020007-0000-0000-0000-000000000007', 'Grille_Evaluation_E4.pdf', 'Grille d''évaluation épreuve E4 — parcours de professionnalisation', ARRAY['grille','évaluation','E4','examen'], 'application/pdf', 163840, 'documents/pedagogy/referentiels/grille_e4.pdf', '55555555-5555-5555-5555-555555555555'),
+  ('fa020020-0000-0000-0000-000000000020', 'f2020007-0000-0000-0000-000000000007', 'Grille_Evaluation_E5.pdf', 'Grille d''évaluation épreuve E5 — situation professionnelle', ARRAY['grille','évaluation','E5','examen'], 'application/pdf', 163840, 'documents/pedagogy/referentiels/grille_e5.pdf', '55555555-5555-5555-5555-555555555555'),
+  -- Vie scolaire > Règlement
+  ('fa030001-0000-0000-0000-000000000001', 'f2020008-0000-0000-0000-000000000008', 'Reglement_Interieur_2025-2026.pdf', 'Règlement intérieur en vigueur', ARRAY['règlement','officiel','2025-2026'], 'application/pdf', 655360, 'documents/viescolaire/reglement_2025_2026.pdf', '66666666-6666-6666-6666-666666666666'),
+  ('fa030002-0000-0000-0000-000000000002', 'f2020008-0000-0000-0000-000000000008', 'Charte_Informatique.pdf', 'Charte d''utilisation du matériel informatique et du réseau', ARRAY['charte','informatique','réseau'], 'application/pdf', 327680, 'documents/viescolaire/charte_info.pdf', '66666666-6666-6666-6666-666666666666'),
+  -- Vie scolaire > Conseils de classe
+  ('fa030003-0000-0000-0000-000000000003', 'f2020009-0000-0000-0000-000000000009', 'PV_Conseil_SLAM2_Sem1.pdf', 'PV conseil de classe SLAM2 — semestre 1', ARRAY['pv','conseil','slam2','semestre1'], 'application/pdf', 245760, 'documents/viescolaire/conseils/pv_slam2_s1.pdf', '33333333-3333-3333-3333-333333333333'),
+  ('fa030004-0000-0000-0000-000000000004', 'f2020009-0000-0000-0000-000000000009', 'PV_Conseil_SISR2_Sem1.pdf', 'PV conseil de classe SISR2 — semestre 1', ARRAY['pv','conseil','sisr2','semestre1'], 'application/pdf', 229376, 'documents/viescolaire/conseils/pv_sisr2_s1.pdf', '33333333-3333-3333-3333-333333333333'),
+  -- Examens > Session 2026
+  ('fa040001-0000-0000-0000-000000000001', 'f2020010-0000-0000-0000-000000000010', 'Calendrier_Examens_Mai_2026.pdf', 'Planning des épreuves — session mai/juin 2026', ARRAY['examens','calendrier','2026','planning'], 'application/pdf', 196608, 'documents/examens/session2026/calendrier.pdf', '55555555-5555-5555-5555-555555555555'),
+  ('fa040002-0000-0000-0000-000000000002', 'f2020010-0000-0000-0000-000000000010', 'Consignes_Epreuve_E4.pdf', 'Consignes et attendus pour l''épreuve E4', ARRAY['E4','consignes','examen'], 'application/pdf', 524288, 'documents/examens/session2026/consignes_e4.pdf', '55555555-5555-5555-5555-555555555555'),
+  -- Examens > Session 2025 (archives)
+  ('fa040003-0000-0000-0000-000000000003', 'f2020011-0000-0000-0000-000000000011', 'Sujet_E5_Session_2025.pdf', 'Sujet épreuve E5 — session 2025 (archive)', ARRAY['E5','sujet','2025','archive'], 'application/pdf', 786432, 'documents/examens/session2025/sujet_e5.pdf', '55555555-5555-5555-5555-555555555555'),
+  ('fa040004-0000-0000-0000-000000000004', 'f2020011-0000-0000-0000-000000000011', 'Corrige_E5_Session_2025.pdf', 'Corrigé épreuve E5 — session 2025', ARRAY['E5','corrigé','2025','archive'], 'application/pdf', 1048576, 'documents/examens/session2025/corrige_e5.pdf', '55555555-5555-5555-5555-555555555555'),
+  -- Alternance > Conventions
+  ('fa050001-0000-0000-0000-000000000001', 'f2020012-0000-0000-0000-000000000012', 'Convention_Tripartite_Type.docx', 'Modèle de convention tripartite (école–entreprise–étudiant)', ARRAY['convention','alternance','modèle'], 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 57344, 'documents/alternance/conventions/convention_type.docx', '55555555-5555-5555-5555-555555555555'),
+  ('fa050002-0000-0000-0000-000000000002', 'f2020012-0000-0000-0000-000000000012', 'Guide_Maitre_Apprentissage.pdf', 'Guide à destination des maîtres d''apprentissage', ARRAY['guide','alternance','maître'], 'application/pdf', 819200, 'documents/alternance/conventions/guide_ma.pdf', '55555555-5555-5555-5555-555555555555'),
+  -- Alternance > Fiches entreprises
+  ('fa050003-0000-0000-0000-000000000003', 'f2020013-0000-0000-0000-000000000013', 'Fiche_AcmeCorp.pdf', 'Fiche entreprise Acme Corp — Dev Full Stack', ARRAY['acme','entreprise','fiche'], 'application/pdf', 163840, 'documents/alternance/fiches/fiche_acme.pdf', '55555555-5555-5555-5555-555555555555'),
+  ('fa050004-0000-0000-0000-000000000004', 'f2020013-0000-0000-0000-000000000013', 'Fiche_NeoSystems.pdf', 'Fiche entreprise NeoSystems — Admin Systèmes', ARRAY['neosystems','entreprise','fiche'], 'application/pdf', 163840, 'documents/alternance/fiches/fiche_neosystems.pdf', '55555555-5555-5555-5555-555555555555'),
+  ('fa050005-0000-0000-0000-000000000005', 'f2020013-0000-0000-0000-000000000013', 'Fiche_Nextech.pdf', 'Fiche entreprise Nextech SAS — Dev mobile Flutter', ARRAY['nextech','entreprise','fiche'], 'application/pdf', 147456, 'documents/alternance/fiches/fiche_nextech.pdf', '55555555-5555-5555-5555-555555555555'),
+  -- Communication > Identité visuelle
+  ('fa060001-0000-0000-0000-000000000001', 'f2020014-0000-0000-0000-000000000014', 'Logo_ESIEE_Principal.png', 'Logo principal de l''école — haute résolution', ARRAY['logo','identité','officiel'], 'image/png', 524288, 'documents/communication/logo_principal.png', '33333333-3333-3333-3333-333333333333'),
+  ('fa060002-0000-0000-0000-000000000002', 'f2020014-0000-0000-0000-000000000014', 'Charte_Graphique_2025.pdf', 'Charte graphique : couleurs, typographies, usages du logo', ARRAY['charte','graphique','identité'], 'application/pdf', 2097152, 'documents/communication/charte_graphique.pdf', '33333333-3333-3333-3333-333333333333'),
+  -- Communication > Supports événements
+  ('fa060003-0000-0000-0000-000000000003', 'f2020015-0000-0000-0000-000000000015', 'Affiche_Forum_Entreprises_2026.pdf', 'Affiche A3 du forum entreprises — 23 avril 2026', ARRAY['affiche','forum','événement'], 'application/pdf', 3145728, 'documents/communication/events/affiche_forum.pdf', '33333333-3333-3333-3333-333333333333'),
+  ('fa060004-0000-0000-0000-000000000004', 'f2020015-0000-0000-0000-000000000015', 'Presentation_JPO_Mars_2026.pptx', 'Présentation PowerPoint pour les journées portes ouvertes', ARRAY['jpo','présentation','portes-ouvertes'], 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 8388608, 'documents/communication/events/pres_jpo.pptx', '33333333-3333-3333-3333-333333333333'),
+  ('fa060005-0000-0000-0000-000000000005', 'f2020015-0000-0000-0000-000000000015', 'Flyer_Hackathon_DevOps.pdf', 'Flyer de promotion du hackathon DevOps — mai 2026', ARRAY['hackathon','flyer','devops'], 'application/pdf', 1572864, 'documents/communication/events/flyer_hackathon.pdf', '55555555-5555-5555-5555-555555555555');
+
+-- ─── Permissions par dossier ─────────────────────────────────
+INSERT INTO public.doc_permissions (folder_id, role_target, level, granted_by) VALUES
+  -- Administration : admin + coordinateur en write
+  ('f2010001-0000-0000-0000-000000000001', 'admin', 'admin', '33333333-3333-3333-3333-333333333333'),
+  ('f2010001-0000-0000-0000-000000000001', 'coordinateur', 'write', '33333333-3333-3333-3333-333333333333'),
+  -- Pédagogie : profs en write, élèves en read
+  ('f2010002-0000-0000-0000-000000000002', 'professeur', 'write', '55555555-5555-5555-5555-555555555555'),
+  ('f2010002-0000-0000-0000-000000000002', 'eleve', 'read', '55555555-5555-5555-5555-555555555555'),
+  ('f2010002-0000-0000-0000-000000000002', 'coordinateur', 'admin', '55555555-5555-5555-5555-555555555555'),
+  -- Vie scolaire : staff en write, profs en read
+  ('f2010003-0000-0000-0000-000000000003', 'staff', 'write', '66666666-6666-6666-6666-666666666666'),
+  ('f2010003-0000-0000-0000-000000000003', 'professeur', 'read', '66666666-6666-6666-6666-666666666666'),
+  -- Examens : profs en write, coordinateur en admin
+  ('f2010004-0000-0000-0000-000000000004', 'professeur', 'write', '55555555-5555-5555-5555-555555555555'),
+  ('f2010004-0000-0000-0000-000000000004', 'coordinateur', 'admin', '55555555-5555-5555-5555-555555555555'),
+  -- Alternance : coordinateur en admin, entreprises en read
+  ('f2010005-0000-0000-0000-000000000005', 'coordinateur', 'admin', '55555555-5555-5555-5555-555555555555'),
+  ('f2010005-0000-0000-0000-000000000005', 'entreprise', 'read', '55555555-5555-5555-5555-555555555555'),
+  -- Communication : admin en admin, tous en read
+  ('f2010006-0000-0000-0000-000000000006', 'admin', 'admin', '33333333-3333-3333-3333-333333333333'),
+  ('f2010006-0000-0000-0000-000000000006', 'professeur', 'read', '33333333-3333-3333-3333-333333333333'),
+  ('f2010006-0000-0000-0000-000000000006', 'eleve', 'read', '33333333-3333-3333-3333-333333333333');
+
+-- ─── Liens de partage ────────────────────────────────────────
+INSERT INTO public.doc_share_links (file_id, folder_id, token, label, expires_at, max_uses, created_by) VALUES
+  -- Lien vers le référentiel BTS (fichier)
+  (NULL, 'f2020007-0000-0000-0000-000000000007', 'ref-bts-sio-2025-public', 'Référentiels BTS — accès public', NOW() + INTERVAL '180 days', NULL, '55555555-5555-5555-5555-555555555555'),
+  -- Lien vers le règlement intérieur (fichier)
+  ('fa030001-0000-0000-0000-000000000001', NULL, 'reglement-interieur-2026', 'Règlement intérieur — lien parents', NOW() + INTERVAL '365 days', NULL, '66666666-6666-6666-6666-666666666666'),
+  -- Lien vers le guide MA (fichier)
+  ('fa050002-0000-0000-0000-000000000002', NULL, 'guide-ma-2026-entreprises', 'Guide MA — envoyé aux entreprises', NOW() + INTERVAL '90 days', 50, '55555555-5555-5555-5555-555555555555'),
+  -- Lien vers le dossier supports événements
+  (NULL, 'f2020015-0000-0000-0000-000000000015', 'supports-events-partage', 'Supports événements — partage équipe com', NOW() + INTERVAL '60 days', NULL, '33333333-3333-3333-3333-333333333333');
+
+-- ═══════════════════════════════════════════════════════════════
+-- FIN DU SEED — 94 comptes, 4 classes, ~2000+ enregistrements
 -- ═══════════════════════════════════════════════════════════════
