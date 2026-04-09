@@ -60,7 +60,7 @@ export function TicketForm({ isDelegue = false, onSuccess }: Readonly<TicketForm
     setUploadError('');
     const supabase = createClient();
     const ext = file.name.split('.').pop();
-    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const path = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from('support-files').upload(path, file);
     if (error) {
       setUploadError(`Erreur : ${error.message}`);

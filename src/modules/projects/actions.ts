@@ -385,7 +385,7 @@ export async function randomizeSlots(weekId: string): Promise<{ error?: string }
   // Mélanger les groupes (Fisher-Yates)
   const shuffled = [...groups];
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor((crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000) * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
 

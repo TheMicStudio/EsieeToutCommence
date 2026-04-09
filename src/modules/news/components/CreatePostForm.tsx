@@ -55,7 +55,7 @@ export function CreatePostForm({ isAdmin, onSuccess }: Readonly<CreatePostFormPr
     if (bannerFile) {
       const supabase = createClient();
       const ext = bannerFile.name.split('.').pop();
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const path = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
       const { error: uploadError } = await supabase.storage
         .from('news-banners')
         .upload(path, bannerFile, { upsert: false });
