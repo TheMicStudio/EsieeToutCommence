@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+// EXCEPTION(US28): Supabase Realtime nécessite obligatoirement une souscription
+// côté client (WebSocket). Il est impossible de déléguer cela à une Server Action.
+// L'accès est en lecture seule sur attendance_records, filtré par session_id.
 import { createClient } from '@/lib/supabase/client';
 import type { AttendanceRecord } from '../types';
 

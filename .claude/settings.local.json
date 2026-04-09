@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:www.fontshare.com)"
+      "WebFetch(domain:www.fontshare.com)",
+      "Bash(xargs wc:*)",
+      "Bash(grep -l \"'use client'\" /c/Users/cleme/Desktop/Workspace/School_project/EsieeToutCommence/src/modules/*/components/*.tsx)",
+      "Bash(xargs -I {} sh -c 'echo \"=== {} ===\" && head -20 {}')",
+      "Bash(npm install:*)",
+      "Bash(npm list:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx playwright:*)"
     ]
   }
 }

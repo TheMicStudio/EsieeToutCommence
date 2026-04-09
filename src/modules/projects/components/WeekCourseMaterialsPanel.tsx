@@ -8,19 +8,9 @@ import {
   ExternalLink, FileText, Video, Trash2, Plus, Download, File, Eye,
 } from 'lucide-react';
 import { DocumentPreviewModal, detectPreviewMode } from '@/components/DocumentPreviewModal';
+import { timeAgo } from '@/lib/utils/time';
 
 const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
-
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins  = Math.floor(diff / 60_000);
-  const hours = Math.floor(diff / 3_600_000);
-  const days  = Math.floor(diff / 86_400_000);
-  if (mins < 60)  return `il y a ${mins}min`;
-  if (hours < 24) return `il y a ${hours}h`;
-  if (days < 7)   return `il y a ${days}j`;
-  return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-}
 
 type IconColor = 'rose' | 'blue' | 'emerald' | 'amber' | 'slate' | 'cyan';
 

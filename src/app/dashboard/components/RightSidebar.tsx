@@ -9,6 +9,10 @@ import {
   ChevronRight, CalendarPlus, HelpCircle,
   ListChecks, TrendingUp, AlertCircle,
 } from 'lucide-react';
+// EXCEPTION(US28): La sidebar droite contient des widgets dont les données varient
+// fréquemment (notes, stats annuaire). Ils utilisent le client Supabase côté client
+// pour éviter de re-rendre toute la page serveur à chaque changement.
+// Tous les accès sont en lecture seule et bornés par le userId de la session.
 import { createClient } from '@/lib/supabase/client';
 import type { UserProfile } from '@/modules/auth/types';
 
