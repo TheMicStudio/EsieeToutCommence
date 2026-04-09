@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache';
 
 async function requireAdmin() {
   const profile = await getCurrentUserProfile();
-  if (!profile || profile.role !== 'admin') throw new Error('Accès refusé.');
+  if (profile?.role !== 'admin') throw new Error('Accès refusé.');
   return profile;
 }
 
@@ -90,8 +90,8 @@ function _parseZip(data: Buffer): Map<string, Buffer> {
 }
 
 function _unescapeXml(s: string): string {
-  return s.replace(/&amp;/g, '&').replace(/&lt;/g, '<')
-          .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'");
+  return s.replaceAll(/&amp;/g, '&').replaceAll(/&lt;/g, '<')
+          .replaceAll(/&gt;/g, '>').replaceAll(/&quot;/g, '"').replaceAll(/&apos;/g, "'");
 }
 
 function _colIndex(letters: string): number {
@@ -132,7 +132,7 @@ function _xlsxBufferToCsv(buf: Buffer): string {
       const vM    = inner.match(/<v>([\s\S]*?)<\/v>/);
       let val = '';
       if (vM) {
-        val = typeM?.[1] === 's' ? (shared[parseInt(vM[1])] ?? '') : _unescapeXml(vM[1]);
+        val = typeM?.[1] === 's' ? (shared[Number.parseInt(vM[1])] ?? '') : _unescapeXml(vM[1]);
       } else {
         // Inline string <is><t>…</t></is>
         const isM = inner.match(/<t(?:[^>]*)>([\s\S]*?)<\/t>/);
@@ -192,7 +192,7 @@ export async function parseCsvContent(content: string): Promise<ImportPreview> {
   // Détection du séparateur (virgule ou point-virgule)
   const header = lines[0];
   const sep = header.includes(';') ? ';' : ',';
-  const cols = header.split(sep).map((c) => c.trim().replace(/^"|"$/g, '').toUpperCase());
+  const cols = header.split(sep).map((c) => c.trim().replaceAll(/^"|"$/g, '').toUpperCase());
 
   const idxGroupe = cols.indexOf('NOM_GROUPE_APPRENANT');
   const idxNom    = cols.indexOf('NOM_APPRENANT');
@@ -208,7 +208,7 @@ export async function parseCsvContent(content: string): Promise<ImportPreview> {
     const line = lines[i].trim();
     if (!line) continue;
 
-    const cells = line.split(sep).map((c) => c.trim().replace(/^"|"$/g, ''));
+    const cells = line.split(sep).map((c) => c.trim().replaceAll(/^"|"$/g, ''));
     const nomGroupe = cells[idxGroupe] ?? '';
     const nom       = cells[idxNom] ?? '';
     const prenom    = cells[idxPrenom] ?? '';
@@ -232,7 +232,7 @@ export async function parseCsvContent(content: string): Promise<ImportPreview> {
 
     const classeNom    = match[1].trim();
     const typeParcours = match[2] === 'ALT' ? 'alternant' : 'temps_plein';
-    const anneeDebut   = 2000 + parseInt(match[3], 10);
+    const anneeDebut   = 2000 + Number.parseInt(match[3], 10);
 
     students.push({
       nom,
@@ -474,8 +474,8 @@ export async function updateCalendarMode(
   const patch: Record<string, unknown> = { calendar_mode: mode };
 
   if (mode === 'FIXED_PATTERN') {
-    const schoolWeeks  = parseInt(formData.get('pattern_school_weeks') as string);
-    const companyWeeks = parseInt(formData.get('pattern_company_weeks') as string);
+    const schoolWeeks  = Number.parseInt(formData.get('pattern_school_weeks') as string);
+    const companyWeeks = Number.parseInt(formData.get('pattern_company_weeks') as string);
     const refDate      = formData.get('pattern_reference_date') as string;
     if (!schoolWeeks || !companyWeeks || !refDate)
       return { error: 'Renseignez le nombre de semaines et la date de référence.' };

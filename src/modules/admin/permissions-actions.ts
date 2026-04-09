@@ -45,7 +45,7 @@ export async function toggleRolePermission(
   enabled: boolean
 ): Promise<{ error?: string }> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') {
+  if (userProfile?.role !== 'admin') {
     return { error: 'Accès refusé.' };
   }
 
@@ -69,7 +69,7 @@ export async function toggleRolePermission(
 /** Remet les permissions d'un rôle aux valeurs par défaut */
 export async function resetRolePermissions(role: string): Promise<{ error?: string }> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') {
+  if (userProfile?.role !== 'admin') {
     return { error: 'Accès refusé.' };
   }
 

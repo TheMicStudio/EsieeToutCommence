@@ -19,7 +19,7 @@ export interface UserRow {
 
 async function requireAdmin() {
   const profile = await getCurrentUserProfile();
-  if (!profile || profile.role !== 'admin') throw new Error('Accès refusé.');
+  if (profile?.role !== 'admin') throw new Error('Accès refusé.');
   return profile;
 }
 

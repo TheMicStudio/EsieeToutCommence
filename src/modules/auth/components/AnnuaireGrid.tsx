@@ -98,7 +98,7 @@ export function AnnuaireGrid({ eleves, professeurs, coordinateurs = [], admins =
   const [filterSearch, setFilterSearch] = useState('');
   const [activeTab, setActiveTab]       = useState<Tab>('tous');
   const [favorites, setFavorites] = useState<Set<string>>(() => {
-    if (typeof window === 'undefined') return new Set();
+    if (typeof globalThis.window === 'undefined') return new Set();
     try {
       const stored = localStorage.getItem('annuaire_favorites');
       return stored ? new Set<string>(JSON.parse(stored)) : new Set();
@@ -111,9 +111,9 @@ export function AnnuaireGrid({ eleves, professeurs, coordinateurs = [], admins =
   const [copiedEmailId, setCopiedEmailId]   = useState<string | null>(null);
 
   const handlePhone = useCallback((number: string, key: string, setter: (v: string | null) => void) => {
-    const isTouchDevice = typeof window !== 'undefined' && navigator.maxTouchPoints > 0;
+    const isTouchDevice = typeof globalThis.window !== 'undefined' && navigator.maxTouchPoints > 0;
     if (isTouchDevice) {
-      window.location.href = `tel:${number}`;
+      globalThis.window.location.href = `tel:${number}`;
     } else {
       navigator.clipboard.writeText(number).then(() => {
         setter(key);
@@ -124,9 +124,9 @@ export function AnnuaireGrid({ eleves, professeurs, coordinateurs = [], admins =
 
   const handleEmail = useCallback((member: MemberEntry) => {
     if (!member.email) return;
-    const isTouchDevice = typeof window !== 'undefined' && navigator.maxTouchPoints > 0;
+    const isTouchDevice = typeof globalThis.window !== 'undefined' && navigator.maxTouchPoints > 0;
     if (isTouchDevice) {
-      window.location.href = `mailto:${member.email}`;
+      globalThis.window.location.href = `mailto:${member.email}`;
     } else {
       navigator.clipboard.writeText(member.email).then(() => {
         setCopiedEmailId(member.id);

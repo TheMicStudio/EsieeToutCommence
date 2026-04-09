@@ -40,7 +40,7 @@ export default async function PlanningPage({
   searchParams: Promise<{ tab?: string }>;
 }) {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') redirect('/dashboard');
+  if (userProfile?.role !== 'admin') redirect('/dashboard');
 
   const { tab: rawTab = 'import' } = await searchParams;
   const tab: TabId = TABS.some((t) => t.id === rawTab)

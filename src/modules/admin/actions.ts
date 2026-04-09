@@ -1,7 +1,6 @@
 'use server';
 
 import { createAdminClient } from '@/lib/supabase/admin';
-import { createClient } from '@/lib/supabase/server';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { revalidatePath } from 'next/cache';
 
@@ -30,7 +29,7 @@ export interface StudentRow {
 
 async function requireAdmin() {
   const profile = await getCurrentUserProfile();
-  if (!profile || profile.role !== 'admin') throw new Error('Accès refusé.');
+  if (profile?.role !== 'admin') throw new Error('Accès refusé.');
   return profile;
 }
 
@@ -79,7 +78,7 @@ export async function createClass(
 ) {
   await requireAdmin();
   const nom = formData.get('nom') as string;
-  const annee = parseInt(formData.get('annee') as string);
+  const annee = Number.parseInt(formData.get('annee') as string);
 
   if (!nom || !annee) return { error: 'Nom et année sont requis.' };
 

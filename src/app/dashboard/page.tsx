@@ -1,5 +1,4 @@
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import { ROLE_LABELS } from '@/modules/auth/types';
 import Link from 'next/link';
 import {
   ArrowUpRight,
@@ -9,8 +8,6 @@ import {
   GraduationCap,
   MessageSquare,
   Newspaper,
-  QrCode,
-  Settings,
   Sparkles,
   Users,
 } from 'lucide-react';
@@ -20,7 +17,6 @@ import {
   computeAverage,
   getCourseMaterials,
   getMyClass,
-  getMyGrades,
   getMyTeacherClasses,
 } from '@/modules/pedagogy/actions';
 

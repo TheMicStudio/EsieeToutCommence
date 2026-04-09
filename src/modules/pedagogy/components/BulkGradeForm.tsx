@@ -59,10 +59,10 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
     if (!effectiveMatiere) { setError('Choisissez une matière.'); return; }
     if (!examen.trim()) { setError('Saisissez un intitulé d\'examen.'); return; }
 
-    const coeff = parseFloat(coefficient) || 1;
+    const coeff = Number.parseFloat(coefficient) || 1;
     const grades = visibleStudents
-      .map((s) => ({ studentId: s.id, note: parseFloat(notes[s.id] ?? '') }))
-      .filter((g) => !isNaN(g.note) && g.note >= 0 && g.note <= 20);
+      .map((s) => ({ studentId: s.id, note: Number.parseFloat(notes[s.id] ?? '') }))
+      .filter((g) => !Number.isNaN(g.note) && g.note >= 0 && g.note <= 20);
 
     if (grades.length === 0) { setError('Saisissez au moins une note valide (0–20).'); return; }
 
@@ -78,10 +78,10 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
   }
 
   const noteValue = (id: string) => notes[id] ?? '';
-  const noteNum = (id: string) => parseFloat(notes[id] ?? '');
+  const noteNum = (id: string) => Number.parseFloat(notes[id] ?? '');
   const noteColor = (id: string) => {
     const n = noteNum(id);
-    if (isNaN(n)) return 'text-slate-300';
+    if (Number.isNaN(n)) return 'text-slate-300';
     if (n >= 14) return 'text-emerald-600';
     if (n >= 10) return 'text-amber-500';
     return 'text-red-500';

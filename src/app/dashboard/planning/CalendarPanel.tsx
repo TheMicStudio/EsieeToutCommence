@@ -9,7 +9,6 @@ import {
 import {
   updateCalendarMode,
   upsertCalendarWeek,
-  deleteCalendarWeek,
   type ClassWithCalendar,
   type CalendarWeek,
 } from '@/modules/admin/planning-actions';

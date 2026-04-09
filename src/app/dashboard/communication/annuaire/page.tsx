@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { requirePermission } from '@/lib/permissions';
 import { getStaffDirectory } from '@/modules/communication/actions';

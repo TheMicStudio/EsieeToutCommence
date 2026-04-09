@@ -100,7 +100,7 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
   );
 
   // Stats classe pour la sidebar droite
-  const matieresWithGrades = [...new Set(grades.map((g) => g.matiere))].sort();
+  const matieresWithGrades = [...new Set(grades.map((g) => g.matiere))].sort((a, b) => a.localeCompare(b));
   const classMoyByMatiere = matieresWithGrades.map((m) => {
     const items = grades.filter((g) => g.matiere === m);
     const totalCoeff = items.reduce((s, g) => s + g.coefficient, 0);

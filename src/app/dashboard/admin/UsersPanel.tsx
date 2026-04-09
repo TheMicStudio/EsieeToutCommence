@@ -4,7 +4,7 @@ import { useActionState, useEffect, useTransition, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteUser, createUser, updateUserProfile } from '@/modules/admin/users-actions';
 import type { UserRow } from '@/modules/admin/users-actions';
-import { Trash2, Search, Plus, X, Pencil, ChevronDown, ChevronUp, Users } from 'lucide-react';
+import { Trash2, Search, Plus, X, Pencil, ChevronUp, Users } from 'lucide-react';
 
 const ROLE_COLORS: Record<string, string> = {
   eleve: 'bg-[#89aae6]/20 text-[#3685b5]',

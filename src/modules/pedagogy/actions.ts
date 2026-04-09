@@ -18,7 +18,7 @@ import type {
 
 export async function getMyClass(): Promise<Class | null> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'eleve') return null;
+  if (userProfile?.role !== 'eleve') return null;
 
   const supabase = await createClient();
   const { data } = await supabase
@@ -35,7 +35,7 @@ export async function getMyClass(): Promise<Class | null> {
 
 export async function getMyAllClasses(): Promise<(Class & { is_current: boolean })[]> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'eleve') return [];
+  if (userProfile?.role !== 'eleve') return [];
 
   const supabase = await createClient();
   const { data } = await supabase
@@ -124,7 +124,7 @@ export async function addCourseMaterial(
       return { error: 'Le fichier ne doit pas dépasser 20 Mo.' };
     }
     const ext = file.name.split('.').pop() ?? 'bin';
-    const path = `${classId}/${Date.now()}-${titre.replace(/[^a-z0-9]/gi, '_')}.${ext}`;
+    const path = `${classId}/${Date.now()}-${titre.replaceAll(/[^a-z0-9]/gi, '_')}.${ext}`;
     const { error: uploadError } = await admin.storage
       .from('course_materials')
       .upload(path, file, { contentType: file.type, upsert: false });
@@ -174,7 +174,7 @@ export async function deleteCourseMaterial(materialId: string): Promise<ActionSt
 
 export async function getMyGrades(): Promise<Grade[]> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'eleve') return [];
+  if (userProfile?.role !== 'eleve') return [];
 
   const supabase = await createClient();
   const { data } = await supabase
@@ -216,10 +216,10 @@ export async function addGrade(
   const classId = formData.get('class_id') as string;
   const matiere = formData.get('matiere') as string;
   const examen = formData.get('examen') as string;
-  const note = parseFloat(formData.get('note') as string);
-  const coefficient = parseFloat(formData.get('coefficient') as string) || 1;
+  const note = Number.parseFloat(formData.get('note') as string);
+  const coefficient = Number.parseFloat(formData.get('coefficient') as string) || 1;
 
-  if (!studentId || !classId || !matiere || !examen || isNaN(note)) {
+  if (!studentId || !classId || !matiere || !examen || Number.isNaN(note)) {
     return { error: 'Tous les champs sont requis.' };
   }
 

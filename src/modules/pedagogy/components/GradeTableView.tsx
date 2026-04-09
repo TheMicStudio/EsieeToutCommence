@@ -39,8 +39,8 @@ export function GradeTableView({ grades, students, canDelete = false }: GradeTab
   }
 
   async function handleSaveEdit(gradeId: string) {
-    const val = parseFloat(editRef.current?.value ?? '');
-    if (isNaN(val) || val < 0 || val > 20) return;
+    const val = Number.parseFloat(editRef.current?.value ?? '');
+    if (Number.isNaN(val) || val < 0 || val > 20) return;
     setSaving(true);
     await updateGrade(gradeId, val);
     setLocalGrades((prev) => prev.map((g) => g.id === gradeId ? { ...g, note: val } : g));
@@ -64,7 +64,7 @@ export function GradeTableView({ grades, students, canDelete = false }: GradeTab
     );
   }
 
-  const matieres = [...new Set(localGrades.map((g) => g.matiere))].sort();
+  const matieres = [...new Set(localGrades.map((g) => g.matiere))].sort((a, b) => a.localeCompare(b));
 
   return (
     <div className="space-y-4">

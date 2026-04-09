@@ -1,4 +1,4 @@
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { requirePermission } from '@/lib/permissions';
 import { getCurrentUserProfile } from '@/modules/auth/actions';

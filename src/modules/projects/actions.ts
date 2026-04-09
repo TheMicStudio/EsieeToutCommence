@@ -159,7 +159,7 @@ export async function deleteGroup(
       .select('created_by')
       .eq('id', groupId)
       .single();
-    if (!group || group.created_by !== userProfile.profile.id) {
+    if (group?.created_by !== userProfile.profile.id) {
       return { error: 'Vous ne pouvez supprimer que les groupes que vous avez créés.' };
     }
   }
@@ -341,7 +341,7 @@ export async function createSoutenanceSlots(
   slots: { heure_debut: string; heure_fin: string }[],
 ): Promise<{ error?: string }> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') {
+  if (userProfile?.role !== 'professeur') {
     return { error: 'Seuls les professeurs peuvent créer des créneaux.' };
   }
   const admin = createAdminClient();
@@ -354,7 +354,7 @@ export async function createSoutenanceSlots(
 
 export async function clearSoutenanceSlots(weekId: string): Promise<{ error?: string }> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') {
+  if (userProfile?.role !== 'professeur') {
     return { error: 'Non autorisé.' };
   }
   const admin = createAdminClient();
@@ -366,7 +366,7 @@ export async function clearSoutenanceSlots(weekId: string): Promise<{ error?: st
 
 export async function randomizeSlots(weekId: string): Promise<{ error?: string }> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') {
+  if (userProfile?.role !== 'professeur') {
     return { error: 'Non autorisé.' };
   }
   const admin = createAdminClient();
@@ -410,7 +410,7 @@ export async function updateSlot(
   weekId: string,
 ): Promise<{ error?: string }> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'professeur') {
+  if (userProfile?.role !== 'professeur') {
     return { error: 'Non autorisé.' };
   }
   const admin = createAdminClient();
@@ -664,7 +664,7 @@ export async function addWeekCourseMaterial(
   if (file && file.size > 0) {
     if (file.size > 20 * 1024 * 1024) return { error: 'Le fichier ne doit pas dépasser 20 Mo.' };
     const ext = file.name.split('.').pop() ?? 'bin';
-    const path = `weeks/${weekId}/${Date.now()}-${titre.replace(/[^a-z0-9]/gi, '_')}.${ext}`;
+    const path = `weeks/${weekId}/${Date.now()}-${titre.replaceAll(/[^a-z0-9]/gi, '_')}.${ext}`;
     const { error: uploadError } = await admin.storage
       .from('course_materials')
       .upload(path, file, { contentType: file.type, upsert: false });

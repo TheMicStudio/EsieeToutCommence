@@ -210,7 +210,7 @@ export function CourseGrid({
   }, []);
 
   const source = materials.length === 0 ? FALLBACK_MATERIALS : materials;
-  const uniqueMatieres = categoryOptions ?? [...new Set(source.map((m) => m.matiere))].sort();
+  const uniqueMatieres = categoryOptions ?? [...new Set(source.map((m) => m.matiere))].sort((a, b) => a.localeCompare(b));
 
   const displayMaterials = useMemo(() => {
     let result = source.filter((m) => {

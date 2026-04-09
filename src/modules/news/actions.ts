@@ -99,7 +99,7 @@ export async function deleteNewsPost(postId: string): Promise<{ error?: string }
   // Vérifier que l'utilisateur est modérateur ou auteur du post
   if (!perms.has('news.moderate')) {
     const { data: post } = await admin.from('news_posts').select('author_id').eq('id', postId).maybeSingle();
-    if (!post || post.author_id !== userProfile.profile.id) {
+    if (post?.author_id !== userProfile.profile.id) {
       return { error: 'Non autorisé.' };
     }
   }

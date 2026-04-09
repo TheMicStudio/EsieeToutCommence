@@ -61,8 +61,8 @@ export function DocumentPreviewModal({ url, title, mimeType, fileType, onClose }
   // Fermer avec Échap
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose(); }
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    globalThis.window.addEventListener('keydown', onKey);
+    return () => globalThis.window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
   // Bloquer le scroll du body

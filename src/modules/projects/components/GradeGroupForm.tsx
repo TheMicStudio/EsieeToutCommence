@@ -21,8 +21,8 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const n = parseFloat(note);
-    if (isNaN(n) || n < 0 || n > 20) { setError('La note doit être entre 0 et 20'); return; }
+    const n = Number.parseFloat(note);
+    if (Number.isNaN(n) || n < 0 || n > 20) { setError('La note doit être entre 0 et 20'); return; }
     setLoading(true);
     setError('');
     const result = await gradeGroup(groupId, n, feedback);
@@ -96,9 +96,9 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
                     className="w-32 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all"
                     required
                   />
-                  {note && !isNaN(parseFloat(note)) && (
+                  {note && !Number.isNaN(Number.parseFloat(note)) && (
                     <span className="text-2xl font-bold text-[#0471a6]">
-                      {parseFloat(note)}/20
+                      {Number.parseFloat(note)}/20
                     </span>
                   )}
                 </div>

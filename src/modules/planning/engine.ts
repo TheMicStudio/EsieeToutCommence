@@ -476,7 +476,7 @@ export async function generatePlanning(
   existingRunId?: string
 ): Promise<EngineResult> {
   const profile = await getCurrentUserProfile();
-  if (!profile || profile.role !== 'admin') throw new Error('Accès refusé.');
+  if (profile?.role !== 'admin') throw new Error('Accès refusé.');
 
   const admin = createAdminClient();
   const today = new Date();
@@ -706,7 +706,7 @@ export async function retryPlanningConflicts(
   runId: string
 ): Promise<{ total_placed: number; total_conflicts: number; conflicts: ConflictDetail[] }> {
   const profile = await getCurrentUserProfile();
-  if (!profile || profile.role !== 'admin') throw new Error('Accès refusé.');
+  if (profile?.role !== 'admin') throw new Error('Accès refusé.');
 
   const admin = createAdminClient();
 
@@ -924,7 +924,7 @@ export async function addClassesToRun(
   newClassIds: string[]
 ): Promise<{ total_placed: number; total_conflicts: number; conflicts: ConflictDetail[] }> {
   const profile = await getCurrentUserProfile();
-  if (!profile || profile.role !== 'admin') throw new Error('Accès refusé.');
+  if (profile?.role !== 'admin') throw new Error('Accès refusé.');
 
   const admin = createAdminClient();
 
@@ -1118,7 +1118,7 @@ export async function addClassesToRun(
 
 export async function publishPlanningRun(runId: string): Promise<{ error?: string }> {
   const profile = await getCurrentUserProfile();
-  if (!profile || profile.role !== 'admin') return { error: 'Accès refusé.' };
+  if (profile?.role !== 'admin') return { error: 'Accès refusé.' };
 
   const admin = createAdminClient();
   const { data: run } = await admin.from('planning_runs').select('class_ids').eq('id', runId).single();
@@ -1141,7 +1141,7 @@ export async function publishPlanningRun(runId: string): Promise<{ error?: strin
 
 export async function getPlanningRuns() {
   const profile = await getCurrentUserProfile();
-  if (!profile || profile.role !== 'admin') return [];
+  if (profile?.role !== 'admin') return [];
   const admin = createAdminClient();
   const { data } = await admin.from('planning_runs').select('*').order('created_at', { ascending: false });
   return data ?? [];
@@ -1149,7 +1149,7 @@ export async function getPlanningRuns() {
 
 export async function deletePlanningRun(runId: string): Promise<{ error?: string }> {
   const profile = await getCurrentUserProfile();
-  if (!profile || profile.role !== 'admin') return { error: 'Accès refusé.' };
+  if (profile?.role !== 'admin') return { error: 'Accès refusé.' };
   const admin = createAdminClient();
   const { error } = await admin.from('planning_runs').delete().eq('id', runId);
   if (error) return { error: error.message };

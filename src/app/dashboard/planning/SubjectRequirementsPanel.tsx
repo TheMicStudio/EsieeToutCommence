@@ -52,14 +52,14 @@ function AddRequirementForm({
 
     const teacher_id           = fd.get('teacher_id') as string;
     const subject_name         = fd.get('subject_name') as string;
-    const total_hours_required = parseFloat(fd.get('total_hours_required') as string);
-    const session_duration_h   = parseFloat(fd.get('session_duration_h') as string) || 2;
-    const duration_weeks       = fd.get('duration_weeks') ? parseInt(fd.get('duration_weeks') as string) : null;
-    const preferred_day        = fd.get('preferred_day') ? parseInt(fd.get('preferred_day') as string) : null;
-    const weekly_occurrences   = fd.get('weekly_occurrences') ? parseInt(fd.get('weekly_occurrences') as string) : null;
+    const total_hours_required = Number.parseFloat(fd.get('total_hours_required') as string);
+    const session_duration_h   = Number.parseFloat(fd.get('session_duration_h') as string) || 2;
+    const duration_weeks       = fd.get('duration_weeks') ? Number.parseInt(fd.get('duration_weeks') as string) : null;
+    const preferred_day        = fd.get('preferred_day') ? Number.parseInt(fd.get('preferred_day') as string) : null;
+    const weekly_occurrences   = fd.get('weekly_occurrences') ? Number.parseInt(fd.get('weekly_occurrences') as string) : null;
 
     if (!teacher_id || !subject_name) { setError('Sélectionnez un professeur et une matière.'); return; }
-    if (isNaN(total_hours_required) || total_hours_required <= 0) { setError('Le volume horaire doit être positif.'); return; }
+    if (Number.isNaN(total_hours_required) || total_hours_required <= 0) { setError('Le volume horaire doit être positif.'); return; }
 
     const input: CreateSubjectRequirementInput = {
       class_id: classId,

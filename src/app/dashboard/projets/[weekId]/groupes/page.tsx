@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, Plus, Users, Star, GitBranch, Presentation, Lock, UserPlus } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
@@ -156,7 +155,7 @@ export default async function GroupesPage({ params }: GroupesPageProps) {
           action={async (fd: FormData) => {
             'use server';
             const name = fd.get('group_name') as string;
-            const cap = parseInt(fd.get('capacite') as string);
+            const cap = Number.parseInt(fd.get('capacite') as string);
             await createGroup(weekId, name, cap);
           }}
           className="rounded-3xl border border-slate-200/70 bg-white shadow-card p-6 space-y-4"

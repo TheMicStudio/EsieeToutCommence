@@ -96,7 +96,7 @@ function getSchoolYear(sessions: SessionEvent[]): number {
     const today = new Date();
     return today.getUTCMonth() >= 8 ? today.getUTCFullYear() : today.getUTCFullYear() - 1;
   }
-  const first = new Date(drafts.map(s => s.start_timestamp).sort()[0]);
+  const first = new Date(drafts.map(s => s.start_timestamp).sort((a, b) => a.localeCompare(b))[0]);
   return first.getUTCMonth() >= 8 ? first.getUTCFullYear() : first.getUTCFullYear() - 1;
 }
 

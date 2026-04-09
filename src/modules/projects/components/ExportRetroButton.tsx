@@ -84,7 +84,7 @@ export function ExportRetroButton({ postits, weekTitle = 'Rétro' }: ExportRetro
       // Fallback : téléchargement direct si popup bloqué
       const a = document.createElement('a');
       a.href = url;
-      a.download = `retro-${weekTitle.replace(/\s+/g, '-').toLowerCase()}.html`;
+      a.download = `retro-${weekTitle.replaceAll(/\s+/g, '-').toLowerCase()}.html`;
       a.click();
       URL.revokeObjectURL(url);
     }

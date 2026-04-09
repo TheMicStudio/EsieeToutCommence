@@ -25,7 +25,7 @@ export function ShareModal({ target, targetType, onClose }: ShareModalProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [state, action, pending] = useActionState(createShareLink, null);
 
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const baseUrl = typeof globalThis.window !== 'undefined' ? globalThis.window.location.origin : '';
 
   useEffect(() => {
     const fileId = targetType === 'file' ? target.id : undefined;
