@@ -599,7 +599,7 @@ function GenerateForm({
                 </span>
               </div>
               {/* Raccourcis config */}
-              <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.preventDefault()}>
+              <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.preventDefault()} aria-hidden="true">
                 <a
                   href="/dashboard/planning?tab=calendrier"
                   title="Configurer le calendrier"

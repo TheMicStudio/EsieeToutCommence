@@ -410,6 +410,7 @@ export function DashboardSidebar({ userProfile, permissions }: DashboardSidebarP
           <div
             className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
             onClick={() => setMobileOpen(false)}
+            aria-hidden="true"
           />
           <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl lg:hidden overflow-y-auto">
             {sidebarContent}

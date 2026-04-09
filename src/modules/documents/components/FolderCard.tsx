@@ -64,7 +64,7 @@ export function FolderCard({ folder, onRename, onPermissions, onShare }: FolderC
 
         {menuOpen && (
           <>
-            <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+            <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} aria-hidden="true" />
             <div className="absolute right-0 top-8 z-20 w-48 rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
               {onRename && (
                 <button

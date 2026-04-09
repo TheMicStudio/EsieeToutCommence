@@ -107,7 +107,7 @@ function SessionTooltip({ session, onClose }: { session: SessionEvent; onClose: 
   const duration = Math.round((new Date(session.end_timestamp).getTime() - new Date(session.start_timestamp).getTime()) / 60000);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm" onClick={onClose} aria-hidden="true">
       <div className="w-full max-w-sm rounded-3xl bg-white border border-slate-200/70 shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className={['px-5 py-4', isConflict ? 'bg-rose-50 border-b border-rose-200' : 'bg-[#0471a6]/5 border-b border-[#89aae6]/30'].join(' ')}>
           <div className="flex items-start justify-between gap-3">
@@ -178,6 +178,9 @@ function SessionBlock({ session, classColorMap, multiClass, onClick }: {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClick(session)}
       className={[
         'absolute left-0.5 right-0.5 rounded-lg border px-1.5 py-1 cursor-pointer transition-all overflow-hidden',
         colors.bg, colors.border, colors.hover,

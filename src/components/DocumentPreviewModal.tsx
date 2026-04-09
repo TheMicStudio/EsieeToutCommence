@@ -81,6 +81,7 @@ export function DocumentPreviewModal({ url, title, mimeType, fileType, onClose }
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      aria-hidden="true"
     >
       <div className="flex w-full max-w-5xl flex-col rounded-2xl bg-white shadow-2xl"
         style={{ height: '90vh' }}

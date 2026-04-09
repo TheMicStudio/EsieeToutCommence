@@ -344,6 +344,9 @@ export function CsvImportPanel() {
         {!preview ? (
           /* Zone de drop */
           <div
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' || e.key === ' ' ? fileRef.current?.click() : undefined}
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
             onDragLeave={() => setDragging(false)}
             onDrop={handleDrop}
