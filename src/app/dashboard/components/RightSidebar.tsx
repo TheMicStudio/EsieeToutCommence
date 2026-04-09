@@ -7,6 +7,7 @@ import {
   BookOpen, Cpu, Code2, Database, GraduationCap, LifeBuoy, Settings,
   X, MessageCircle, FileText, ScrollText, Notebook, FlaskConical,
   ChevronRight, CalendarPlus, HelpCircle,
+  ListChecks, TrendingUp, AlertCircle,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { UserProfile } from '@/modules/auth/types';
@@ -400,6 +401,89 @@ function AnnuaireSidebarContent() {
 }
 
 // ─────────────────────────────────────────────────────────
+// Emargement-specific right sidebar
+// ─────────────────────────────────────────────────────────
+
+const RECENT_CALLS = [
+  { classe: 'BTS SIO SLAM 2', time: "Aujourd'hui 09:00", presents: 24, statut: 'success' },
+  { classe: 'BTS SIO SLAM 2', time: 'Hier 14:00',        presents: 22, statut: 'info'    },
+  { classe: 'BTS SIO SLAM 2', time: 'Hier 08:30',        presents: 25, statut: 'success' },
+  { classe: 'BTS SIO SLAM 2', time: 'lun. 30 mars',      presents: 23, statut: 'info'    },
+];
+
+function EmargementSidebarContent() {
+  return (
+    <div className="flex h-full flex-col gap-4 overflow-y-auto">
+
+      {/* Section 1 — Appels Récents */}
+      <div className="rounded-3xl border border-slate-200/70 bg-white shadow-card p-4">
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-[14px] font-semibold text-slate-900" style={{ fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            Appels Récents
+          </p>
+          <button type="button" className="text-[13px] font-semibold text-slate-700 hover:text-slate-900 transition-colors">
+            Voir tout
+          </button>
+        </div>
+        <div className="space-y-2">
+          {RECENT_CALLS.map((call, i) => (
+            <div
+              key={i}
+              className="p-3 rounded-xl border border-transparent hover:border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
+            >
+              <p className="text-[13px] font-semibold text-slate-900">{call.classe}</p>
+              <p className="mt-0.5 text-[12px] text-slate-500">{call.time}</p>
+              <div className="mt-2 inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700">
+                {call.presents} présents
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Section 2 — Statistiques du Jour */}
+      <div className="rounded-3xl border border-slate-200/70 bg-white shadow-card p-4">
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-[14px] font-semibold text-slate-900" style={{ fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            Statistiques du Jour
+          </p>
+          <button type="button" className="text-[13px] font-semibold text-slate-700 hover:text-slate-900 transition-colors">
+            Détails
+          </button>
+        </div>
+        <div className="space-y-3">
+          {/* Total appels */}
+          <div className="rounded-xl border border-slate-200/50 bg-[#f8fafc]/50 p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <ListChecks className="h-5 w-5 text-[#0471a6]" aria-hidden="true" />
+              <p className="text-[12px] font-medium text-slate-500">Total Appels</p>
+            </div>
+            <p className="text-[18px] font-semibold text-slate-900">12</p>
+          </div>
+          {/* Présence moyenne */}
+          <div className="rounded-xl border border-slate-200/50 bg-[#f8fafc]/50 p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-[#0471a6]" aria-hidden="true" />
+              <p className="text-[12px] font-medium text-slate-500">Présence Moy.</p>
+            </div>
+            <p className="text-[18px] font-semibold text-slate-900">94%</p>
+          </div>
+          {/* En retard */}
+          <div className="rounded-xl border border-slate-200/50 bg-[#f8fafc]/50 p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-[#0471a6]" aria-hidden="true" />
+              <p className="text-[12px] font-medium text-slate-500">En Retard</p>
+            </div>
+            <p className="text-[18px] font-semibold text-slate-900">1</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────
 // Projets-specific right sidebar
 // ─────────────────────────────────────────────────────────
 
@@ -504,13 +588,14 @@ function ProjetsSidebarContent() {
 // ─────────────────────────────────────────────────────────
 
 export function RightSidebar({ userProfile }: RightSidebarProps) {
-  const pathname   = usePathname();
-  const isAnnuaire = pathname === '/dashboard/annuaire';
-  const isNotes    = pathname === '/dashboard/pedagogie/notes';
-  const isProjets  = pathname.startsWith('/dashboard/pedagogie/projets/') ||
-                     pathname.startsWith('/dashboard/projets/');
+  const pathname      = usePathname();
+  const isAnnuaire    = pathname === '/dashboard/annuaire';
+  const isNotes       = pathname === '/dashboard/pedagogie/notes';
+  const isProjets     = pathname.startsWith('/dashboard/pedagogie/projets/') ||
+                        pathname.startsWith('/dashboard/projets/');
+  const isEmargement  = pathname === '/dashboard/pedagogie/emargement';
 
-  const noWrapper  = isAnnuaire || isNotes || isProjets;
+  const noWrapper = isAnnuaire || isNotes || isProjets || isEmargement;
 
   return (
     <aside className={[
@@ -525,6 +610,8 @@ export function RightSidebar({ userProfile }: RightSidebarProps) {
         <GradesWidget studentId={userProfile.profile.id} />
       ) : isProjets ? (
         <ProjetsSidebarContent />
+      ) : isEmargement ? (
+        <EmargementSidebarContent />
       ) : (
         <DefaultSidebar userProfile={userProfile} />
       )}
