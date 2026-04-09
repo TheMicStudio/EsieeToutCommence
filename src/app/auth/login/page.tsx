@@ -32,7 +32,10 @@ export default function LoginPage() {
           <div className="w-full max-w-md px-8 py-8">
 
             {/* Heading */}
-            <h1 className="text-center text-[32px] font-bold tracking-tight text-[#1E293B] leading-tight">
+            <h1
+              className="text-center text-[32px] font-bold tracking-tight text-[#1E293B] leading-tight"
+              style={{ fontFamily: "'Cabinet Grotesk', sans-serif" }}
+            >
               Bienvenue sur EsieeToutCommence
             </h1>
 

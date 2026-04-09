@@ -17,6 +17,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className={cn("font-sans", outfit.variable)}>
+      <head>
+        <link rel="preconnect" href="https://api.fontshare.com" />
+        <link
+          href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="antialiased font-sans" suppressHydrationWarning>{children}</body>
     </html>
   );
