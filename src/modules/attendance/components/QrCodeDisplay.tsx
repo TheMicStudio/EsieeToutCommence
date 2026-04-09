@@ -4,18 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import { closeAttendanceSession } from '../actions';
-import { AttendanceCounter } from './AttendanceCounter';
-import { Button } from '@/components/ui/button';
 import type { AttendanceSession } from '../types';
 
 interface QrCodeDisplayProps {
   session: AttendanceSession;
-  classSize: number;
-  initialCount: number;
   scanBaseUrl: string;
 }
 
-export function QrCodeDisplay({ session, classSize, initialCount, scanBaseUrl }: QrCodeDisplayProps) {
+export function QrCodeDisplay({ session, scanBaseUrl }: QrCodeDisplayProps) {
   const router = useRouter();
   const [secondsLeft, setSecondsLeft] = useState(() => {
     const diff = new Date(session.expiration).getTime() - Date.now();
@@ -27,10 +23,7 @@ export function QrCodeDisplay({ session, classSize, initialCount, scanBaseUrl }:
     if (secondsLeft <= 0) return;
     const t = setInterval(() => {
       setSecondsLeft((s) => {
-        if (s <= 1) {
-          clearInterval(t);
-          return 0;
-        }
+        if (s <= 1) { clearInterval(t); return 0; }
         return s - 1;
       });
     }, 1000);
@@ -43,44 +36,57 @@ export function QrCodeDisplay({ session, classSize, initialCount, scanBaseUrl }:
     router.push(`/dashboard/emargement/rapport/${session.id}`);
   }
 
-  const minutes = Math.floor(secondsLeft / 60);
-  const secs = secondsLeft % 60;
   const scanUrl = `${scanBaseUrl}/dashboard/emargement/scan?code=${session.code_unique}`;
   const expired = secondsLeft === 0;
 
+  const expiresAt = new Date(session.expiration).toLocaleTimeString('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
   return (
-    <div className="flex flex-col items-center gap-6 py-6 lg:flex-row lg:items-start lg:gap-12">
-      {/* QR Code */}
-      <div className="flex flex-col items-center gap-4">
-        <div className={`rounded-2xl border-4 p-4 transition-opacity ${expired ? 'border-destructive opacity-40' : 'border-primary'}`}>
-          <QRCodeSVG value={scanUrl} size={256} level="M" />
-        </div>
-        {expired ? (
-          <p className="font-semibold text-destructive">QR Code expiré</p>
-        ) : (
-          <p className="text-2xl font-bold tabular-nums">
-            {String(minutes).padStart(2, '0')}:{String(secs).padStart(2, '0')}
-          </p>
-        )}
-        <p className="text-xs text-muted-foreground">Scannez avec l&apos;application ou la caméra</p>
+    <section className="rounded-3xl border border-slate-200/70 bg-white shadow-card p-6">
+
+      {/* Titre + sous-titre dans la card */}
+      <div className="mb-5">
+        <h1 className="text-[26px] font-semibold tracking-tight text-[#0f1a2e]">
+          Session d&apos;appel en cours
+        </h1>
+        <p className="mt-1 text-[13px] text-[#6b7a90]">
+          Expire à <span className="text-slate-800">{expiresAt}</span>
+        </p>
       </div>
 
-      {/* Compteur + actions */}
-      <div className="flex flex-col items-center gap-6 lg:items-start">
-        <AttendanceCounter
-          sessionId={session.id}
-          classSize={classSize}
-          initialCount={initialCount}
-        />
-        <Button
-          variant="outline"
+      {/* QR code centré */}
+      <div className="flex flex-col items-center justify-center gap-4">
+
+        <div
+          className={[
+            'rounded-[2rem] border-2 bg-white p-4 transition-opacity',
+            expired ? 'border-red-300 opacity-40' : 'border-slate-200',
+          ].join(' ')}
+          aria-label="QR code de la session"
+        >
+          <div className="h-[350px] w-[350px] overflow-hidden rounded-2xl bg-white flex items-center justify-center">
+            {expired ? (
+              <p className="text-sm font-semibold text-red-500">QR Code expiré</p>
+            ) : (
+              <QRCodeSVG value={scanUrl} size={350} level="M" />
+            )}
+          </div>
+        </div>
+
+        <button
+          type="button"
           onClick={handleClose}
           disabled={closing}
-          className="mt-4"
+          className="inline-flex items-center justify-center rounded-xl bg-red-700 px-4 py-2 text-[12px] font-semibold text-white hover:bg-red-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          aria-label="Clore la session d'émargement"
         >
           {closing ? 'Fermeture…' : 'Clore la session'}
-        </Button>
+        </button>
+
       </div>
-    </div>
+    </section>
   );
 }

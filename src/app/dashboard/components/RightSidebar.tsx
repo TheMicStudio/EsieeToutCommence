@@ -594,8 +594,9 @@ export function RightSidebar({ userProfile }: RightSidebarProps) {
   const isProjets     = pathname.startsWith('/dashboard/pedagogie/projets/') ||
                         pathname.startsWith('/dashboard/projets/');
   const isEmargement  = pathname === '/dashboard/pedagogie/emargement';
+  const isEmargementSession = pathname.startsWith('/dashboard/emargement/session/');
 
-  const noWrapper = isAnnuaire || isNotes || isProjets || isEmargement;
+  const noWrapper = isAnnuaire || isNotes || isProjets || isEmargement || isEmargementSession;
 
   return (
     <aside className={[
@@ -608,7 +609,7 @@ export function RightSidebar({ userProfile }: RightSidebarProps) {
         </Suspense>
       ) : isNotes && userProfile.role === 'eleve' ? (
         <GradesWidget studentId={userProfile.profile.id} />
-      ) : isProjets ? (
+      ) : isProjets || isEmargementSession ? (
         <ProjetsSidebarContent />
       ) : isEmargement ? (
         <EmargementSidebarContent />
