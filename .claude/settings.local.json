@@ -36,7 +36,9 @@
       "Bash(awk -F: '{if \\($1 >= 222 && $1 <= 230\\) print}')",
       "Bash(curl -s \"https://sonarcloud.io/api/issues/search?componentKeys=TheMicStudio_EsieeToutCommence&statuses=OPEN&rules=typescript:S6772&ps=100\")",
       "Bash(curl -s \"https://sonarcloud.io/api/issues/search?componentKeys=TheMicStudio_EsieeToutCommence&statuses=OPEN&rules=typescript:S3358&ps=100\")",
-      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Total: {d[\\\\\"total\\\\\"]}'\\); [print\\(f'{i[\\\\\"component\\\\\"]}:{i[\\\\\"line\\\\\"]} - {i[\\\\\"message\\\\\"][:80]}'\\) for i in d['issues'][:30]]\")"
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Total: {d[\\\\\"total\\\\\"]}'\\); [print\\(f'{i[\\\\\"component\\\\\"]}:{i[\\\\\"line\\\\\"]} - {i[\\\\\"message\\\\\"][:80]}'\\) for i in d['issues'][:30]]\")",
+      "Bash(curl -s \"https://sonarcloud.io/api/issues/search?componentKeys=TheMicStudio_EsieeToutCommence&statuses=OPEN&ps=500\")",
+      "Bash(python3 -c \" import sys,json d=json.load\\(sys.stdin\\) print\\(f'Total: {d[\\\\\"total\\\\\"]}'\\) from collections import Counter rules = Counter\\(i['rule'] for i in d['issues']\\) for r,c in rules.most_common\\(20\\): print\\(f' {r}: {c}'\\) \")"
     ]
   }
 }
