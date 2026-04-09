@@ -1,4 +1,4 @@
-# Audit Frontend — Hub École
+# Audit Frontend — EsieeToutCommence
 > Date : 2026-04-07  
 > Basé sur une lecture exhaustive de tous les fichiers tsx/ts du projet.  
 > Objectif : recenser tous les problèmes à corriger pour avoir un produit propre, professionnel et fonctionnel.

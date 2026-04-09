@@ -1,4 +1,4 @@
-# Hub École — Plateforme de Gestion Scolaire
+# EsieeToutCommence — Plateforme de Gestion Scolaire
 
 > **Plateforme LMS/ERP modulaire** pour écoles supérieures avec parcours mixtes (temps plein + alternance)
 
@@ -25,7 +25,7 @@
 
 ## À propos
 
-**Hub École** centralise en une seule plateforme :
+**EsieeToutCommence** centralise en une seule plateforme :
 
 | Module | Fonction |
 |--------|----------|
@@ -90,7 +90,6 @@ docker compose up --build
 
 L'app est accessible sur **http://localhost:3000**
 
-L'app est accessible sur **http://localhost:3000**
 
 ---
 

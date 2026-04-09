@@ -1,4 +1,4 @@
-# Product — Hub École
+# Product — EsieeToutCommence
 
 **Ref :** US01, US02, US04, US05, US06, US08
 
@@ -28,7 +28,7 @@
 - Administration (tickets, FAQ, communication interne)
 - Entreprises partenaires (suivi des alternants)
 
-**Proposition de valeur :** Hub École remplace 5+ outils par une seule plateforme modulaire qui s'adapte au rôle de chaque utilisateur, avec un suivi structuré de l'alternance et un système d'appel numérique anti-fraude.
+**Proposition de valeur :** EsieeToutCommence remplace 5+ outils par une seule plateforme modulaire qui s'adapte au rôle de chaque utilisateur, avec un suivi structuré de l'alternance et un système d'appel numérique anti-fraude.
 
 ---
 
@@ -121,7 +121,7 @@
 
 ## 5. Elevator Pitch (US06)
 
-> "Hub École, c'est la plateforme tout-en-un pour les écoles supérieures : les élèves pointent leur présence en scannant un QR Code, les profs saisissent les notes en ligne, les alternants suivent leur parcours avec leur entreprise, et l'administration traite les demandes via un système de tickets — le tout dans une seule application, sans email perdu, sans papier."
+> "EsieeToutCommence, c'est la plateforme tout-en-un pour les écoles supérieures : les élèves pointent leur présence en scannant un QR Code, les profs saisissent les notes en ligne, les alternants suivent leur parcours avec leur entreprise, et l'administration traite les demandes via un système de tickets — le tout dans une seule application, sans email perdu, sans papier."
 
 *(Durée à l'oral : ~30 secondes)*
 
@@ -131,7 +131,7 @@
 
 ### Benchmark
 
-| Outil | Forces | Faiblesses par rapport à Hub École |
+| Outil | Forces | Faiblesses par rapport à EsieeToutCommence |
 |-------|--------|-------------------------------------|
 | Moodle | Très complet, open source | Interface vieillissante, pas de QR Code, pas d'alternance |
 | Google Classroom | Simple, intégration Google | Pas de gestion alternance, pas de ticketing, pas d'appel |

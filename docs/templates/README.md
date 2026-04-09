@@ -1,6 +1,6 @@
 # Templates & Références Design
 
-Ce dossier contient les **maquettes, captures d'écran et inspirations visuelles** servant de référence pour l'implémentation UI du projet Hub École.
+Ce dossier contient les **maquettes, captures d'écran et inspirations visuelles** servant de référence pour l'implémentation UI du projet EsieeToutCommence.
 
 ---
 
