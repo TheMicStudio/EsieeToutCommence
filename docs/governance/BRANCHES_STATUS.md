@@ -4,8 +4,8 @@
 > Il DOIT être mis à jour par chaque IA (ou développeur) après chaque session de travail.
 > Lu automatiquement par toutes les IA via `CLAUDE.md`.
 
-**Dernière mise à jour :** 2026-04-09
-**Mis à jour par :** Antigravity (Fix TypeScript 'link.max_uses' dans ShareModal.tsx, et packages warnings dans package.json)
+**Dernière mise à jour :** 2026-04-10
+**Mis à jour par :** Antigravity (Fix ReDoS vulnerability in planning-actions)
 
 ---
 
