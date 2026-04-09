@@ -37,6 +37,10 @@ jobs:
       - name: TypeScript check
         run: npx tsc --noEmit
 
+      # 5b. Tests unitaires (US29)
+      - name: Unit tests
+        run: npm test
+
       # 6. Build Next.js
       - name: Build
         run: npm run build
@@ -44,7 +48,28 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
-      # 7. Analyse SonarCloud
+      # 7. Tests E2E Playwright (US30)
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: npm run test:e2e
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # L'app est déjà buildée — playwright.config.ts lance `npm start`
+          CI: true
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      # 8. Analyse SonarCloud
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
