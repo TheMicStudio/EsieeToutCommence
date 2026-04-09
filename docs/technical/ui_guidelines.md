@@ -1,4 +1,4 @@
-# UI Guidelines — Hub École
+# UI Guidelines — EsieeToutCommence
 
 **Ref :** US09, US25
 **Library de composants :** shadcn/ui (installée, composants dans `src/components/ui/`)
