@@ -151,6 +151,10 @@ export async function assignStudentToClass(
   const { error } = await admin.from('class_members').insert({ class_id: classId, student_id: studentId, is_current: true });
 
   if (error) return { error: 'Erreur lors de l\'affectation.' };
+
+  // Synchroniser student_profiles.class_id (utilisé par l'emploi du temps et autres modules)
+  await admin.from('student_profiles').update({ class_id: classId }).eq('id', studentId);
+
   revalidatePath('/dashboard/admin');
   return { success: true };
 }
