@@ -45,7 +45,7 @@ interface SessionInsert {
   subject_name: string;
   start_timestamp: string;
   end_timestamp: string;
-  status: 'DRAFT' | 'CONFLICT_ERROR';
+  status: 'DRAFT' | 'CONFLICT_ERROR' | 'VALIDATED';
   conflict_reason?: string;
   suggested_slot_start?: string;
   suggested_teacher_id?: string;

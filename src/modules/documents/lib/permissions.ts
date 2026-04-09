@@ -24,7 +24,7 @@ export async function resolveFolderPermission(
       .from('doc_folders')
       .select('parent_id')
       .eq('id', currentId)
-      .maybeSingle();
+      .maybeSingle() as { data: { parent_id: string | null } | null };
     currentId = folder?.parent_id ?? null;
   }
 

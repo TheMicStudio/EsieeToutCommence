@@ -92,7 +92,7 @@ export function ShareModal({ target, targetType, onClose }: ShareModalProps) {
               const expired =
                 link.expires_at && new Date(link.expires_at) < new Date();
               const maxed =
-                link.max_uses !== null && link.uses_count >= link.max_uses;
+                link.max_uses != null && link.uses_count >= link.max_uses;
               const inactive = expired || maxed;
 
               return (

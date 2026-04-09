@@ -93,7 +93,7 @@ export async function getBreadcrumb(folderId: string): Promise<DocBreadcrumb[]> 
       .from('doc_folders')
       .select('id, name, parent_id')
       .eq('id', currentId)
-      .maybeSingle();
+      .maybeSingle() as { data: { id: string; name: string; parent_id: string | null } | null };
     if (!data) break;
     crumbs.unshift({ id: data.id, name: data.name });
     currentId = data.parent_id ?? null;
