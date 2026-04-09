@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { QrCode, ChevronDown, Info } from 'lucide-react';
+import { QrCode, ChevronDown } from 'lucide-react';
 import { createAttendanceSession } from '../actions';
 
 interface TeacherClass {
@@ -160,17 +160,6 @@ export function StartSessionForm({ classes, initialClassId }: StartSessionFormPr
         {loading ? 'Création en cours…' : "Générer le QR Code & Lancer l'appel"}
       </button>
 
-      {/* Hint box */}
-      <div
-        className="flex items-start gap-3 rounded-2xl bg-amber-50/50 p-4"
-        role="note"
-      >
-        <Info className="mt-0.5 h-[18px] w-[18px] shrink-0 text-amber-600" aria-hidden="true" />
-        <p className="text-[13px] font-medium text-slate-600">
-          Le QR code sera disponible pour affichage immédiat après avoir cliqué sur le bouton de
-          lancement.
-        </p>
-      </div>
     </form>
   );
 }

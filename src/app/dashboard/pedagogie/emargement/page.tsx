@@ -1,14 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import {
-  ArrowRight,
-  Download,
-  Settings,
-  SlidersHorizontal,
-  QrCode,
-  ClipboardCheck,
-  Filter,
-} from 'lucide-react';
+import { ArrowRight, QrCode, Filter } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { requirePermission } from '@/lib/permissions';
 import { getMyTeacherClasses } from '@/modules/pedagogy/actions';
@@ -112,25 +104,6 @@ export default async function EmargementPage({ searchParams }: EmargementPagePro
             </p>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              aria-label="Exporter les données"
-              className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-[13px] font-semibold text-[#0f1a2e] hover:bg-slate-50 transition-colors"
-            >
-              <Download className="h-4 w-4 text-[#6b7a90]" aria-hidden="true" />
-              Export
-            </button>
-            <button
-              type="button"
-              aria-label="Paramètres d'émargement"
-              className="inline-flex items-center gap-1.5 rounded-2xl bg-slate-900 px-3 py-2 text-[13px] font-semibold text-white hover:bg-slate-800 transition-colors"
-            >
-              <Settings className="h-4 w-4" aria-hidden="true" />
-              Paramètres
-            </button>
-          </div>
         </div>
       </section>
 
@@ -168,27 +141,19 @@ export default async function EmargementPage({ searchParams }: EmargementPagePro
         className="rounded-3xl border border-slate-200/70 bg-white p-6"
       >
         {/* Section header */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p
-              id="lancer-appel-title"
-              className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#6b7a90]"
-            >
-              Lancer un appel
-            </p>
-            <h2 className="mt-1 text-[18px] font-semibold text-[#0f1a2e]">
-              Configurer la session d&apos;émargement
-            </h2>
-            <p className="mt-1 text-[13px] font-medium text-[#6b7a90]">
-              Sélectionnez les paramètres de la session avant de générer l&apos;appel.
-            </p>
-          </div>
-          <div
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-100"
-            aria-hidden="true"
+        <div>
+          <p
+            id="lancer-appel-title"
+            className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#6b7a90]"
           >
-            <ClipboardCheck className="h-6 w-6 text-slate-500" />
-          </div>
+            Lancer un appel
+          </p>
+          <h2 className="mt-1 text-[18px] font-semibold text-[#0f1a2e]">
+            Configurer la session d&apos;émargement
+          </h2>
+          <p className="mt-1 text-[13px] font-medium text-[#6b7a90]">
+            Sélectionnez les paramètres de la session avant de générer l&apos;appel.
+          </p>
         </div>
 
         {/* Form */}
@@ -198,9 +163,12 @@ export default async function EmargementPage({ searchParams }: EmargementPagePro
       </section>
 
       {/* ── Section 3 — Sessions passées ────────────────────────── */}
-      <section aria-labelledby="sessions-passees-title">
+      <section
+        aria-labelledby="sessions-passees-title"
+        className="rounded-3xl border border-slate-200/70 bg-white p-6"
+      >
         {/* Section header */}
-        <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="mb-6 flex items-start justify-between gap-4">
           <div>
             <p
               id="sessions-passees-title"
