@@ -3,11 +3,10 @@ import { redirect } from 'next/navigation';
 import {
   getRooms, getClosures,
   getClassesWithCalendar, getCalendarWeeks,
-  getTeachersForPlanning, getTeacherAvailabilities,
+  getTeachersForPlanning, getAllTeacherWeekAvailabilities,
   getSubjectRequirements,
 } from '@/modules/admin/planning-actions';
 import { getPlanningRuns }       from '@/modules/planning/engine';
-import { getAvailableProviders } from '@/modules/planning/ai-reviewer';
 import {
   Upload, DoorOpen, CalendarOff, Calendar,
   Clock, BookOpen, Zap,
@@ -49,24 +48,18 @@ export default async function PlanningPage({
     : 'import';
 
   // Chargement conditionnel selon l'onglet actif
-  const [rooms, closures, classes, teachers, runs, aiProviders] = await Promise.all([
+  const [rooms, closures, classes, teachers, runs] = await Promise.all([
     tab === 'salles'     ? getRooms()                : Promise.resolve([]),
     tab === 'fermetures' ? getClosures()             : Promise.resolve([]),
     (tab === 'calendrier' || tab === 'matieres' || tab === 'moteur') ? getClassesWithCalendar() : Promise.resolve([]),
     (tab === 'dispos'    || tab === 'matieres')  ? getTeachersForPlanning() : Promise.resolve([]),
     tab === 'moteur' ? getPlanningRuns()         : Promise.resolve([]),
-    tab === 'moteur' ? getAvailableProviders()   : Promise.resolve([]),
   ]);
 
-  // Disponibilités : une query par prof
-  const slotsByTeacher: Record<string, Awaited<ReturnType<typeof getTeacherAvailabilities>>> = {};
-  if (tab === 'dispos') {
-    await Promise.all(
-      teachers.map(async (t) => {
-        slotsByTeacher[t.id] = await getTeacherAvailabilities(t.id);
-      })
-    );
-  }
+  // Disponibilités par semaine : une seule query pour tous les profs
+  const weeksByTeacher: Record<string, string[]> = tab === 'dispos'
+    ? await getAllTeacherWeekAvailabilities(teachers.map((t) => t.id))
+    : {};
 
   // Calendrier : une query par classe
   const weeksByClass: Record<string, Awaited<ReturnType<typeof getCalendarWeeks>>> = {};
@@ -91,7 +84,7 @@ export default async function PlanningPage({
   const TAB_META: Record<TabId, { title: string; desc: string; iconBg: string; icon: React.ElementType; iconColor: string }> = {
     import: {
       title: 'Import CSV — Étudiants',
-      desc: 'Importez le fichier exporté depuis votre logiciel de gestion. Les comptes sont créés automatiquement avec un mot de passe temporaire.',
+      desc: 'Importez le fichier exporté depuis votre logiciel de gestion (.xlsx, .xls ou .csv). Les comptes sont créés automatiquement avec un mot de passe temporaire.',
       iconBg: 'bg-[#89aae6]/20', icon: Upload, iconColor: 'text-[#3685b5]',
     },
     salles: {
@@ -121,7 +114,7 @@ export default async function PlanningPage({
     },
     moteur: {
       title: 'Moteur de planning',
-      desc: 'Générez le planning annuel automatiquement. Analysez le résultat avec l\'IA de votre choix, puis publiez.',
+      desc: 'Générez le planning annuel automatiquement, visualisez les conflits, puis publiez.',
       iconBg: 'bg-[#0471a6]/10', icon: Zap, iconColor: 'text-[#0471a6]',
     },
   };
@@ -189,7 +182,7 @@ export default async function PlanningPage({
         {tab === 'dispos' && (
           <AvailabilityPanel
             teachers={teachers}
-            slotsByTeacher={slotsByTeacher}
+            weeksByTeacher={weeksByTeacher}
           />
         )}
 
@@ -205,7 +198,6 @@ export default async function PlanningPage({
           <PlanningEnginePanel
             initialRuns={runs as Parameters<typeof PlanningEnginePanel>[0]['initialRuns']}
             classes={classes}
-            providers={aiProviders}
           />
         )}
       </div>
