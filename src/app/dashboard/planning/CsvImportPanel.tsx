@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import {
   parseCsvContent,
+  parseXlsxToCSV,
   importCsvStudents,
   type ImportPreview,
   type ImportResult,
@@ -260,13 +261,37 @@ export function CsvImportPanel() {
     if (fileRef.current) fileRef.current.value = '';
   }
 
+  async function fileTocsv(file: File): Promise<string> {
+    const name = file.name.toLowerCase();
+    if (!name.endsWith('.xlsx') && !name.endsWith('.xls')) return file.text();
+
+    // XLSX parsé côté serveur (server action) pour éviter les problèmes de bundling
+    const buffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    const base64 = btoa(binary);
+
+    const res = await parseXlsxToCSV(base64);
+    if (res.error || !res.csv) throw new Error(res.error ?? 'Erreur de lecture XLSX');
+    return res.csv;
+  }
+
   async function handleFile(file: File) {
-    if (!file.name.endsWith('.csv') && !file.name.endsWith('.txt')) {
-      setParseError('Format non supporté. Utilisez un fichier .csv exporté depuis Excel.');
+    const name = file.name.toLowerCase();
+    const supported = name.endsWith('.csv') || name.endsWith('.txt') || name.endsWith('.xlsx') || name.endsWith('.xls');
+    if (!supported) {
+      setParseError('Format non supporté. Utilisez un fichier .csv, .xlsx ou .xls exporté depuis Excel.');
       return;
     }
     setParseError(null);
-    const content = await file.text();
+    let content: string;
+    try {
+      content = await fileTocsv(file);
+    } catch {
+      setParseError('Impossible de lire le fichier. Vérifiez qu\'il n\'est pas corrompu.');
+      return;
+    }
     startParsing(async () => {
       const parsed = await parseCsvContent(content);
       if (parsed.total === 0 && parsed.errors.length > 0) {
@@ -333,7 +358,7 @@ export function CsvImportPanel() {
             <input
               ref={fileRef}
               type="file"
-              accept=".csv,.txt"
+              accept=".csv,.txt,.xlsx,.xls"
               onChange={handleInputChange}
               className="hidden"
             />
@@ -349,10 +374,10 @@ export function CsvImportPanel() {
             </div>
             <div className="text-center">
               <p className="text-sm font-semibold text-[#061826]">
-                {isParsing ? 'Analyse en cours…' : 'Glissez le fichier CSV ici'}
+                {isParsing ? 'Analyse en cours…' : 'Glissez le fichier ici'}
               </p>
               <p className="mt-1 text-xs text-slate-400">
-                ou cliquez pour parcourir · Export Excel (.csv)
+                ou cliquez pour parcourir · .xlsx, .xls ou .csv
               </p>
             </div>
             {parseError && (

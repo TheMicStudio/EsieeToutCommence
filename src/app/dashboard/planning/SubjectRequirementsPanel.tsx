@@ -11,6 +11,7 @@ import {
   type ClassWithCalendar,
   type SubjectRequirement,
   type TeacherForPlanning,
+  type CreateSubjectRequirementInput,
 } from '@/modules/admin/planning-actions';
 
 const inputCls =
@@ -48,19 +49,41 @@ function AddRequirementForm({
     e.preventDefault();
     setError(null);
     const fd = new FormData(e.currentTarget);
-    fd.set('class_id', classId);
-    fd.set('session_type', sessionType);
+
+    const teacher_id           = fd.get('teacher_id') as string;
+    const subject_name         = fd.get('subject_name') as string;
+    const total_hours_required = parseFloat(fd.get('total_hours_required') as string);
+    const session_duration_h   = parseFloat(fd.get('session_duration_h') as string) || 2;
+    const duration_weeks       = fd.get('duration_weeks') ? parseInt(fd.get('duration_weeks') as string) : null;
+    const preferred_day        = fd.get('preferred_day') ? parseInt(fd.get('preferred_day') as string) : null;
+    const weekly_occurrences   = fd.get('weekly_occurrences') ? parseInt(fd.get('weekly_occurrences') as string) : null;
+
+    if (!teacher_id || !subject_name) { setError('Sélectionnez un professeur et une matière.'); return; }
+    if (isNaN(total_hours_required) || total_hours_required <= 0) { setError('Le volume horaire doit être positif.'); return; }
+
+    const input: CreateSubjectRequirementInput = {
+      class_id: classId,
+      teacher_id,
+      subject_name,
+      total_hours_required,
+      session_duration_h,
+      session_type: sessionType,
+      duration_weeks,
+      preferred_day,
+      weekly_occurrences,
+    };
+
     startAdd(async () => {
-      const res = await createSubjectRequirement(fd);
+      const res = await createSubjectRequirement(input);
       if (res.error) { setError(res.error); return; }
-      const teacher = teachers.find((t) => t.id === (fd.get('teacher_id') as string));
+      const teacher = teachers.find((t) => t.id === teacher_id);
       const newReq: SubjectRequirement = {
-        id: crypto.randomUUID(),
+        id: res.id ?? crypto.randomUUID(),
         class_id: classId,
-        teacher_id: fd.get('teacher_id') as string,
-        subject_name: fd.get('subject_name') as string,
-        total_hours_required: parseFloat(fd.get('total_hours_required') as string),
-        session_duration_h: parseFloat(fd.get('session_duration_h') as string) || 8,
+        teacher_id,
+        subject_name,
+        total_hours_required,
+        session_duration_h,
         teacher_nom: teacher?.nom,
         teacher_prenom: teacher?.prenom,
       };
