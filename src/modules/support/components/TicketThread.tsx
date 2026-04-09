@@ -22,7 +22,7 @@ const STATUT_ACTIONS: { statut: TicketStatut; label: string }[] = [
   { statut: 'ferme', label: 'Fermer' },
 ];
 
-export function TicketThread({ ticket, messages, authorNames, currentUserId, isAdmin }: TicketThreadProps) {
+export function TicketThread({ ticket, messages, authorNames, currentUserId, isAdmin }: Readonly<TicketThreadProps>) {
   const [msgState, msgAction, msgPending] = useActionState(addTicketMessage, null);
   const [isPending, startTransition] = useTransition();
   const [convertDone, setConvertDone] = useState(false);

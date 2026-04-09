@@ -42,7 +42,7 @@ function generateSlots(date: string, startTime: string, durationMin: number, cou
   return slots;
 }
 
-export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: CreateSoutenanceSlotsFormProps) {
+export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Readonly<CreateSoutenanceSlotsFormProps>) {
   const router = useRouter();
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('09:00');

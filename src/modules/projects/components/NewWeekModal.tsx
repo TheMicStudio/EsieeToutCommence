@@ -15,7 +15,7 @@ interface NewWeekModalProps {
   label?: string;
 }
 
-export function NewWeekModal({ classId, classes = [], label = 'Créer une semaine' }: NewWeekModalProps) {
+export function NewWeekModal({ classId, classes = [], label = 'Créer une semaine' }: Readonly<NewWeekModalProps>) {
   const [open, setOpen] = useState(false);
   const [selectedClassId, setSelectedClassId] = useState(classId ?? classes[0]?.id ?? '');
   const dialogRef = useRef<HTMLDialogElement>(null);

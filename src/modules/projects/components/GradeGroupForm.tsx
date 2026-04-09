@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import { gradeGroup } from '../actions';
 import { Star, Check, X, ClipboardEdit } from 'lucide-react';
 
-export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedback }: {
+export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedback }: Readonly<{
   groupId: string;
   groupName: string;
   initialNote?: number;
   initialFeedback?: string;
-}) {
+}>) {
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState(String(initialNote ?? ''));
   const [feedback, setFeedback] = useState(initialFeedback ?? '');

@@ -24,7 +24,7 @@ function avg(notes: number[]) {
   return notes.reduce((a, b) => a + b, 0) / notes.length;
 }
 
-export function GradeTableView({ grades, students, canDelete = false }: GradeTableViewProps) {
+export function GradeTableView({ grades, students, canDelete = false }: Readonly<GradeTableViewProps>) {
   const [localGrades, setLocalGrades] = useState(grades);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);

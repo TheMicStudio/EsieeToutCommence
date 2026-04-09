@@ -12,7 +12,7 @@ interface JoinGroupButtonProps {
   isFull: boolean;
 }
 
-export function JoinGroupButton({ groupId, weekId, isMember, isFull }: JoinGroupButtonProps) {
+export function JoinGroupButton({ groupId, weekId, isMember, isFull }: Readonly<JoinGroupButtonProps>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [optimisticMember, setOptimisticMember] = useState(isMember);

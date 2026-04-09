@@ -7,7 +7,7 @@ interface TicketListProps {
   tickets: Ticket[];
 }
 
-export function TicketList({ tickets }: TicketListProps) {
+export function TicketList({ tickets }: Readonly<TicketListProps>) {
   if (tickets.length === 0) {
     return (
       <div className="flex h-40 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-white">

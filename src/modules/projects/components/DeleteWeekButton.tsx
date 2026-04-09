@@ -10,7 +10,7 @@ interface DeleteWeekButtonProps {
   onDeleted?: () => void;
 }
 
-export function DeleteWeekButton({ weekId, weekTitle, onDeleted }: DeleteWeekButtonProps) {
+export function DeleteWeekButton({ weekId, weekTitle, onDeleted }: Readonly<DeleteWeekButtonProps>) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [error, setError] = useState('');

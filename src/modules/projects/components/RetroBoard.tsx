@@ -20,7 +20,7 @@ interface RetroBoardProps {
   isProf: boolean;
 }
 
-export function RetroBoard({ board, initialPostits, currentUserId, currentUserName, isProf }: RetroBoardProps) {
+export function RetroBoard({ board, initialPostits, currentUserId, currentUserName, isProf }: Readonly<RetroBoardProps>) {
   const [postits, setPostits] = useState<RetroPostit[]>(initialPostits);
   const [isOpen, setIsOpen] = useState(board.is_open);
   const [toggling, setToggling] = useState(false);

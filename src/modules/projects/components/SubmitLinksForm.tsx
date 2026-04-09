@@ -8,13 +8,13 @@ import { Check, GitBranch, Link2, Paperclip, Presentation, Upload, X } from 'luc
 
 const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
 
-export function SubmitLinksForm({ groupId, initialRepo, initialSlides, initialSlidesFileUrl, initialSlidesFileName }: {
+export function SubmitLinksForm({ groupId, initialRepo, initialSlides, initialSlidesFileUrl, initialSlidesFileName }: Readonly<{
   groupId: string;
   initialRepo?: string | null;
   initialSlides?: string | null;
   initialSlidesFileUrl?: string | null;
   initialSlidesFileName?: string | null;
-}) {
+}>) {
   const [repo, setRepo] = useState(initialRepo ?? '');
   const [slidesMode, setSlidesMode] = useState<'link' | 'file'>(
     initialSlidesFileUrl ? 'file' : 'link'

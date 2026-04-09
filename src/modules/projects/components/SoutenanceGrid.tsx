@@ -54,7 +54,7 @@ interface SlotRowProps {
 
 const inputCls = 'h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] transition-all';
 
-function SlotRow({ slot, weekId, myGroupId, isProf, canRelease, onBooked, onReleased, onUpdated }: SlotRowProps) {
+function SlotRow({ slot, weekId, myGroupId, isProf, canRelease, onBooked, onReleased, onUpdated }: Readonly<SlotRowProps>) {
   const [editing, setEditing] = useState(false);
   const [date, setDate] = useState(toLocalDateInput(slot.heure_debut));
   const [startTime, setStartTime] = useState(toLocalTimeInput(slot.heure_debut));

@@ -14,7 +14,7 @@ const TYPE_LABELS: Record<string, string> = {
   IDEA: '💡 Idées d\'amélioration',
 };
 
-export function ExportRetroButton({ postits, weekTitle = 'Rétro' }: ExportRetroButtonProps) {
+export function ExportRetroButton({ postits, weekTitle = 'Rétro' }: Readonly<ExportRetroButtonProps>) {
   function handleExport() {
     const date = new Date().toLocaleDateString('fr-FR', {
       day: 'numeric', month: 'long', year: 'numeric',

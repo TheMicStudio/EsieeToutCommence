@@ -25,7 +25,7 @@ interface TicketFormProps {
   onSuccess?: () => void;
 }
 
-export function TicketForm({ isDelegue = false, onSuccess }: TicketFormProps) {
+export function TicketForm({ isDelegue = false, onSuccess }: Readonly<TicketFormProps>) {
   const [state, action, pending] = useActionState(createTicket, null);
   const [sujet, setSujet] = useState('');
   const [suggestions, setSuggestions] = useState<FaqArticle[]>([]);

@@ -31,7 +31,7 @@ interface GroupWhiteboardViewProps {
   initialData: unknown;
 }
 
-export function GroupWhiteboardView({ groupId, initialData }: GroupWhiteboardViewProps) {
+export function GroupWhiteboardView({ groupId, initialData }: Readonly<GroupWhiteboardViewProps>) {
   const [api, setApi] = useState<ExcalidrawAPI | null>(null);
   const [saving, setSaving] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);

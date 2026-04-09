@@ -9,7 +9,7 @@ interface FaqArticleCardProps {
   article: FaqArticle;
 }
 
-export function FaqArticleCard({ article }: FaqArticleCardProps) {
+export function FaqArticleCard({ article }: Readonly<FaqArticleCardProps>) {
   const [open, setOpen] = useState(false);
 
   return (

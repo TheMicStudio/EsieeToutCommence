@@ -10,7 +10,7 @@ interface PostitCardProps {
   onDelete: (id: string) => void;
 }
 
-export function PostitCard({ postit, currentUserId, onDelete }: PostitCardProps) {
+export function PostitCard({ postit, currentUserId, onDelete }: Readonly<PostitCardProps>) {
   async function handleDelete() {
     await deletePostit(postit.id);
     onDelete(postit.id);

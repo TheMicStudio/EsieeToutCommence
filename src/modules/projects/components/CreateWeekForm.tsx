@@ -8,7 +8,7 @@ import { Plus } from 'lucide-react';
 const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
 const labelCls = 'block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5';
 
-export function CreateWeekForm({ classId, onClose }: { classId: string; onClose?: () => void }) {
+export function CreateWeekForm({ classId, onClose }: Readonly<{ classId: string; onClose?: () => void }>) {
   const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);

@@ -12,7 +12,7 @@ interface GroupCardProps {
   isProf: boolean;
 }
 
-export function GroupCard({ group, weekId, currentUserId, isProf }: GroupCardProps) {
+export function GroupCard({ group, weekId, currentUserId, isProf }: Readonly<GroupCardProps>) {
   const members = group.members ?? [];
   const isMember = members.some((m) => m.student_id === currentUserId);
   const spots = group.capacite_max - members.length;

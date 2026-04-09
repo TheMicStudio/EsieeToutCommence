@@ -27,7 +27,7 @@ const MOVE_TARGETS: Record<TicketStatut, { statut: TicketStatut; label: string }
   ferme:    [],
 };
 
-export function KanbanBoard({ tickets: initialTickets, admins = [] }: KanbanBoardProps) {
+export function KanbanBoard({ tickets: initialTickets, admins = [] }: Readonly<KanbanBoardProps>) {
   const [tickets, setTickets] = useState(initialTickets);
   const [view, setView] = useState<'kanban' | 'list'>('kanban');
   const router = useRouter();

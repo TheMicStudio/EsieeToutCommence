@@ -50,13 +50,13 @@ function formatDateFull(d: string) {
 
 // ─── Grid Card ───────────────────────────────────────────────────────────────
 
-function GridCard({ week, groupCount, classLabel, basePath, canDelete }: {
+function GridCard({ week, groupCount, classLabel, basePath, canDelete }: Readonly<{
   week: ProjectWeek;
   groupCount: number;
   classLabel?: string;
   basePath: string;
   canDelete?: boolean;
-}) {
+}>) {
   const status = getStatus(week);
   const s = STATUS_LABELS[status];
   const grad = gradientFor(week.title);
