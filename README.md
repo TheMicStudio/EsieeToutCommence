@@ -353,8 +353,15 @@ Voir [`docs/technical/ROLES_PERMISSIONS_ERREURS_US14.md`](./docs/technical/ROLES
 
 ---
 
-**Équipe :** 4 développeurs (Dev 1, 2, 3, 4) · **Branche :** `feat/readme` · **Repo :** https://github.com/TheMicStudio/EsieeToutCommence
+**Équipe :** 4 développeurs 
+- [@djelines](https://www.github.com/djelines)
 
-✅ **US37 Livrée** — Documentation centralisée pour installation, exploitation et compréhension du projet.
+- [@zinackes](https://www.github.com/zinackes)
+
+- [@BourletMateis](https://www.github.com/BourletMateis)
+
+- [@Cl3m3nt03](https://www.github.com/Cl3m3nt03)
+
+
 
 **Dernière mise à jour :** 9 avril 2026
