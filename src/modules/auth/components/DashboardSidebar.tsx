@@ -12,7 +12,6 @@ import {
   ChevronRight,
   GraduationCap,
   LayoutDashboard,
-  LogOut,
   MessageSquare,
   Newspaper,
   UserRound,
@@ -26,12 +25,7 @@ import {
   FolderKanban,
   FolderOpen,
 } from 'lucide-react';
-import { signOut } from '../actions';
 import { ROLE_LABELS, type UserProfile } from '../types';
-
-function getInitials(prenom: string, nom: string) {
-  return `${prenom[0] ?? ''}${nom[0] ?? ''}`.toUpperCase();
-}
 
 type NavItem = {
   href: string;
@@ -233,7 +227,7 @@ export function DashboardSidebar({ userProfile, permissions }: DashboardSidebarP
     new Set(['Principal', 'Pédagogie', 'Vie scolaire', 'Gestion', 'Communication', 'Alternance', 'Administration'])
   );
   const pathname = usePathname();
-  const { profile, role } = userProfile;
+  const { role } = userProfile;
   const rawSections = getNavSections(role);
 
   // Filtrer les items selon les permissions, puis les sections vides
@@ -245,8 +239,6 @@ export function DashboardSidebar({ userProfile, permissions }: DashboardSidebarP
       ),
     }))
     .filter((section) => section.items.length > 0);
-
-  const initials = getInitials(profile.prenom, profile.nom);
 
   useEffect(() => {
     try {
@@ -375,59 +367,6 @@ export function DashboardSidebar({ userProfile, permissions }: DashboardSidebarP
         })}
       </div>
 
-      {/* Profile + logout */}
-      <div className={[
-        'border-t border-slate-100 py-3',
-        collapsed ? 'flex flex-col items-center gap-2 px-2' : 'flex items-center gap-2 px-3',
-      ].join(' ')}>
-        {collapsed ? (
-          <>
-            <Link
-              href="/dashboard/profile"
-              title={`${profile.prenom} ${profile.nom}`}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-[#89aae6]/30 text-[#3685b5] text-xs font-bold hover:bg-[#89aae6]/50 transition-colors"
-            >
-              {initials}
-            </Link>
-            <form action={signOut}>
-              <button
-                type="submit"
-                title="Se déconnecter"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-              </button>
-            </form>
-          </>
-        ) : (
-          <>
-            <Link
-              href="/dashboard/profile"
-              onClick={() => setMobileOpen(false)}
-              className="flex flex-1 items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-slate-100 transition-colors min-w-0"
-            >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#89aae6]/30 text-[#3685b5] text-xs font-bold">
-                {initials}
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-xs font-semibold text-slate-800">
-                  {profile.prenom} {profile.nom}
-                </p>
-                <p className="text-[11px] text-slate-400 truncate">{profile.email ?? ROLE_LABELS[role]}</p>
-              </div>
-            </Link>
-            <form action={signOut}>
-              <button
-                type="submit"
-                title="Se déconnecter"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
-            </form>
-          </>
-        )}
-      </div>
     </div>
   );
 
