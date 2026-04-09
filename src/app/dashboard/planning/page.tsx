@@ -6,9 +6,11 @@ import {
   getTeachersForPlanning, getTeacherAvailabilities,
   getSubjectRequirements,
 } from '@/modules/admin/planning-actions';
+import { getPlanningRuns }       from '@/modules/planning/engine';
+import { getAvailableProviders } from '@/modules/planning/ai-reviewer';
 import {
   Upload, DoorOpen, CalendarOff, Calendar,
-  Clock, BookOpen,
+  Clock, BookOpen, Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 import { CsvImportPanel }            from './CsvImportPanel';
@@ -17,6 +19,7 @@ import { ClosuresPanel }             from './ClosuresPanel';
 import { CalendarPanel }             from './CalendarPanel';
 import { AvailabilityPanel }         from './AvailabilityPanel';
 import { SubjectRequirementsPanel }  from './SubjectRequirementsPanel';
+import { PlanningEnginePanel }       from './PlanningEnginePanel';
 
 export const metadata = { title: 'Planning — EsieeToutCommence' };
 
@@ -27,6 +30,7 @@ const TABS = [
   { id: 'calendrier',label: 'Calendrier',    icon: Calendar },
   { id: 'dispos',    label: 'Disponibilités',icon: Clock },
   { id: 'matieres',  label: 'Matières',      icon: BookOpen },
+  { id: 'moteur',    label: 'Moteur',        icon: Zap },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];
@@ -45,11 +49,13 @@ export default async function PlanningPage({
     : 'import';
 
   // Chargement conditionnel selon l'onglet actif
-  const [rooms, closures, classes, teachers] = await Promise.all([
+  const [rooms, closures, classes, teachers, runs, aiProviders] = await Promise.all([
     tab === 'salles'     ? getRooms()                : Promise.resolve([]),
     tab === 'fermetures' ? getClosures()             : Promise.resolve([]),
-    (tab === 'calendrier' || tab === 'matieres') ? getClassesWithCalendar() : Promise.resolve([]),
+    (tab === 'calendrier' || tab === 'matieres' || tab === 'moteur') ? getClassesWithCalendar() : Promise.resolve([]),
     (tab === 'dispos'    || tab === 'matieres')  ? getTeachersForPlanning() : Promise.resolve([]),
+    tab === 'moteur' ? getPlanningRuns()         : Promise.resolve([]),
+    tab === 'moteur' ? getAvailableProviders()   : Promise.resolve([]),
   ]);
 
   // Disponibilités : une query par prof
@@ -112,6 +118,11 @@ export default async function PlanningPage({
       title: 'Besoins par matière',
       desc: 'Définissez pour chaque classe le volume horaire total par matière, le professeur assigné et la durée type d\'une séance.',
       iconBg: 'bg-rose-100', icon: BookOpen, iconColor: 'text-rose-600',
+    },
+    moteur: {
+      title: 'Moteur de planning',
+      desc: 'Générez le planning annuel automatiquement. Analysez le résultat avec l\'IA de votre choix, puis publiez.',
+      iconBg: 'bg-[#0471a6]/10', icon: Zap, iconColor: 'text-[#0471a6]',
     },
   };
 
@@ -187,6 +198,14 @@ export default async function PlanningPage({
             classes={classes}
             teachers={teachers}
             requirementsByClass={requirementsByClass}
+          />
+        )}
+
+        {tab === 'moteur' && (
+          <PlanningEnginePanel
+            initialRuns={runs as Parameters<typeof PlanningEnginePanel>[0]['initialRuns']}
+            classes={classes}
+            providers={aiProviders}
           />
         )}
       </div>

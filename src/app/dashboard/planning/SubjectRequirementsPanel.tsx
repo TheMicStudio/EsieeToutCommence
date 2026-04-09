@@ -33,16 +33,23 @@ function AddRequirementForm({
   const [pending, startAdd] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [selectedTeacherId, setSelectedTeacherId] = useState(teachers[0]?.id ?? '');
+  const [sessionType, setSessionType] = useState<'CLASSIC' | 'INTENSIVE_BLOCK' | 'WEEKLY_DAY'>('CLASSIC');
 
-  // Matières disponibles pour le prof sélectionné
   const selectedTeacher = teachers.find((t) => t.id === selectedTeacherId);
   const matieres = selectedTeacher?.matieres_enseignees ?? [];
+
+  const SESSION_TYPE_LABELS = {
+    CLASSIC:         { label: 'Standard', desc: 'Créneaux de N heures répartis sur l\'année' },
+    INTENSIVE_BLOCK: { label: 'Bloc intensif', desc: '1-N semaines complètes bloquées' },
+    WEEKLY_DAY:      { label: '1 jour/semaine', desc: 'Même jour chaque semaine pendant N semaines' },
+  };
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     const fd = new FormData(e.currentTarget);
     fd.set('class_id', classId);
+    fd.set('session_type', sessionType);
     startAdd(async () => {
       const res = await createSubjectRequirement(fd);
       if (res.error) { setError(res.error); return; }
@@ -53,7 +60,7 @@ function AddRequirementForm({
         teacher_id: fd.get('teacher_id') as string,
         subject_name: fd.get('subject_name') as string,
         total_hours_required: parseFloat(fd.get('total_hours_required') as string),
-        session_duration_h: parseFloat(fd.get('session_duration_h') as string) || 2,
+        session_duration_h: parseFloat(fd.get('session_duration_h') as string) || 8,
         teacher_nom: teacher?.nom,
         teacher_prenom: teacher?.prenom,
       };
@@ -75,6 +82,31 @@ function AddRequirementForm({
 
   return (
     <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+      {/* Type de session */}
+      <div>
+        <label className={labelCls}>Type de session</label>
+        <div className="grid grid-cols-3 gap-2">
+          {(Object.keys(SESSION_TYPE_LABELS) as (keyof typeof SESSION_TYPE_LABELS)[]).map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => setSessionType(type)}
+              className={[
+                'flex flex-col gap-1 rounded-xl border p-2.5 text-left transition-all text-xs',
+                sessionType === type
+                  ? 'border-[#0471a6] bg-[#0471a6]/5 text-[#0471a6]'
+                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300',
+              ].join(' ')}
+            >
+              <span className="font-semibold">{SESSION_TYPE_LABELS[type].label}</span>
+              <span className={sessionType === type ? 'text-[#0471a6]/70' : 'text-slate-400'}>
+                {SESSION_TYPE_LABELS[type].desc}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className={labelCls}>Professeur</label>
@@ -101,36 +133,80 @@ function AddRequirementForm({
               ))}
             </select>
           ) : (
-            <input
-              name="subject_name"
-              placeholder="Ex: Mathématiques"
-              required
-              className={inputCls}
-            />
+            <input name="subject_name" placeholder="Ex: Projet intégré" required className={inputCls} />
           )}
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className={labelCls}>Volume horaire total (h)</label>
-          <input
-            name="total_hours_required"
-            type="number" min={1} max={500} step={0.5}
-            placeholder="Ex: 40"
-            required className={inputCls}
-          />
+
+      {/* Champs spécifiques au type */}
+      {sessionType === 'CLASSIC' && (
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={labelCls}>Volume horaire total (h)</label>
+            <input name="total_hours_required" type="number" min={1} max={500} step={0.5} placeholder="Ex: 40" required className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Durée d&apos;une séance</label>
+            <select name="session_duration_h" className={inputCls} defaultValue="2">
+              <option value="1">1h</option>
+              <option value="1.5">1h30</option>
+              <option value="2">2h</option>
+              <option value="3">3h</option>
+              <option value="4">4h (demi-journée)</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label className={labelCls}>Durée d&apos;une séance (h)</label>
-          <select name="session_duration_h" className={inputCls} defaultValue="2">
-            <option value="1">1h</option>
-            <option value="1.5">1h30</option>
-            <option value="2">2h</option>
-            <option value="3">3h</option>
-            <option value="4">4h</option>
-          </select>
+      )}
+
+      {sessionType === 'INTENSIVE_BLOCK' && (
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={labelCls}>Nombre de semaines bloquées</label>
+            <select name="duration_weeks" className={inputCls} defaultValue="1">
+              {[1,2,3,4].map((w) => (
+                <option key={w} value={w}>{w} semaine{w > 1 ? 's' : ''} complète{w > 1 ? 's' : ''}</option>
+              ))}
+            </select>
+            {/* Champs requis mais non utilisés pour ce type */}
+            <input type="hidden" name="total_hours_required" value="40" />
+            <input type="hidden" name="session_duration_h" value="8" />
+          </div>
+          <div>
+            <label className={labelCls}>Info</label>
+            <div className="flex h-10 items-center rounded-xl border border-blue-200 bg-blue-50 px-3 text-xs text-blue-700">
+              Bloque lundi→vendredi, journée complète
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {sessionType === 'WEEKLY_DAY' && (
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className={labelCls}>Jour préféré</label>
+            <select name="preferred_day" className={inputCls} defaultValue="1">
+              {['Lundi','Mardi','Mercredi','Jeudi','Vendredi'].map((d, i) => (
+                <option key={d} value={i + 1}>{d}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Nb de semaines</label>
+            <input name="weekly_occurrences" type="number" min={1} max={52} placeholder="Ex: 12" required className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Durée de la séance</label>
+            <select name="session_duration_h" className={inputCls} defaultValue="2">
+              <option value="1">1h</option>
+              <option value="1.5">1h30</option>
+              <option value="2">2h</option>
+              <option value="3">3h</option>
+              <option value="4">4h</option>
+            </select>
+            <input type="hidden" name="total_hours_required" value="1" />
+          </div>
+        </div>
+      )}
       {error && (
         <div className="flex items-center gap-2 rounded-lg bg-rose-50 border border-rose-200 px-3 py-2 text-xs text-rose-700">
           <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {error}
