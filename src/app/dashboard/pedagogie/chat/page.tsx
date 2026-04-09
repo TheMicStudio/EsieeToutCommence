@@ -13,9 +13,9 @@ export const metadata = { title: 'Chat de classe — EsieeToutCommence' };
 
 export default async function ChatPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ classe?: string }>;
-}) {
+}>) {
   const userProfile = await getCurrentUserProfile();
   if (!userProfile) return null;
 

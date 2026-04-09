@@ -11,7 +11,7 @@ interface QrCodeDisplayProps {
   scanBaseUrl: string;
 }
 
-export function QrCodeDisplay({ session, scanBaseUrl }: QrCodeDisplayProps) {
+export function QrCodeDisplay({ session, scanBaseUrl }: Readonly<QrCodeDisplayProps>) {
   const router = useRouter();
   const [secondsLeft, setSecondsLeft] = useState(() => {
     const diff = new Date(session.expiration).getTime() - Date.now();

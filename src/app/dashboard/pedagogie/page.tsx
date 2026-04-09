@@ -30,7 +30,16 @@ export default async function PedagogiePage() {
     redirect(`/dashboard/pedagogie/classe/${currentClass.id}`);
   }
 
-  const classes = isCoord ? allClasses : isProf ? teacherClasses : allMyClasses;
+  let classes: typeof allClasses;
+  if (isCoord) { classes = allClasses; }
+  else if (isProf) { classes = teacherClasses; }
+  else { classes = allMyClasses; }
+
+  let classesSummary: string;
+  if (isCoord) { classesSummary = `${allClasses.length} classe${allClasses.length === 1 ? '' : 's'}`; }
+  else if (isProf) { classesSummary = `${teacherClasses.length} classe${teacherClasses.length > 1 ? 's' : ''} assignée${teacherClasses.length > 1 ? 's' : ''}`; }
+  else if (currentClass) { classesSummary = `Classe actuelle : ${currentClass.nom} — Promo ${currentClass.annee}`; }
+  else { classesSummary = 'Aucune classe assignée'; }
 
   return (
     <div className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-[0_1px_0_rgba(15,23,42,0.06),0_10px_30px_rgba(15,23,42,0.06)] space-y-6">
@@ -39,13 +48,7 @@ export default async function PedagogiePage() {
           {isProf ? 'Mes classes' : 'Espace pédagogique'}
         </h1>
         <p className="mt-1 text-sm text-slate-500">
-          {isCoord
-            ? `${allClasses.length} classe${allClasses.length !== 1 ? 's' : ''}`
-            : isProf
-              ? `${teacherClasses.length} classe${teacherClasses.length > 1 ? 's' : ''} assignée${teacherClasses.length > 1 ? 's' : ''}`
-              : currentClass
-                ? `Classe actuelle : ${currentClass.nom} — Promo ${currentClass.annee}`
-                : 'Aucune classe assignée'}
+          {classesSummary}
         </p>
       </div>
 

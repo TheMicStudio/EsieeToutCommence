@@ -8,7 +8,7 @@ import { Plus } from 'lucide-react';
 const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
 const labelCls = 'block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5';
 
-export function CreateWeekForm({ classId, onClose }: { classId: string; onClose?: () => void }) {
+export function CreateWeekForm({ classId, onClose }: Readonly<{ classId: string; onClose?: () => void }>) {
   const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,8 +35,9 @@ export function CreateWeekForm({ classId, onClose }: { classId: string; onClose?
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className={labelCls}>Titre *</label>
+        <label htmlFor="cw-title" className={labelCls}>Titre *</label>
         <input
+          id="cw-title"
           name="title"
           placeholder="ex: Semaine Intelligence Artificielle"
           required
@@ -46,12 +47,12 @@ export function CreateWeekForm({ classId, onClose }: { classId: string; onClose?
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelCls}>Date de début *</label>
-          <input name="start_date" type="date" required className={inputCls} />
+          <label htmlFor="cw-start_date" className={labelCls}>Date de début *</label>
+          <input id="cw-start_date" name="start_date" type="date" required className={inputCls} />
         </div>
         <div>
-          <label className={labelCls}>Date de fin *</label>
-          <input name="end_date" type="date" required className={inputCls} />
+          <label htmlFor="cw-end_date" className={labelCls}>Date de fin *</label>
+          <input id="cw-end_date" name="end_date" type="date" required className={inputCls} />
         </div>
       </div>
 

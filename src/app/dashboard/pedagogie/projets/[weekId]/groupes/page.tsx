@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import { requirePermission } from '@/lib/permissions';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getGroups, createGroup } from '@/modules/projects/actions';
@@ -11,7 +10,7 @@ interface GroupesPageProps {
   params: Promise<{ weekId: string }>;
 }
 
-export default async function GroupesPage({ params }: GroupesPageProps) {
+export default async function GroupesPage({ params }: Readonly<GroupesPageProps>) {
   const { weekId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
@@ -45,7 +44,7 @@ export default async function GroupesPage({ params }: GroupesPageProps) {
           action={async (fd: FormData) => {
             'use server';
             const name = fd.get('group_name') as string;
-            const cap = parseInt(fd.get('capacite') as string);
+            const cap = Number.parseInt(fd.get('capacite') as string);
             await createGroup(weekId, name, cap);
           }}
           className="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm space-y-4"

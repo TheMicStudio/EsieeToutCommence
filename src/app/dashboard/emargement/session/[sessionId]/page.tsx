@@ -8,7 +8,7 @@ interface SessionPageProps {
   params: Promise<{ sessionId: string }>;
 }
 
-export default async function SessionPage({ params }: SessionPageProps) {
+export default async function SessionPage({ params }: Readonly<SessionPageProps>) {
   const { sessionId } = await params;
 
   await requirePermission('attendance.manage');

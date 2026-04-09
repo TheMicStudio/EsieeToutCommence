@@ -16,7 +16,7 @@ interface FolderContentsProps {
   currentFolderId?: string;
 }
 
-export function FolderContents({ folders, files, currentFolderId }: FolderContentsProps) {
+export function FolderContents({ folders, files, currentFolderId }: Readonly<FolderContentsProps>) {
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [renamingFolder, setRenamingFolder] = useState<DocFolder | null>(null);
@@ -175,7 +175,7 @@ export function FolderContents({ folders, files, currentFolderId }: FolderConten
       {/* Modal renommer dossier */}
       {renamingFolder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setRenamingFolder(null)} />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setRenamingFolder(null)} aria-hidden="true" />
           <div className="relative w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
             <h2 className="mb-4 font-semibold text-slate-800">Renommer le dossier</h2>
             <form action={renameAction} className="space-y-3">

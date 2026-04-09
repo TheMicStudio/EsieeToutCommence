@@ -27,7 +27,7 @@ interface FolderNodeItemProps {
   depth: number;
 }
 
-function FolderNodeItem({ node, currentFolderId, depth }: FolderNodeItemProps) {
+function FolderNodeItem({ node, currentFolderId, depth }: Readonly<FolderNodeItemProps>) {
   const isActive = node.id === currentFolderId;
   const hasChildren = node.children.length > 0;
   const [open, setOpen] = useState(
@@ -93,7 +93,7 @@ interface FolderTreeProps {
   currentFolderId?: string;
 }
 
-export function FolderTree({ folders, currentFolderId }: FolderTreeProps) {
+export function FolderTree({ folders, currentFolderId }: Readonly<FolderTreeProps>) {
   const tree = buildTree(folders);
 
   return (
@@ -102,9 +102,9 @@ export function FolderTree({ folders, currentFolderId }: FolderTreeProps) {
         href="/dashboard/documents"
         className={[
           'flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm transition-colors',
-          !currentFolderId
-            ? 'bg-[#0471a6]/10 text-[#0471a6] font-medium'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800',
+          currentFolderId
+            ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            : 'bg-[#0471a6]/10 text-[#0471a6] font-medium',
         ].join(' ')}
       >
         <FolderOpen className="h-4 w-4 shrink-0 text-[#0471a6]" />

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import {
@@ -92,7 +92,7 @@ const FALLBACK_AVERAGES: AverageMat[] = [
   { matiere: 'Anglais technique',moyenne: 12.9,  total_coefficients: 2   },
 ];
 
-function GradesWidget({ studentId }: { studentId: string }) {
+function GradesWidget({ studentId }: Readonly<{ studentId: string }>) {
   const [averages, setAverages] = useState<AverageMat[]>([]);
   const [loading, setLoading]   = useState(true);
 
@@ -184,7 +184,7 @@ function GradesWidget({ studentId }: { studentId: string }) {
   );
 }
 
-function DefaultSidebar({ userProfile }: { userProfile: UserProfile }) {
+function DefaultSidebar({ userProfile }: Readonly<{ userProfile: UserProfile }>) {
   const docs = getRecentDocs(userProfile.role);
   return (
     <div className="flex h-full flex-col gap-4 overflow-y-auto p-0">
@@ -426,9 +426,9 @@ function EmargementSidebarContent() {
           </button>
         </div>
         <div className="space-y-2">
-          {RECENT_CALLS.map((call, i) => (
+          {RECENT_CALLS.map((call) => (
             <div
-              key={i}
+              key={`${call.classe}-${call.time}`}
               className="p-3 rounded-xl border border-transparent hover:border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
             >
               <p className="text-[13px] font-semibold text-slate-900">{call.classe}</p>
@@ -587,7 +587,7 @@ function ProjetsSidebarContent() {
 // Main export
 // ─────────────────────────────────────────────────────────
 
-export function RightSidebar({ userProfile }: RightSidebarProps) {
+export function RightSidebar({ userProfile }: Readonly<RightSidebarProps>) {
   const pathname      = usePathname();
   const isAnnuaire    = pathname === '/dashboard/annuaire';
   const isNotes       = pathname === '/dashboard/pedagogie/notes';
@@ -598,24 +598,29 @@ export function RightSidebar({ userProfile }: RightSidebarProps) {
 
   const noWrapper = isAnnuaire || isNotes || isProjets || isEmargement || isEmargementSession;
 
+  let sidebarContent: React.ReactNode;
+  if (isAnnuaire) {
+    sidebarContent = (
+      <Suspense fallback={<div className="flex-1 animate-pulse rounded-2xl bg-slate-100" />}>
+        <AnnuaireSidebarContent />
+      </Suspense>
+    );
+  } else if (isNotes && userProfile.role === 'eleve') {
+    sidebarContent = <GradesWidget studentId={userProfile.profile.id} />;
+  } else if (isProjets || isEmargementSession) {
+    sidebarContent = <ProjetsSidebarContent />;
+  } else if (isEmargement) {
+    sidebarContent = <EmargementSidebarContent />;
+  } else {
+    sidebarContent = <DefaultSidebar userProfile={userProfile} />;
+  }
+
   return (
     <aside className={[
       'hidden xl:flex xl:flex-col w-[220px] shrink-0',
       noWrapper ? '' : 'rounded-3xl bg-white shadow-card border border-slate-200/70 overflow-hidden p-4',
     ].join(' ')}>
-      {isAnnuaire ? (
-        <Suspense fallback={<div className="flex-1 animate-pulse rounded-2xl bg-slate-100" />}>
-          <AnnuaireSidebarContent />
-        </Suspense>
-      ) : isNotes && userProfile.role === 'eleve' ? (
-        <GradesWidget studentId={userProfile.profile.id} />
-      ) : isProjets || isEmargementSession ? (
-        <ProjetsSidebarContent />
-      ) : isEmargement ? (
-        <EmargementSidebarContent />
-      ) : (
-        <DefaultSidebar userProfile={userProfile} />
-      )}
+      {sidebarContent}
     </aside>
   );
 }

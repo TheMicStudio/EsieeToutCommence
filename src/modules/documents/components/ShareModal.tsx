@@ -19,13 +19,13 @@ interface ShareModalProps {
   onClose: () => void;
 }
 
-export function ShareModal({ target, targetType, onClose }: ShareModalProps) {
+export function ShareModal({ target, targetType, onClose }: Readonly<ShareModalProps>) {
   const [links, setLinks] = useState<DocShareLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [state, action, pending] = useActionState(createShareLink, null);
 
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const baseUrl = typeof globalThis.window !== 'undefined' ? globalThis.window.location.origin : '';
 
   useEffect(() => {
     const fileId = targetType === 'file' ? target.id : undefined;
@@ -59,7 +59,7 @@ export function ShareModal({ target, targetType, onClose }: ShareModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div className="relative w-full max-w-md rounded-3xl bg-white shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
@@ -168,8 +168,9 @@ export function ShareModal({ target, targetType, onClose }: ShareModalProps) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-xs text-slate-500">Expiration</label>
+                  <label htmlFor="share-expires_at" className="mb-1 block text-xs text-slate-500">Expiration</label>
                   <input
+                    id="share-expires_at"
                     type="date"
                     name="expires_at"
                     min={new Date().toISOString().split('T')[0]}
@@ -177,8 +178,9 @@ export function ShareModal({ target, targetType, onClose }: ShareModalProps) {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-slate-500">Max. accès</label>
+                  <label htmlFor="share-max_uses" className="mb-1 block text-xs text-slate-500">Max. accès</label>
                   <input
+                    id="share-max_uses"
                     type="number"
                     name="max_uses"
                     placeholder="Illimité"

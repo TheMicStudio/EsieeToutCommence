@@ -19,7 +19,7 @@ interface StartSessionFormProps {
 const DURATIONS = [5, 10, 15, 30] as const;
 type Duration = (typeof DURATIONS)[number];
 
-export function StartSessionForm({ classes, initialClassId }: StartSessionFormProps) {
+export function StartSessionForm({ classes, initialClassId }: Readonly<StartSessionFormProps>) {
   const [classId, setClassId]   = useState(initialClassId ?? classes[0]?.id ?? '');
   const [duration, setDuration] = useState<Duration>(5);
   const [loading, setLoading]   = useState(false);
@@ -100,16 +100,12 @@ export function StartSessionForm({ classes, initialClassId }: StartSessionFormPr
 
         {/* Droite — Durée QR */}
         <div>
-          <p
-            id="duration-group-label"
-            className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#6b7a90]"
-          >
+          <fieldset className="border-0 p-0 m-0">
+          <legend className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#6b7a90]">
             Durée de validité du QR Code
-          </p>
+          </legend>
 
           <div
-            role="group"
-            aria-labelledby="duration-group-label"
             className="flex flex-wrap gap-2"
           >
             {DURATIONS.map((d) => {
@@ -136,6 +132,7 @@ export function StartSessionForm({ classes, initialClassId }: StartSessionFormPr
           <p className="mt-1.5 text-[12px] text-slate-500">
             Le code expirera automatiquement après ce délai.
           </p>
+          </fieldset>
         </div>
       </div>
 

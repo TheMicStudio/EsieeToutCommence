@@ -55,14 +55,14 @@ interface DocumentPreviewModalProps {
   onClose: () => void;
 }
 
-export function DocumentPreviewModal({ url, title, mimeType, fileType, onClose }: DocumentPreviewModalProps) {
+export function DocumentPreviewModal({ url, title, mimeType, fileType, onClose }: Readonly<DocumentPreviewModalProps>) {
   const mode = detectPreviewMode(url, mimeType, fileType);
 
   // Fermer avec Échap
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose(); }
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    globalThis.window.addEventListener('keydown', onKey);
+    return () => globalThis.window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
   // Bloquer le scroll du body
@@ -81,6 +81,7 @@ export function DocumentPreviewModal({ url, title, mimeType, fileType, onClose }
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      aria-hidden="true"
     >
       <div className="flex w-full max-w-5xl flex-col rounded-2xl bg-white shadow-2xl"
         style={{ height: '90vh' }}

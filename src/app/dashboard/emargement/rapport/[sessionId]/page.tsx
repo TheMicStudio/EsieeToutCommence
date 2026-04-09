@@ -1,4 +1,4 @@
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { requirePermission } from '@/lib/permissions';
@@ -10,7 +10,7 @@ interface RapportPageProps {
   params: Promise<{ sessionId: string }>;
 }
 
-export default async function RapportPage({ params }: RapportPageProps) {
+export default async function RapportPage({ params }: Readonly<RapportPageProps>) {
   const { sessionId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;

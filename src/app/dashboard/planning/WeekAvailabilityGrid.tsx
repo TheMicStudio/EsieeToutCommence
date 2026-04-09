@@ -58,7 +58,7 @@ interface WeekAvailabilityGridProps {
   initialWeeks: string[]; // liste de YYYY-MM-DD (lundis disponibles)
 }
 
-export function WeekAvailabilityGrid({ teacherId, initialWeeks }: WeekAvailabilityGridProps) {
+export function WeekAvailabilityGrid({ teacherId, initialWeeks }: Readonly<WeekAvailabilityGridProps>) {
   const [selectedWeeks, setSelectedWeeks] = useState(() => new Set(initialWeeks));
   const [pending, startTransition] = useTransition();
 
@@ -95,6 +95,15 @@ export function WeekAvailabilityGrid({ teacherId, initialWeeks }: WeekAvailabili
 
   const isAllYear = count === total;
 
+  let countBadgeCls: string;
+  if (isAllYear) { countBadgeCls = 'bg-emerald-100 text-emerald-700'; }
+  else if (count > 0) { countBadgeCls = 'bg-[#0471a6]/10 text-[#0471a6]'; }
+  else { countBadgeCls = 'bg-slate-100 text-slate-400'; }
+  let countLabel: string;
+  if (count === 0) { countLabel = 'Aucune semaine'; }
+  else if (isAllYear) { countLabel = 'Disponible toute l\'année'; }
+  else { countLabel = `${count} semaine${count > 1 ? 's' : ''}`; }
+
   return (
     <div className="space-y-4">
       {/* Barre d'actions rapides */}
@@ -123,15 +132,8 @@ export function WeekAvailabilityGrid({ teacherId, initialWeeks }: WeekAvailabili
         </button>
 
         <div className="flex items-center gap-2 ml-1">
-          <span className={[
-            'rounded-full px-3 py-1 text-xs font-bold',
-            isAllYear
-              ? 'bg-emerald-100 text-emerald-700'
-              : count > 0
-              ? 'bg-[#0471a6]/10 text-[#0471a6]'
-              : 'bg-slate-100 text-slate-400',
-          ].join(' ')}>
-            {count === 0 ? 'Aucune semaine' : isAllYear ? 'Disponible toute l\'année' : `${count} semaine${count > 1 ? 's' : ''}`}
+          <span className={['rounded-full px-3 py-1 text-xs font-bold', countBadgeCls].join(' ')}>
+            {countLabel}
           </span>
           {pending && <Loader2 className="h-4 w-4 animate-spin text-slate-400" />}
         </div>
@@ -198,15 +200,15 @@ export function WeekAvailabilityGrid({ teacherId, initialWeeks }: WeekAvailabili
       {/* Légende */}
       <div className="flex items-center gap-4 pt-2 border-t border-slate-100 text-[11px] text-slate-400">
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded-md bg-emerald-500 inline-block" />
+          <span className="h-3 w-3 rounded-md bg-emerald-500 inline-block" />{' '}
           Disponible
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded-md bg-slate-100 border border-slate-200 inline-block" />
+          <span className="h-3 w-3 rounded-md bg-slate-100 border border-slate-200 inline-block" />{' '}
           Indisponible
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded-full ring-2 ring-[#0471a6]/50 inline-block bg-slate-100 border border-slate-200" />
+          <span className="h-3 w-3 rounded-full ring-2 ring-[#0471a6]/50 inline-block bg-slate-100 border border-slate-200" />{' '}
           Semaine actuelle
         </span>
         <span className="ml-auto italic">

@@ -12,7 +12,7 @@ function formatSize(bytes?: number | null) {
   return `${(bytes / 1024 / 1024).toFixed(1)} Mo`;
 }
 
-export default async function SharePage({ params }: Props) {
+export default async function SharePage({ params }: Readonly<Props>) {
   const { token } = await params;
   const result = await resolveShareLink(token);
 
@@ -106,7 +106,7 @@ export default async function SharePage({ params }: Props) {
             <div>
               <h1 className="text-lg font-bold text-slate-800">{result.folderName ?? 'Dossier partagé'}</h1>
               <p className="text-sm text-slate-500">
-                {result.folderFiles.length} fichier{result.folderFiles.length !== 1 ? 's' : ''}
+                {result.folderFiles.length} fichier{result.folderFiles.length === 1 ? '' : 's'}
               </p>
             </div>
           </div>

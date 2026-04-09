@@ -61,7 +61,7 @@ export default function LoginPage() {
             {AVATARS.map((av, i) => (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                key={i}
+                key={av.src}
                 src={av.src}
                 alt={av.alt}
                 className={`h-9 w-9 rounded-full object-cover border-2 border-white${i > 0 ? ' -ml-2' : ''}`}
@@ -236,9 +236,9 @@ export default function LoginPage() {
           </p>
           {/* Mini chart bars */}
           <div className="flex items-end gap-1">
-            {CHART_BARS.map((bar, i) => (
+            {CHART_BARS.map((bar) => (
               <div
-                key={i}
+                key={`${bar.h}-${bar.opacity}`}
                 className="w-2 rounded-sm"
                 style={{ height: `${bar.h}px`, background: `rgba(0,163,224,${bar.opacity})` }}
               />

@@ -40,12 +40,17 @@ export default async function CarrierePage() {
     { href: '/dashboard/carriere/livret', label: "Livret d'apprentissage", icon: GraduationCap, description: 'Consulter et valider les entrées de votre alternant', gradient: 'from-[#89aae6]/10 to-[#3685b5]/5', iconBg: 'bg-[#89aae6]/20 text-[#3685b5]' },
   ];
 
-  const items = isAdmin ? adminItems : isEntreprise ? entrepriseItems : isAlternant ? alternantItems : tempsPleinItems;
+  let items: typeof adminItems;
+  if (isAdmin) { items = adminItems; }
+  else if (isEntreprise) { items = entrepriseItems; }
+  else if (isAlternant) { items = alternantItems; }
+  else { items = tempsPleinItems; }
 
-  const subtitle = isEntreprise ? 'Suivez votre alternant et validez son livret'
-    : isAlternant ? 'Espace dédié à votre parcours en alternance'
-    : isAdmin ? 'Gestion des offres et événements carrière'
-    : 'Trouvez votre stage ou alternance';
+  let subtitle: string;
+  if (isEntreprise) { subtitle = 'Suivez votre alternant et validez son livret'; }
+  else if (isAlternant) { subtitle = 'Espace dédié à votre parcours en alternance'; }
+  else if (isAdmin) { subtitle = 'Gestion des offres et événements carrière'; }
+  else { subtitle = 'Trouvez votre stage ou alternance'; }
 
   return (
     <div className="space-y-6">

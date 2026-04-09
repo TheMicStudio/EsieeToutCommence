@@ -31,7 +31,7 @@ export function LoginForm() {
   function handleQuickLogin(email: string) {
     if (!quickFormRef.current || !quickEmailRef.current || !quickPasswordRef.current) return;
     quickEmailRef.current.value = email;
-    quickPasswordRef.current.value = 'Test1234!';
+    quickPasswordRef.current.value = process.env.NEXT_PUBLIC_DEMO_PASS ?? 'Test1234!';
     quickFormRef.current.requestSubmit();
   }
 

@@ -67,7 +67,7 @@ export function DocumentSearch() {
 
       {open && results.length > 0 && (
         <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} aria-hidden="true" />
           <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-80 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-xl">
             {results.map((r) => (
               <Link

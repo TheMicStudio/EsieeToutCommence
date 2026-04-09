@@ -23,7 +23,7 @@ interface GradeBookProps {
   grades: Grade[];
 }
 
-export function GradeBook({ grades }: GradeBookProps) {
+export function GradeBook({ grades }: Readonly<GradeBookProps>) {
   const displayGrades = grades.length > 0 ? grades : FALLBACK_GRADES;
 
   const grouped = displayGrades.reduce<Record<string, Grade[]>>((acc, g) => {

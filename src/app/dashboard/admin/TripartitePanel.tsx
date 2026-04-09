@@ -21,13 +21,13 @@ function ConfigForm({
   entreprises,
   onSuccess,
   onCancel,
-}: {
+}: Readonly<{
   alternant: AlternantRow;
   admins: UserRow[];
   entreprises: UserRow[];
   onSuccess?: () => void;
   onCancel?: () => void;
-}) {
+}>) {
   const [state, action, pending] = useActionState(createTripartiteChat, null);
   const router = useRouter();
 
@@ -37,14 +37,20 @@ function ConfigForm({
 
   if (state?.success) return null;
 
+  let submitLabel: string;
+  if (pending) { submitLabel = 'Enregistrement…'; }
+  else if (alternant.chat_id) { submitLabel = 'Reconfigurer'; }
+  else { submitLabel = 'Configurer'; }
+
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="student_id" value={alternant.id} />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label className={labelCls}>Référent administratif</label>
+          <label htmlFor="referent_id" className={labelCls}>Référent administratif</label>
           <select
+            id="referent_id"
             name="referent_id"
             required
             className={inputCls}
@@ -59,8 +65,9 @@ function ConfigForm({
           </select>
         </div>
         <div>
-          <label className={labelCls}>Maître d&apos;apprentissage</label>
+          <label htmlFor="maitre_id" className={labelCls}>Maître d&apos;apprentissage</label>
           <select
+            id="maitre_id"
             name="maitre_id"
             required
             className={inputCls}
@@ -87,7 +94,7 @@ function ConfigForm({
           className="inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 disabled:opacity-50 transition-all"
         >
           <MessageSquare className="h-4 w-4" />
-          {pending ? 'Enregistrement…' : alternant.chat_id ? 'Reconfigurer' : 'Configurer'}
+          {submitLabel}
         </button>
         {onCancel && (
           <button
@@ -107,11 +114,11 @@ function AlternantCard({
   alt,
   admins,
   entreprises,
-}: {
+}: Readonly<{
   alt: AlternantRow;
   admins: UserRow[];
   entreprises: UserRow[];
-}) {
+}>) {
   const [, startTransition] = useTransition();
   const [editing, setEditing] = useState(!alt.chat_id);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -139,7 +146,7 @@ function AlternantCard({
             {alt.chat_id && (alt.referent_nom || alt.maitre_nom) && (
               <p className="text-xs text-slate-500 mt-0.5 truncate">
                 Référent : <strong>{alt.referent_nom ?? '—'}</strong>
-                <span className="mx-1.5">·</span>
+                <span className="mx-1.5">{' '}·{' '}</span>
                 Maître : <strong>{alt.maitre_nom ?? '—'}</strong>
               </p>
             )}
@@ -224,7 +231,7 @@ function AlternantCard({
   );
 }
 
-export function TripartitePanel({ alternants, admins, entreprises }: Props) {
+export function TripartitePanel({ alternants, admins, entreprises }: Readonly<Props>) {
   const [classeFilter, setClasseFilter] = useState('');
 
   if (alternants.length === 0) {

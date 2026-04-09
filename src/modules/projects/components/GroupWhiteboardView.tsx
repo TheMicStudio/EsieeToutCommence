@@ -31,7 +31,7 @@ interface GroupWhiteboardViewProps {
   initialData: unknown;
 }
 
-export function GroupWhiteboardView({ groupId, initialData }: GroupWhiteboardViewProps) {
+export function GroupWhiteboardView({ groupId, initialData }: Readonly<GroupWhiteboardViewProps>) {
   const [api, setApi] = useState<ExcalidrawAPI | null>(null);
   const [saving, setSaving] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
@@ -66,7 +66,7 @@ export function GroupWhiteboardView({ groupId, initialData }: GroupWhiteboardVie
       .subscribe();
     channelRef.current = channel;
     return () => { supabase.removeChannel(channel); };
-  }, [groupId, api]); // eslint-disable-line
+  }, [groupId, api]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Schedule auto-save to DB (10s after last change)
   const scheduleSave = useCallback((elements: unknown[]) => {

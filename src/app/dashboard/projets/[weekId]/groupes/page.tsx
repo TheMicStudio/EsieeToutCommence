@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, Plus, Users, Star, GitBranch, Presentation, Lock, UserPlus } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
@@ -26,7 +25,7 @@ const AVATAR_COLORS = [
   'bg-rose-100 text-rose-600',
 ];
 
-export default async function GroupesPage({ params }: GroupesPageProps) {
+export default async function GroupesPage({ params }: Readonly<GroupesPageProps>) {
   const { weekId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;
@@ -65,7 +64,7 @@ export default async function GroupesPage({ params }: GroupesPageProps) {
             {week?.title ?? 'Groupes'}
           </h1>
           <p className="text-sm text-slate-400">
-            {groups.length} groupe{groups.length !== 1 ? 's' : ''} · {groups.reduce((n, g) => n + (g.members?.length ?? 0), 0)} participant{groups.reduce((n, g) => n + (g.members?.length ?? 0), 0) !== 1 ? 's' : ''}
+            {groups.length} groupe{groups.length === 1 ? '' : 's'} · {groups.reduce((n, g) => n + (g.members?.length ?? 0), 0)} participant{groups.reduce((n, g) => n + (g.members?.length ?? 0), 0) === 1 ? '' : 's'}
           </p>
         </div>
       </div>
@@ -156,7 +155,7 @@ export default async function GroupesPage({ params }: GroupesPageProps) {
           action={async (fd: FormData) => {
             'use server';
             const name = fd.get('group_name') as string;
-            const cap = parseInt(fd.get('capacite') as string);
+            const cap = Number.parseInt(fd.get('capacite') as string);
             await createGroup(weekId, name, cap);
           }}
           className="rounded-3xl border border-slate-200/70 bg-white shadow-card p-6 space-y-4"

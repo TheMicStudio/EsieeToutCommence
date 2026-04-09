@@ -13,7 +13,7 @@ interface UploadEntryFormProps {
 
 const MAX_SIZE_MB = 10;
 
-export function UploadEntryForm({ chatId }: UploadEntryFormProps) {
+export function UploadEntryForm({ chatId }: Readonly<UploadEntryFormProps>) {
   const [state, action, pending] = useActionState(uploadApprenticeshipEntry, null);
   const [fileError, setFileError] = useState('');
   const router = useRouter();

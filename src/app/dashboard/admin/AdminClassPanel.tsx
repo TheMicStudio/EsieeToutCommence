@@ -7,14 +7,11 @@ import {
   deleteClass,
   assignStudentToClass,
   removeStudentFromClass,
-  assignTeacherToClass,
-  removeTeacherFromClass,
-  getClassTeacherAssignments,
 } from '@/modules/admin/actions';
-import type { ClassRow, StudentRow, TeacherRow } from '@/modules/admin/actions';
+import type { ClassRow, StudentRow } from '@/modules/admin/actions';
 import {
   GraduationCap, Plus, Trash2, UserPlus, X,
-  ChevronDown, ChevronRight, AlertCircle, Search, Users, BookOpen,
+  ChevronDown, ChevronRight, AlertCircle, Search, Users,
 } from 'lucide-react';
 
 const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
@@ -53,8 +50,9 @@ function CreateClassForm() {
       </div>
       <form action={action} className="flex flex-wrap gap-3">
         <div className="flex-1 min-w-[160px]">
-          <label className={labelCls}>Nom</label>
+          <label htmlFor="nom" className={labelCls}>Nom</label>
           <input
+            id="nom"
             name="nom"
             placeholder="Ex: BTS SIO SLAM"
             required
@@ -62,8 +60,9 @@ function CreateClassForm() {
           />
         </div>
         <div className="w-36">
-          <label className={labelCls}>Promotion</label>
+          <label htmlFor="annee" className={labelCls}>Promotion</label>
           <input
+            id="annee"
             name="annee"
             type="number"
             placeholder="2025"
@@ -103,10 +102,10 @@ function CreateClassForm() {
 function StudentsSection({
   cls,
   students,
-}: {
+}: Readonly<{
   cls: ClassRow;
   students: StudentRow[];
-}) {
+}>) {
   const [, startTransition] = useTransition();
   const [assignState, assignAction] = useActionState(assignStudentToClass, null);
   const [search, setSearch] = useState('');
@@ -185,9 +184,9 @@ function StudentsSection({
                 </label>
               ))}
             </div>
-          ) : search ? (
-            <p className="text-xs text-slate-400 px-1">Aucun élève trouvé pour &quot;{search}&quot;</p>
-          ) : null}
+          ) : (
+            search ? <p className="text-xs text-slate-400 px-1">Aucun élève trouvé pour &quot;{search}&quot;</p> : null
+          )}
 
           <button
             type="submit"
@@ -209,155 +208,14 @@ function StudentsSection({
   );
 }
 
-// ─── Section enseignants d'une classe ────────────────────────────────────────
-
-interface TeacherAssignment {
-  teacher_id: string;
-  matiere: string;
-  teacher_profiles: { nom: string; prenom: string } | null;
-}
-
-function TeachersSection({
-  cls,
-  teachers,
-}: {
-  cls: ClassRow;
-  teachers: TeacherRow[];
-}) {
-  const [, startTransition] = useTransition();
-  const [assignState, assignAction] = useActionState(assignTeacherToClass, null);
-  const [selectedTeacherId, setSelectedTeacherId] = useState('');
-  const [assignments, setAssignments] = useState<TeacherAssignment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  const selectedTeacher = teachers.find((t) => t.id === selectedTeacherId);
-  const availableMatieres = selectedTeacher?.matieres_enseignees ?? [];
-
-  useEffect(() => {
-    setLoading(true);
-    getClassTeacherAssignments(cls.id).then((data) => {
-      setAssignments(data as unknown as TeacherAssignment[]);
-      setLoading(false);
-    });
-  }, [cls.id]);
-
-  useEffect(() => {
-    if (assignState?.success) { router.refresh(); setSelectedTeacherId(''); }
-  }, [assignState?.success]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  function handleRemove(teacherId: string, matiere: string) {
-    startTransition(async () => {
-      await removeTeacherFromClass(teacherId, cls.id, matiere);
-      setAssignments((prev) =>
-        prev.filter((a) => !(a.teacher_id === teacherId && a.matiere === matiere))
-      );
-      router.refresh();
-    });
-  }
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <BookOpen className="h-3.5 w-3.5 text-slate-400" />
-        <p className={labelCls + ' !mb-0'}>Enseignants</p>
-      </div>
-
-      {loading ? (
-        <p className="text-xs text-slate-400">Chargement…</p>
-      ) : assignments.length > 0 ? (
-        <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/60 bg-white overflow-hidden">
-          {assignments.map((a) => {
-            const tp = a.teacher_profiles;
-            return (
-              <div
-                key={`${a.teacher_id}-${a.matiere}`}
-                className="flex items-center justify-between px-3 py-2"
-              >
-                <span className="text-sm text-[#061826]">
-                  {tp ? `${tp.prenom} ${tp.nom}` : 'Prof inconnu'}
-                  <span className="ml-2 text-xs text-slate-400">— {a.matiere}</span>
-                </span>
-                <button
-                  onClick={() => handleRemove(a.teacher_id, a.matiere)}
-                  className="text-slate-300 hover:text-red-400 transition-colors"
-                  title="Retirer l'enseignant"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <p className="text-xs text-slate-400">Aucun enseignant assigné.</p>
-      )}
-
-      <form action={assignAction} className="flex flex-wrap gap-2">
-        <input type="hidden" name="class_id" value={cls.id} />
-        <select
-          name="teacher_id"
-          required
-          value={selectedTeacherId}
-          onChange={(e) => setSelectedTeacherId(e.target.value)}
-          className="flex-1 min-w-[150px] rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:bg-white transition-all"
-        >
-          <option value="">— Choisir un prof —</option>
-          {teachers.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.prenom} {t.nom}
-            </option>
-          ))}
-        </select>
-
-        <select
-          name="matiere"
-          required
-          disabled={availableMatieres.length === 0}
-          className="flex-1 min-w-[130px] rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:bg-white transition-all disabled:opacity-40"
-        >
-          <option value="">
-            {availableMatieres.length === 0
-              ? selectedTeacherId ? 'Aucune matière configurée' : '— Matière —'
-              : '— Choisir —'}
-          </option>
-          {availableMatieres.map((m) => (
-            <option key={m} value={m}>{m}</option>
-          ))}
-        </select>
-
-        <button
-          type="submit"
-          disabled={availableMatieres.length === 0}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-[#0471a6]/30 bg-[#0471a6]/5 px-3 py-1.5 text-xs font-semibold text-[#0471a6] hover:bg-[#0471a6]/10 transition-colors disabled:opacity-40"
-        >
-          <UserPlus className="h-3.5 w-3.5" />
-          Assigner
-        </button>
-
-        {assignState?.error && (
-          <p className="w-full text-xs text-red-500">{assignState.error}</p>
-        )}
-        {selectedTeacherId && availableMatieres.length === 0 && (
-          <p className="w-full flex items-center gap-1 text-xs text-amber-600">
-            <AlertCircle className="h-3 w-3" />
-            Ce professeur n&apos;a aucune matière configurée dans son profil.
-          </p>
-        )}
-      </form>
-    </div>
-  );
-}
-
 // ─── Panel principal ──────────────────────────────────────────────────────────
 
 interface Props {
   classes: ClassRow[];
   students: StudentRow[];
-  teachers: TeacherRow[];
 }
 
-export function AdminClassPanel({ classes, students, teachers }: Props) {
+export function AdminClassPanel({ classes, students }: Readonly<Props>) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [, startTransition] = useTransition();
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -389,7 +247,7 @@ export function AdminClassPanel({ classes, students, teachers }: Props) {
           {[
             { value: classes.length, label: 'Classes', color: 'text-[#0471a6]', bg: 'bg-[#0471a6]/8' },
             { value: students.length, label: 'Élèves', color: 'text-purple-600', bg: 'bg-purple-50' },
-            { value: teachers.length, label: 'Enseignants', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+            { value: classes.reduce((s, c) => s + c.teacher_count, 0), label: 'Enseignants', color: 'text-emerald-600', bg: 'bg-emerald-50' },
           ].map((s) => (
             <div key={s.label} className={['rounded-2xl border border-slate-200/60 px-4 py-3 text-center min-w-[80px]', s.bg].join(' ')}>
               <p className={['text-2xl font-bold', s.color].join(' ')}>{s.value}</p>
@@ -459,9 +317,9 @@ export function AdminClassPanel({ classes, students, teachers }: Props) {
                     <p className="text-xs text-slate-400">
                       Promo {cls.annee}
                       <span className="mx-1.5">·</span>
-                      <span className="text-blue-500">{cls.member_count} élève{cls.member_count !== 1 ? 's' : ''}</span>
+                      <span className="text-blue-500">{cls.member_count} élève{cls.member_count === 1 ? '' : 's'}</span>
                       <span className="mx-1.5">·</span>
-                      <span className="text-purple-500">{cls.teacher_count} enseignant{cls.teacher_count !== 1 ? 's' : ''}</span>
+                      <span className="text-purple-500">{cls.teacher_count} enseignant{cls.teacher_count === 1 ? '' : 's'}</span>
                     </p>
                   </div>
                   {expanded === cls.id
@@ -501,9 +359,13 @@ export function AdminClassPanel({ classes, students, teachers }: Props) {
 
               {/* Détail classe */}
               {expanded === cls.id && (
-                <div className="border-t border-slate-100 bg-slate-50/40 px-4 py-4 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div className="border-t border-slate-100 bg-slate-50/40 px-4 py-4 space-y-4">
                   <StudentsSection cls={cls} students={students} />
-                  <TeachersSection cls={cls} teachers={teachers} />
+                  <div className="rounded-xl border border-[#89aae6]/30 bg-[#89aae6]/5 px-4 py-3 text-xs text-[#3685b5]">
+                    Les affectations enseignants se configurent dans{' '}
+                    <strong>Planning → Matières</strong>.
+                    Le nombre d&apos;enseignants affiché ci-dessus se met à jour automatiquement.
+                  </div>
                 </div>
               )}
             </div>

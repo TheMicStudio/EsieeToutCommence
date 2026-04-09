@@ -52,7 +52,7 @@ export function SearchBar() {
     if (e.key === 'ArrowUp') { e.preventDefault(); setSelectedIdx((i) => Math.max(i - 1, -1)); }
     if (e.key === 'Escape') { setOpen(false); setQuery(''); }
     if (e.key === 'Enter' && selectedIdx >= 0) {
-      window.location.href = results[selectedIdx].href;
+      globalThis.window.location.href = results[selectedIdx].href;
     }
   }
 

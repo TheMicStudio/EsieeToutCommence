@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { requirePermission } from '@/lib/permissions';
 import { getSoutenanceSlots, getGroups } from '@/modules/projects/actions';
@@ -9,7 +8,7 @@ interface SoutenancesPageProps {
   params: Promise<{ weekId: string }>;
 }
 
-export default async function SoutenancesPage({ params }: SoutenancesPageProps) {
+export default async function SoutenancesPage({ params }: Readonly<SoutenancesPageProps>) {
   const { weekId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;

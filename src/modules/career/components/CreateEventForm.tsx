@@ -7,7 +7,7 @@ import { Calendar } from 'lucide-react';
 const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
 const labelCls = 'block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5';
 
-export function CreateEventForm({ onSuccess }: { onSuccess?: () => void }) {
+export function CreateEventForm({ onSuccess }: Readonly<{ onSuccess?: () => void }>) {
   const [state, action, pending] = useActionState(publishCareerEvent, null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -22,28 +22,29 @@ export function CreateEventForm({ onSuccess }: { onSuccess?: () => void }) {
     <form ref={formRef} action={action} className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className={labelCls}>Titre de l&apos;événement *</label>
-          <input name="titre" required placeholder="Forum Entreprises 2026" className={inputCls} />
+          <label htmlFor="ev-titre" className={labelCls}>Titre de l&apos;événement *</label>
+          <input id="ev-titre" name="titre" required placeholder="Forum Entreprises 2026" className={inputCls} />
         </div>
 
         <div>
-          <label className={labelCls}>Date de début *</label>
-          <input name="date_debut" type="datetime-local" required className={inputCls} />
+          <label htmlFor="ev-date_debut" className={labelCls}>Date de début *</label>
+          <input id="ev-date_debut" name="date_debut" type="datetime-local" required className={inputCls} />
         </div>
 
         <div>
-          <label className={labelCls}>Date de fin</label>
-          <input name="date_fin" type="datetime-local" className={inputCls} />
+          <label htmlFor="ev-date_fin" className={labelCls}>Date de fin</label>
+          <input id="ev-date_fin" name="date_fin" type="datetime-local" className={inputCls} />
         </div>
 
         <div className="sm:col-span-2">
-          <label className={labelCls}>Lieu</label>
-          <input name="lieu" placeholder="Amphi A, Campus principal…" className={inputCls} />
+          <label htmlFor="ev-lieu" className={labelCls}>Lieu</label>
+          <input id="ev-lieu" name="lieu" placeholder="Amphi A, Campus principal…" className={inputCls} />
         </div>
 
         <div className="sm:col-span-2">
-          <label className={labelCls}>Description</label>
+          <label htmlFor="ev-description" className={labelCls}>Description</label>
           <textarea
+            id="ev-description"
             name="description"
             rows={3}
             placeholder="Décrivez l'événement, le programme, les intervenants…"

@@ -55,7 +55,6 @@ export default async function EmploiDuTempsPage() {
     }
     sessions = await getSessionsForStudent(classId);
     contextLabel = `Classe • ${sessions[0]?.class_nom ?? 'Ma classe'}`;
-    contextIcon = 'student';
   } else {
     const profile = userProfile.profile as TeacherProfile;
     sessions = await getSessionsForTeacher(profile.id);
@@ -79,7 +78,7 @@ export default async function EmploiDuTempsPage() {
         </div>
         <div className="flex-1">
           <p className="text-sm font-semibold text-[#061826]">{contextLabel}</p>
-          <p className="text-xs text-slate-400">{totalSessions} session{totalSessions !== 1 ? 's' : ''} planifiée{totalSessions !== 1 ? 's' : ''}</p>
+          <p className="text-xs text-slate-400">{totalSessions} session{totalSessions === 1 ? '' : 's'} planifiée{totalSessions === 1 ? '' : 's'}</p>
         </div>
         <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
           Planning publié
@@ -114,7 +113,7 @@ function Header() {
   );
 }
 
-function EmptyState({ message }: { message: string }) {
+function EmptyState({ message }: Readonly<{ message: string }>) {
   return (
     <div className="rounded-3xl border border-slate-200/70 bg-white p-12 text-center shadow-card">
       <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">

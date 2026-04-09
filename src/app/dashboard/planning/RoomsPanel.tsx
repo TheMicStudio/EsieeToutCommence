@@ -9,7 +9,7 @@ const inputCls =
 const labelCls =
   'block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5';
 
-function CreateRoomForm({ onDone }: { onDone: () => void }) {
+function CreateRoomForm({ onDone }: Readonly<{ onDone: () => void }>) {
   const [state, action, pending] = useActionState(
     async (_prev: { error?: string } | null, formData: FormData) => {
       const res = await createRoom(formData);
@@ -29,12 +29,13 @@ function CreateRoomForm({ onDone }: { onDone: () => void }) {
       </div>
       <form action={action} className="flex flex-wrap items-end gap-3">
         <div className="flex-1 min-w-[160px]">
-          <label className={labelCls}>Nom de la salle</label>
-          <input name="nom" placeholder="Ex: Salle 201, Amphi A" required className={inputCls} />
+          <label htmlFor="room-nom" className={labelCls}>Nom de la salle</label>
+          <input id="room-nom" name="nom" placeholder="Ex: Salle 201, Amphi A" required className={inputCls} />
         </div>
         <div className="w-32">
-          <label className={labelCls}>Capacité</label>
+          <label htmlFor="room-capacite" className={labelCls}>Capacité</label>
           <input
+            id="room-capacite"
             name="capacite"
             type="number"
             min={1}
@@ -62,7 +63,7 @@ function CreateRoomForm({ onDone }: { onDone: () => void }) {
   );
 }
 
-export function RoomsPanel({ rooms: initialRooms }: { rooms: RoomRow[] }) {
+export function RoomsPanel({ rooms: initialRooms }: Readonly<{ rooms: RoomRow[] }>) {
   const [rooms, setRooms] = useState(initialRooms);
   const [showForm, setShowForm] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);

@@ -11,7 +11,7 @@ interface ParentMessageThreadProps {
   currentUserId: string;
 }
 
-export function ParentMessageThread({ linkId, initialMessages, currentUserId }: ParentMessageThreadProps) {
+export function ParentMessageThread({ linkId, initialMessages, currentUserId }: Readonly<ParentMessageThreadProps>) {
   const [messages, setMessages] = useState(initialMessages);
   const [content, setContent] = useState('');
   const [sending, setSending] = useState(false);

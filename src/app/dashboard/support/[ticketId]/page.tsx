@@ -10,7 +10,7 @@ interface TicketPageProps {
   params: Promise<{ ticketId: string }>;
 }
 
-export default async function TicketPage({ params }: TicketPageProps) {
+export default async function TicketPage({ params }: Readonly<TicketPageProps>) {
   await requirePermission('support.use');
   const perms = await getRequestPermissions();
   const { ticketId } = await params;

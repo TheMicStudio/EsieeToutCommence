@@ -8,6 +8,6 @@ const VARIANT: Record<TicketStatut, 'default' | 'secondary' | 'destructive'> = {
   ferme: 'secondary',
 };
 
-export function TicketStatusBadge({ statut }: { statut: TicketStatut }) {
+export function TicketStatusBadge({ statut }: Readonly<{ statut: TicketStatut }>) {
   return <Badge variant={VARIANT[statut]}>{STATUT_LABELS[statut]}</Badge>;
 }

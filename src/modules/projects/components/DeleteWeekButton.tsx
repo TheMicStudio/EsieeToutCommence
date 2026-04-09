@@ -10,7 +10,7 @@ interface DeleteWeekButtonProps {
   onDeleted?: () => void;
 }
 
-export function DeleteWeekButton({ weekId, weekTitle, onDeleted }: DeleteWeekButtonProps) {
+export function DeleteWeekButton({ weekId, weekTitle, onDeleted }: Readonly<DeleteWeekButtonProps>) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [error, setError] = useState('');
@@ -46,6 +46,7 @@ export function DeleteWeekButton({ weekId, weekTitle, onDeleted }: DeleteWeekBut
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
           onClick={() => setOpen(false)}
+          aria-hidden="true"
         >
           <div
             className="w-full max-w-md rounded-3xl border border-slate-200 bg-white shadow-2xl"
@@ -80,13 +81,14 @@ export function DeleteWeekButton({ weekId, weekTitle, onDeleted }: DeleteWeekBut
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-[12px] font-semibold uppercase tracking-wide text-slate-400">
+                <label htmlFor="dw-confirm-input" className="block text-[12px] font-semibold uppercase tracking-wide text-slate-400">
                   Tapez le nom de la semaine pour confirmer
                 </label>
                 <p className="text-[12px] text-slate-500 font-mono bg-slate-50 rounded-xl px-3 py-2 border border-slate-200">
                   {weekTitle}
                 </p>
                 <input
+                  id="dw-confirm-input"
                   type="text"
                   value={input}
                   onChange={(e) => { setInput(e.target.value); setError(''); }}

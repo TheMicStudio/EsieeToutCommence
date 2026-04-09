@@ -10,7 +10,7 @@ interface ParentMessagesPageProps {
   searchParams: Promise<{ lien?: string }>;
 }
 
-export default async function ParentMessagesPage({ searchParams }: ParentMessagesPageProps) {
+export default async function ParentMessagesPage({ searchParams }: Readonly<ParentMessagesPageProps>) {
   const { lien: lienParam } = await searchParams;
   const profile = await getCurrentUserProfile();
   if (!profile) redirect('/login');

@@ -22,7 +22,7 @@ const inputClass = 'flex h-9 w-full rounded-xl border border-slate-200 bg-slate-
 const selectClass = 'flex h-9 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
 const labelClass = 'block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5';
 
-function JobOffersSection({ jobOffers }: { jobOffers: JobOffer[] }) {
+function JobOffersSection({ jobOffers }: Readonly<{ jobOffers: JobOffer[] }>) {
   const [state, action, pending] = useActionState(publishJobOffer, null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -40,16 +40,16 @@ function JobOffersSection({ jobOffers }: { jobOffers: JobOffer[] }) {
         </p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className={labelClass}>Titre du poste</label>
-            <input name="titre" required placeholder="Développeur Full Stack" className={inputClass} />
+            <label htmlFor="titre" className={labelClass}>Titre du poste</label>
+            <input id="titre" name="titre" required placeholder="Développeur Full Stack" className={inputClass} />
           </div>
           <div>
-            <label className={labelClass}>Entreprise</label>
-            <input name="entreprise" required placeholder="Acme Corp" className={inputClass} />
+            <label htmlFor="entreprise" className={labelClass}>Entreprise</label>
+            <input id="entreprise" name="entreprise" required placeholder="Acme Corp" className={inputClass} />
           </div>
           <div>
-            <label className={labelClass}>Type de contrat</label>
-            <select name="type_contrat" required className={selectClass}>
+            <label htmlFor="type_contrat" className={labelClass}>Type de contrat</label>
+            <select id="type_contrat" name="type_contrat" required className={selectClass}>
               <option value="">Sélectionner…</option>
               {(Object.entries(CONTRAT_LABELS) as [string, string][]).map(([v, l]) => (
                 <option key={v} value={v}>{l}</option>
@@ -57,12 +57,13 @@ function JobOffersSection({ jobOffers }: { jobOffers: JobOffer[] }) {
             </select>
           </div>
           <div>
-            <label className={labelClass}>Localisation</label>
-            <input name="localisation" placeholder="Paris, Remote…" className={inputClass} />
+            <label htmlFor="localisation" className={labelClass}>Localisation</label>
+            <input id="localisation" name="localisation" placeholder="Paris, Remote…" className={inputClass} />
           </div>
           <div className="sm:col-span-2">
-            <label className={labelClass}>Description</label>
+            <label htmlFor="description" className={labelClass}>Description</label>
             <textarea
+              id="description"
               name="description"
               rows={3}
               placeholder="Descriptif du poste, missions, profil recherché…"
@@ -70,8 +71,8 @@ function JobOffersSection({ jobOffers }: { jobOffers: JobOffer[] }) {
             />
           </div>
           <div className="sm:col-span-2">
-            <label className={labelClass}>Lien candidature</label>
-            <input name="lien_candidature" type="url" placeholder="https://…" className={inputClass} />
+            <label htmlFor="lien_candidature" className={labelClass}>Lien candidature</label>
+            <input id="lien_candidature" name="lien_candidature" type="url" placeholder="https://…" className={inputClass} />
           </div>
         </div>
         {state?.error && (
@@ -135,7 +136,7 @@ function JobOffersSection({ jobOffers }: { jobOffers: JobOffer[] }) {
   );
 }
 
-function EventsSection({ careerEvents }: { careerEvents: CareerEvent[] }) {
+function EventsSection({ careerEvents }: Readonly<{ careerEvents: CareerEvent[] }>) {
   const [state, action, pending] = useActionState(publishCareerEvent, null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -153,24 +154,24 @@ function EventsSection({ careerEvents }: { careerEvents: CareerEvent[] }) {
         </p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className={labelClass}>Titre</label>
-            <input name="titre" required placeholder="Forum Entreprises 2026" className={inputClass} />
+            <label htmlFor="evt-titre" className={labelClass}>Titre</label>
+            <input id="evt-titre" name="titre" required placeholder="Forum Entreprises 2026" className={inputClass} />
           </div>
           <div>
-            <label className={labelClass}>Date de début</label>
-            <input name="date_debut" type="datetime-local" required className={inputClass} />
+            <label htmlFor="date_debut" className={labelClass}>Date de début</label>
+            <input id="date_debut" name="date_debut" type="datetime-local" required className={inputClass} />
           </div>
           <div>
-            <label className={labelClass}>Date de fin (optionnel)</label>
-            <input name="date_fin" type="datetime-local" className={inputClass} />
+            <label htmlFor="date_fin" className={labelClass}>Date de fin (optionnel)</label>
+            <input id="date_fin" name="date_fin" type="datetime-local" className={inputClass} />
           </div>
           <div>
-            <label className={labelClass}>Lieu</label>
-            <input name="lieu" placeholder="Amphi A, Campus…" className={inputClass} />
+            <label htmlFor="lieu" className={labelClass}>Lieu</label>
+            <input id="lieu" name="lieu" placeholder="Amphi A, Campus…" className={inputClass} />
           </div>
           <div>
-            <label className={labelClass}>Description</label>
-            <input name="description" placeholder="Brève description de l'événement" className={inputClass} />
+            <label htmlFor="evt-description" className={labelClass}>Description</label>
+            <input id="evt-description" name="description" placeholder="Brève description de l'événement" className={inputClass} />
           </div>
         </div>
         {state?.error && (
@@ -222,7 +223,7 @@ function EventsSection({ careerEvents }: { careerEvents: CareerEvent[] }) {
   );
 }
 
-export function CareerPanel({ jobOffers, careerEvents }: CareerPanelProps) {
+export function CareerPanel({ jobOffers, careerEvents }: Readonly<CareerPanelProps>) {
   return (
     <div className="space-y-8">
       {/* Offres d'emploi */}

@@ -1,4 +1,4 @@
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { requirePermission } from '@/lib/permissions';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import {
@@ -12,7 +12,7 @@ interface WeekPageProps {
   params: Promise<{ weekId: string }>;
 }
 
-export default async function WeekPage({ params }: WeekPageProps) {
+export default async function WeekPage({ params }: Readonly<WeekPageProps>) {
   const { weekId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;

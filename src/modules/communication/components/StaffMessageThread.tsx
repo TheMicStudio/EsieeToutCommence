@@ -15,7 +15,7 @@ interface StaffMessageThreadProps {
 
 export function StaffMessageThread({
   channelId, channelName, initialMessages, currentUserId, authorNames,
-}: StaffMessageThreadProps) {
+}: Readonly<StaffMessageThreadProps>) {
   const [messages, setMessages] = useState<StaffMessage[]>(initialMessages);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');

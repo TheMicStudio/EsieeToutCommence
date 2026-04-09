@@ -15,7 +15,7 @@ interface GroupChatProps {
   memberNames: Record<string, string>;
 }
 
-export function GroupChat({ groupId, initialMessages, currentUserId, currentUserName, memberNames }: GroupChatProps) {
+export function GroupChat({ groupId, initialMessages, currentUserId, currentUserName, memberNames }: Readonly<GroupChatProps>) {
   const [state, action, pending] = useActionState(sendGroupMessage, null);
   const [messages, setMessages] = useState<GroupMessage[]>(initialMessages ?? []);
   const formRef = useRef<HTMLFormElement>(null);
@@ -37,7 +37,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, currentUser
       .subscribe();
     channelRef.current = channel;
     return () => { supabase.removeChannel(channel); };
-  }, [groupId]); // eslint-disable-line
+  }, [groupId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Après envoi réussi : ajouter à l'état local + broadcaster aux autres
   useEffect(() => {
@@ -58,7 +58,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, currentUser
     });
 
     formRef.current?.reset();
-  }, [state]); // eslint-disable-line
+  }, [state]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Scroll vers le bas à chaque nouveau message
   useEffect(() => {

@@ -20,7 +20,7 @@ const labelCls = 'block text-xs font-semibold uppercase tracking-wide text-slate
 
 type Mode = 'classe' | 'groupe';
 
-export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }: BulkGradeFormProps) {
+export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }: Readonly<BulkGradeFormProps>) {
   const [matiere, setMatiere] = useState(matieres[0] ?? '');
   const [customMatiere, setCustomMatiere] = useState('');
   const [examen, setExamen] = useState('');
@@ -59,10 +59,10 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
     if (!effectiveMatiere) { setError('Choisissez une matière.'); return; }
     if (!examen.trim()) { setError('Saisissez un intitulé d\'examen.'); return; }
 
-    const coeff = parseFloat(coefficient) || 1;
+    const coeff = Number.parseFloat(coefficient) || 1;
     const grades = visibleStudents
-      .map((s) => ({ studentId: s.id, note: parseFloat(notes[s.id] ?? '') }))
-      .filter((g) => !isNaN(g.note) && g.note >= 0 && g.note <= 20);
+      .map((s) => ({ studentId: s.id, note: Number.parseFloat(notes[s.id] ?? '') }))
+      .filter((g) => !Number.isNaN(g.note) && g.note >= 0 && g.note <= 20);
 
     if (grades.length === 0) { setError('Saisissez au moins une note valide (0–20).'); return; }
 
@@ -78,10 +78,10 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
   }
 
   const noteValue = (id: string) => notes[id] ?? '';
-  const noteNum = (id: string) => parseFloat(notes[id] ?? '');
+  const noteNum = (id: string) => Number.parseFloat(notes[id] ?? '');
   const noteColor = (id: string) => {
     const n = noteNum(id);
-    if (isNaN(n)) return 'text-slate-300';
+    if (Number.isNaN(n)) return 'text-slate-300';
     if (n >= 14) return 'text-emerald-600';
     if (n >= 10) return 'text-amber-500';
     return 'text-red-500';
@@ -92,15 +92,16 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
       {/* Infos du devoir */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
-          <label className={labelCls}>Matière</label>
+          <label htmlFor="bg-matiere" className={labelCls}>Matière</label>
           {matieres.length > 0 ? (
-            <select value={matiere} onChange={(e) => setMatiere(e.target.value)} className={inputCls}>
+            <select id="bg-matiere" value={matiere} onChange={(e) => setMatiere(e.target.value)} className={inputCls}>
               {matieres.map((m) => <option key={m} value={m}>{m}</option>)}
               <option value="">Autre…</option>
             </select>
           ) : null}
           {(matiere === '' || matieres.length === 0) && (
             <input
+              id="bg-matiere"
               type="text"
               value={customMatiere}
               onChange={(e) => setCustomMatiere(e.target.value)}
@@ -110,8 +111,9 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
           )}
         </div>
         <div>
-          <label className={labelCls}>Intitulé de l&apos;examen</label>
+          <label htmlFor="bg-examen" className={labelCls}>Intitulé de l&apos;examen</label>
           <input
+            id="bg-examen"
             type="text"
             value={examen}
             onChange={(e) => setExamen(e.target.value)}
@@ -120,8 +122,9 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
           />
         </div>
         <div>
-          <label className={labelCls}>Coefficient</label>
+          <label htmlFor="bg-coefficient" className={labelCls}>Coefficient</label>
           <input
+            id="bg-coefficient"
             type="number"
             value={coefficient}
             onChange={(e) => setCoefficient(e.target.value)}
@@ -159,8 +162,9 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
         {mode === 'groupe' && (
           <div className="mt-3 grid grid-cols-2 gap-3">
             <div>
-              <label className={labelCls}>Semaine projet</label>
+              <label htmlFor="bg-selectedWeekId" className={labelCls}>Semaine projet</label>
               <select
+                id="bg-selectedWeekId"
                 value={selectedWeekId}
                 onChange={(e) => { setSelectedWeekId(e.target.value); setSelectedGroupId(''); }}
                 className={inputCls}
@@ -173,8 +177,9 @@ export function BulkGradeForm({ classId, students, matieres, projectWeeks = [] }
             </div>
             {selectedWeek && (
               <div>
-                <label className={labelCls}>Groupe</label>
+                <label htmlFor="bg-selectedGroupId" className={labelCls}>Groupe</label>
                 <select
+                  id="bg-selectedGroupId"
                   value={selectedGroupId}
                   onChange={(e) => {
                     setSelectedGroupId(e.target.value);

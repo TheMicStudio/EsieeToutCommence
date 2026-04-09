@@ -372,7 +372,7 @@ export async function createShareLink(
   const label = (formData.get('label') as string)?.trim() || null;
   const expiresAt = (formData.get('expires_at') as string) || null;
   const maxUsesRaw = formData.get('max_uses') as string;
-  const maxUses = maxUsesRaw ? parseInt(maxUsesRaw, 10) : null;
+  const maxUses = maxUsesRaw ? Number.parseInt(maxUsesRaw, 10) : null;
 
   if (!fileId && !folderId) return { error: 'Cible manquante.' };
 

@@ -6,9 +6,9 @@ import { RightSidebar } from './components/RightSidebar';
 
 export default async function DashboardLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   const userProfile = await getCurrentUserProfile();
 
   if (!userProfile) {

@@ -39,7 +39,7 @@ interface RetroBoardColumnProps {
   onDelete: (id: string) => void;
 }
 
-export function RetroBoardColumn({ type, postits, currentUserId, onDelete }: RetroBoardColumnProps) {
+export function RetroBoardColumn({ type, postits, currentUserId, onDelete }: Readonly<RetroBoardColumnProps>) {
   const { label, icon: Icon, bg, header, dot } = COLUMN_STYLES[type];
 
   return (

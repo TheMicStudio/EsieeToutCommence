@@ -68,11 +68,11 @@ function SessionRow({
   session,
   onDelete,
   onMove,
-}: {
+}: Readonly<{
   session: SessionEvent;
   onDelete: (id: string) => void;
   onMove: (id: string, newStart: string, newEnd: string) => void;
-}) {
+}>) {
   const [editing, setEditing] = useState(false);
   const [date, setDate] = useState(isoToDate(session.start_timestamp));
   const [startTime, setStartTime] = useState(isoToTime(session.start_timestamp));
@@ -118,8 +118,9 @@ function SessionRow({
         </div>
         <div className="grid grid-cols-3 gap-2">
           <div>
-            <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Date</label>
+            <label htmlFor="edit-date" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Date</label>
             <input
+              id="edit-date"
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
@@ -127,8 +128,9 @@ function SessionRow({
             />
           </div>
           <div>
-            <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Début</label>
+            <label htmlFor="edit-startTime" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Début</label>
             <input
+              id="edit-startTime"
               type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
@@ -136,8 +138,9 @@ function SessionRow({
             />
           </div>
           <div>
-            <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Fin</label>
+            <label htmlFor="edit-endTime" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Fin</label>
             <input
+              id="edit-endTime"
               type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
@@ -215,13 +218,13 @@ function AddSessionForm({
   existingSessions,
   onAdded,
   onClose,
-}: {
+}: Readonly<{
   runId: string;
   classes: ClassWithCalendar[];
   existingSessions: SessionEvent[];
   onAdded: (session: SessionEvent) => void;
   onClose: () => void;
-}) {
+}>) {
   const [classId, setClassId] = useState(classes[0]?.id ?? '');
   const [subjectName, setSubjectName] = useState('');
   const [teacherId, setTeacherId] = useState('');
@@ -283,8 +286,9 @@ function AddSessionForm({
 
       {/* Classe */}
       <div>
-        <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Classe</label>
+        <label htmlFor="add-classId" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Classe</label>
         <select
+          id="add-classId"
           value={classId}
           onChange={(e) => { setClassId(e.target.value); setSubjectName(''); setTeacherId(''); }}
           className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40"
@@ -297,14 +301,14 @@ function AddSessionForm({
 
       {/* Matière + Prof (depuis les sessions existantes) */}
       <div>
-        <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">
+        <label htmlFor="add-subjectName" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">
           Matière & Professeur
         </label>
         {classOptions.length > 0 ? (
           <div className="flex flex-wrap gap-1.5 mb-2">
-            {classOptions.map((opt, i) => (
+            {classOptions.map((opt) => (
               <button
-                key={i}
+                key={`${opt.subject_name}-${opt.teacher_id}`}
                 onClick={() => handleOptionSelect(opt)}
                 className={[
                   'flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold transition-all',
@@ -324,6 +328,7 @@ function AddSessionForm({
         {/* Saisie manuelle si pas de correspondance ou nouvelle matière */}
         <div className="grid grid-cols-2 gap-2">
           <input
+            id="add-subjectName"
             type="text"
             placeholder="Nom de la matière"
             value={subjectName}
@@ -343,8 +348,9 @@ function AddSessionForm({
       {/* Date + Horaires */}
       <div className="grid grid-cols-3 gap-2">
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Date</label>
+          <label htmlFor="add-date" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Date</label>
           <input
+            id="add-date"
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
@@ -352,8 +358,9 @@ function AddSessionForm({
           />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Début</label>
+          <label htmlFor="add-startTime" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Début</label>
           <input
+            id="add-startTime"
             type="time"
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
@@ -361,8 +368,9 @@ function AddSessionForm({
           />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Fin</label>
+          <label htmlFor="add-endTime" className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Fin</label>
           <input
+            id="add-endTime"
             type="time"
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
@@ -403,11 +411,11 @@ export function ManualSessionEditor({
   runId,
   initialSessions,
   classes,
-}: {
+}: Readonly<{
   runId: string;
   initialSessions: SessionEvent[];
   classes: ClassWithCalendar[];
-}) {
+}>) {
   const [sessions, setSessions] = useState(initialSessions);
   const [currentMonday, setCurrentMonday] = useState(() => {
     // Aller à la 1ère semaine qui a des sessions, sinon semaine courante
@@ -599,7 +607,7 @@ export function ManualSessionEditor({
       {/* Compteur de la semaine */}
       {totalWeek > 0 && (
         <p className="text-xs text-slate-400">
-          {totalWeek} session{totalWeek !== 1 ? 's' : ''} cette semaine
+          {totalWeek} session{totalWeek === 1 ? '' : 's'} cette semaine
           {filterClassId ? ` · ${presentClasses.find((c) => c.id === filterClassId)?.nom}` : ''}
         </p>
       )}
@@ -640,9 +648,9 @@ export function ManualSessionEditor({
                     />
                   ))}
                 </div>
-              ) : !isWeekend ? (
-                <p className="pl-2 text-xs text-slate-300 italic">Aucune session</p>
-              ) : null}
+              ) : (
+                !isWeekend ? <p className="pl-2 text-xs text-slate-300 italic">Aucune session</p> : null
+              )}
             </div>
           );
         })}

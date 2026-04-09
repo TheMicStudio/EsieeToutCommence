@@ -19,7 +19,7 @@ interface AddPostitFormProps {
   onAdd: (postit: { id: string; type: PostitType; content: string; is_anonymous: boolean; author_id: string; author_name: string; board_id: string; created_at: string }) => void;
 }
 
-export function AddPostitForm({ boardId, isOpen, authorName, currentUserId, onAdd }: AddPostitFormProps) {
+export function AddPostitForm({ boardId, isOpen, authorName, currentUserId, onAdd }: Readonly<AddPostitFormProps>) {
   const [type, setType] = useState<PostitType>('POSITIVE');
   const [content, setContent] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -82,7 +82,7 @@ export function AddPostitForm({ boardId, isOpen, authorName, currentUserId, onAd
             checked={isAnonymous}
             onChange={(e) => setIsAnonymous(e.target.checked)}
             className="rounded border-slate-300"
-          />
+          />{' '}
           Anonyme
         </label>
         <button

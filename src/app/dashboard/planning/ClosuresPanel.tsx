@@ -27,7 +27,7 @@ function getDurationDays(start: string, end: string) {
   return diff;
 }
 
-function CreateClosureForm({ onDone }: { onDone: () => void }) {
+function CreateClosureForm({ onDone }: Readonly<{ onDone: () => void }>) {
   const [state, action, pending] = useActionState(
     async (_prev: { error?: string } | null, formData: FormData) => {
       const res = await createClosure(formData);
@@ -47,8 +47,9 @@ function CreateClosureForm({ onDone }: { onDone: () => void }) {
       </div>
       <form action={action} className="space-y-3">
         <div>
-          <label className={labelCls}>Libellé</label>
+          <label htmlFor="label" className={labelCls}>Libellé</label>
           <input
+            id="label"
             name="label"
             placeholder="Ex: Vacances de Noël 2025, Férié 14 juillet"
             required
@@ -57,12 +58,12 @@ function CreateClosureForm({ onDone }: { onDone: () => void }) {
         </div>
         <div className="flex gap-3">
           <div className="flex-1">
-            <label className={labelCls}>Date de début</label>
-            <input name="date_start" type="date" required className={inputCls} />
+            <label htmlFor="date_start" className={labelCls}>Date de début</label>
+            <input id="date_start" name="date_start" type="date" required className={inputCls} />
           </div>
           <div className="flex-1">
-            <label className={labelCls}>Date de fin (incluse)</label>
-            <input name="date_end" type="date" required className={inputCls} />
+            <label htmlFor="date_end" className={labelCls}>Date de fin (incluse)</label>
+            <input id="date_end" name="date_end" type="date" required className={inputCls} />
           </div>
         </div>
         <div className="flex items-center gap-3 pt-1">
@@ -93,7 +94,7 @@ function CreateClosureForm({ onDone }: { onDone: () => void }) {
   );
 }
 
-export function ClosuresPanel({ closures: initial }: { closures: ClosureRow[] }) {
+export function ClosuresPanel({ closures: initial }: Readonly<{ closures: ClosureRow[] }>) {
   const [closures, setClosures] = useState(initial);
   const [showForm, setShowForm] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -177,12 +178,12 @@ function ClosureRow({
   onDelete,
   deletingId,
   past,
-}: {
+}: Readonly<{
   closure: ClosureRow;
   onDelete: (id: string) => void;
   deletingId: string | null;
   past: boolean;
-}) {
+}>) {
   const days = getDurationDays(closure.date_start, closure.date_end);
 
   return (

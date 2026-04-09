@@ -50,13 +50,13 @@ function formatDateFull(d: string) {
 
 // ─── Grid Card ───────────────────────────────────────────────────────────────
 
-function GridCard({ week, groupCount, classLabel, basePath, canDelete }: {
+function GridCard({ week, groupCount, classLabel, basePath, canDelete }: Readonly<{
   week: ProjectWeek;
   groupCount: number;
   classLabel?: string;
   basePath: string;
   canDelete?: boolean;
-}) {
+}>) {
   const status = getStatus(week);
   const s = STATUS_LABELS[status];
   const grad = gradientFor(week.title);
@@ -92,7 +92,7 @@ function GridCard({ week, groupCount, classLabel, basePath, canDelete }: {
         <div className="mt-auto flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-[12px] text-slate-500">
             <Users className="h-3.5 w-3.5" />
-            <span>{groupCount} groupe{groupCount !== 1 ? 's' : ''}</span>
+            <span>{groupCount} groupe{groupCount === 1 ? '' : 's'}</span>
           </div>
           {classLabel && (
             <span className="rounded-full bg-[#89aae6]/15 px-2.5 py-0.5 text-[11px] font-medium text-[#3685b5] truncate max-w-[120px]">
@@ -399,32 +399,34 @@ export function ProjectWeekGrid({ weeks, basePath, showClassLabel = false, heade
         <div className="flex h-40 items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white">
           <p className="text-[13px] text-slate-400">Aucune semaine projet trouvée.</p>
         </div>
-      ) : mode === 'grid' ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 transition-all duration-300">
-          {displayed.map((w) => (
-            <GridCard
-              key={w.id}
-              week={w}
-              groupCount={w.groupCount}
-              classLabel={showClassLabel ? w.classNom : undefined}
-              basePath={basePath}
-              canDelete={canDeleteAll || (!!currentUserId && w.cree_par === currentUserId)}
-            />
-          ))}
-        </div>
       ) : (
-        <div className="space-y-3 transition-all duration-300">
-          {displayed.map((w) => (
-            <ListRow
-              key={w.id}
-              week={w}
-              groupCount={w.groupCount}
-              classLabel={showClassLabel ? w.classNom : undefined}
-              basePath={basePath}
-              canDelete={canDeleteAll || (!!currentUserId && w.cree_par === currentUserId)}
-            />
-          ))}
-        </div>
+        mode === 'grid' ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 transition-all duration-300">
+            {displayed.map((w) => (
+              <GridCard
+                key={w.id}
+                week={w}
+                groupCount={w.groupCount}
+                classLabel={showClassLabel ? w.classNom : undefined}
+                basePath={basePath}
+                canDelete={canDeleteAll || (!!currentUserId && w.cree_par === currentUserId)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3 transition-all duration-300">
+            {displayed.map((w) => (
+              <ListRow
+                key={w.id}
+                week={w}
+                groupCount={w.groupCount}
+                classLabel={showClassLabel ? w.classNom : undefined}
+                basePath={basePath}
+                canDelete={canDeleteAll || (!!currentUserId && w.cree_par === currentUserId)}
+              />
+            ))}
+          </div>
+        )
       )}
     </div>
   );

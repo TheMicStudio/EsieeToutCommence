@@ -148,10 +148,10 @@ export function SlotCard({
 
             {/* Metadata row */}
             <div className="mt-3 flex flex-wrap items-center gap-3 text-[12px] font-semibold text-slate-500">
-              {metadata.map((item, i) => {
+              {metadata.map((item) => {
                 const MetaIcon = resolveIcon(item.icon);
                 return (
-                  <span key={i} className="inline-flex items-center gap-1.5">
+                  <span key={`${item.icon}-${item.text}`} className="inline-flex items-center gap-1.5">
                     <MetaIcon size={13} className="shrink-0" />
                     {item.text}
                   </span>

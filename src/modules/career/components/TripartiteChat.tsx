@@ -22,7 +22,7 @@ interface TripartiteChatProps {
 
 export function TripartiteChat({
   chat, initialMessages, currentUserId, participantNames,
-}: TripartiteChatProps) {
+}: Readonly<TripartiteChatProps>) {
   const [messages, setMessages] = useState<TripartiteMessage[]>(initialMessages);
   const [state, action, pending] = useActionState(sendTripartiteMessage, null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -77,9 +77,10 @@ export function TripartiteChat({
             {messages.map((msg) => {
               const isOwn = msg.author_id === currentUserId;
               const participant = participantNames[msg.author_id];
-              const bubbleClass = isOwn
-                ? 'bg-[#0471a6] text-white'
-                : (participant ? ROLE_COLORS[participant.role].bubble : 'bg-slate-100 text-slate-800');
+              let bubbleClass: string;
+              if (isOwn) { bubbleClass = 'bg-[#0471a6] text-white'; }
+              else if (participant) { bubbleClass = ROLE_COLORS[participant.role].bubble; }
+              else { bubbleClass = 'bg-slate-100 text-slate-800'; }
 
               return (
                 <div key={msg.id} className={`flex flex-col gap-1 ${isOwn ? 'items-end' : 'items-start'}`}>

@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 
 async function requireAdmin() {
   const profile = await getCurrentUserProfile();
-  if (!profile || profile.role !== 'admin') throw new Error('Accès refusé.');
+  if (profile?.role !== 'admin') throw new Error('Accès refusé.');
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -90,7 +90,7 @@ export async function createTicketCategory(
   await requireAdmin();
   const label = (formData.get('label') as string)?.trim();
   if (!label) return { error: 'Le libellé est requis.' };
-  const slug = label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '_');
+  const slug = label.toLowerCase().normalize('NFD').replaceAll(/[\u0300-\u036f]/g, '').replaceAll(/[^a-z0-9]+/g, '_');
 
   const admin = createAdminClient();
   const { error } = await admin.from('ticket_categories').insert({ slug, label });
@@ -121,7 +121,7 @@ export async function createSecondaryRole(
   await requireAdmin();
   const label = (formData.get('label') as string)?.trim();
   if (!label) return { error: 'Le libellé est requis.' };
-  const slug = label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '_');
+  const slug = label.toLowerCase().normalize('NFD').replaceAll(/[\u0300-\u036f]/g, '').replaceAll(/[^a-z0-9]+/g, '_');
 
   const admin = createAdminClient();
   const { error } = await admin.from('secondary_roles').insert({ slug, label });

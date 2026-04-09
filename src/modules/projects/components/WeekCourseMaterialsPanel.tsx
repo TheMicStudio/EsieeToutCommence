@@ -53,7 +53,7 @@ interface WeekCourseMaterialsPanelProps {
   isProf: boolean;
 }
 
-export function WeekCourseMaterialsPanel({ weekId, materials, isProf }: WeekCourseMaterialsPanelProps) {
+export function WeekCourseMaterialsPanel({ weekId, materials, isProf }: Readonly<WeekCourseMaterialsPanelProps>) {
   const [state, action, pending] = useActionState(addWeekCourseMaterial, null);
   const [isDeleting, startDelete] = useTransition();
   const [previewMaterial, setPreviewMaterial] = useState<WeekCourseMaterial | null>(null);

@@ -96,18 +96,18 @@ function getSchoolYear(sessions: SessionEvent[]): number {
     const today = new Date();
     return today.getUTCMonth() >= 8 ? today.getUTCFullYear() : today.getUTCFullYear() - 1;
   }
-  const first = new Date(drafts.map(s => s.start_timestamp).sort()[0]);
+  const first = new Date(drafts.map(s => s.start_timestamp).sort((a, b) => a.localeCompare(b))[0]);
   return first.getUTCMonth() >= 8 ? first.getUTCFullYear() : first.getUTCFullYear() - 1;
 }
 
 // ─── SessionTooltip ────────────────────────────────────────────────────────────
 
-function SessionTooltip({ session, onClose }: { session: SessionEvent; onClose: () => void }) {
+function SessionTooltip({ session, onClose }: Readonly<{ session: SessionEvent; onClose: () => void }>) {
   const isConflict = session.status === 'CONFLICT_ERROR';
   const duration = Math.round((new Date(session.end_timestamp).getTime() - new Date(session.start_timestamp).getTime()) / 60000);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm" onClick={onClose} aria-hidden="true">
       <div className="w-full max-w-sm rounded-3xl bg-white border border-slate-200/70 shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className={['px-5 py-4', isConflict ? 'bg-rose-50 border-b border-rose-200' : 'bg-[#0471a6]/5 border-b border-[#89aae6]/30'].join(' ')}>
           <div className="flex items-start justify-between gap-3">
@@ -162,12 +162,12 @@ function SessionTooltip({ session, onClose }: { session: SessionEvent; onClose: 
 
 // ─── Bloc session (vue semaine) ────────────────────────────────────────────────
 
-function SessionBlock({ session, classColorMap, multiClass, onClick }: {
+function SessionBlock({ session, classColorMap, multiClass, onClick }: Readonly<{
   session: SessionEvent;
   classColorMap: Map<string, number>;
   multiClass: boolean;
   onClick: (s: SessionEvent) => void;
-}) {
+}>) {
   const isConflict = session.status === 'CONFLICT_ERROR';
   const colorIdx = classColorMap.get(session.class_id) ?? 0;
   const colors = isConflict ? CONFLICT_WEEK : WEEK_COLORS[colorIdx];
@@ -178,6 +178,9 @@ function SessionBlock({ session, classColorMap, multiClass, onClick }: {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClick(session)}
       className={[
         'absolute left-0.5 right-0.5 rounded-lg border px-1.5 py-1 cursor-pointer transition-all overflow-hidden',
         colors.bg, colors.border, colors.hover,
@@ -206,11 +209,11 @@ function SessionBlock({ session, classColorMap, multiClass, onClick }: {
 
 // ─── Liste des matières (navigation rapide) ────────────────────────────────────
 
-function CourseListPanel({ sessions, classColorMap, onNavigate }: {
+function CourseListPanel({ sessions, classColorMap, onNavigate }: Readonly<{
   sessions: SessionEvent[];
   classColorMap: Map<string, number>;
   onNavigate: (monday: Date) => void;
-}) {
+}>) {
   // Grouper par classe → liste de matières
   const byClass = useMemo(() => {
     const classMap = new Map<string, { class_id: string; class_nom: string; subjects: Map<string, SessionEvent[]> }>();
@@ -279,11 +282,11 @@ function CourseListPanel({ sessions, classColorMap, onNavigate }: {
 
 // ─── Vue annuelle ─────────────────────────────────────────────────────────────
 
-function AnnualView({ sessions, currentMonday, onWeekClick }: {
+function AnnualView({ sessions, currentMonday, onWeekClick }: Readonly<{
   sessions: SessionEvent[];
   currentMonday: Date;
   onWeekClick: (monday: Date) => void;
-}) {
+}>) {
   const year = useMemo(() => getSchoolYear(sessions), [sessions]);
 
   const allMondays = useMemo(() => {
@@ -361,11 +364,14 @@ function AnnualView({ sessions, currentMonday, onWeekClick }: {
                   else if (info?.draft) { bgColor = '#10b981'; textColor = '#fff'; }
                   else if (info?.conflict) { bgColor = '#f87171'; textColor = '#fff'; }
 
+                  const conflictSuffix = info?.conflict ? `, ${info.conflict} conflit(s)` : '';
+                  const weekTitle = `Sem. du ${monday.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', timeZone: 'UTC' })}${info ? ` — ${info.draft} cours${conflictSuffix}` : ' — Vide'}`;
+
                   return (
                     <button
                       key={weekStr}
                       onClick={() => onWeekClick(monday)}
-                      title={`Sem. du ${monday.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', timeZone: 'UTC' })}${info ? ` — ${info.draft} cours${info.conflict ? `, ${info.conflict} conflit(s)` : ''}` : ' — Vide'}`}
+                      title={weekTitle}
                       className={[
                         'relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold transition-all hover:opacity-80',
                         isCurrent ? 'ring-2 ring-offset-1 ring-[#0471a6]' : '',
@@ -393,12 +399,12 @@ function AnnualView({ sessions, currentMonday, onWeekClick }: {
 
 // ─── Vue mensuelle ────────────────────────────────────────────────────────────
 
-function MonthView({ sessions, initialMonday, onDayClick, showConflicts }: {
+function MonthView({ sessions, initialMonday, onDayClick, showConflicts }: Readonly<{
   sessions: SessionEvent[];
   initialMonday: Date;
   onDayClick: (monday: Date) => void;
   showConflicts: boolean;
-}) {
+}>) {
   const [year,  setYear]  = useState(initialMonday.getUTCFullYear());
   const [month, setMonth] = useState(initialMonday.getUTCMonth());
 
@@ -457,7 +463,7 @@ function MonthView({ sessions, initialMonday, onDayClick, showConflicts }: {
         {/* Cellules */}
         <div className="grid grid-cols-7 divide-x divide-y divide-slate-100">
           {days.map((day, i) => {
-            if (!day) return <div key={i} className="min-h-[90px] bg-slate-50/40" />;
+            if (!day) return <div key={`empty-${i}`} className="min-h-[90px] bg-slate-50/40" />;
 
             const dayStr   = toUTCDateStr(day);
             const info     = dayMap.get(dayStr);
@@ -465,28 +471,34 @@ function MonthView({ sessions, initialMonday, onDayClick, showConflicts }: {
             const isWE     = day.getUTCDay() === 6 || day.getUTCDay() === 0;
             const hasData  = info && (info.draft.length + info.conflict.length) > 0;
 
+            let dayCellCls: string;
+            if (isWE) { dayCellCls = 'bg-slate-50/60 cursor-default'; }
+            else if (hasData) { dayCellCls = 'hover:bg-[#0471a6]/3 cursor-pointer'; }
+            else { dayCellCls = 'cursor-default'; }
+            let dayNumCls: string;
+            if (isToday) { dayNumCls = 'bg-[#0471a6] text-white'; }
+            else if (isWE) { dayNumCls = 'text-slate-300'; }
+            else { dayNumCls = 'text-slate-500'; }
+
             return (
               <button
                 key={dayStr}
                 onClick={() => hasData && !isWE && onDayClick(getMonday(day))}
-                className={[
-                  'min-h-[90px] p-1.5 text-left transition-all',
-                  isWE ? 'bg-slate-50/60 cursor-default' : hasData ? 'hover:bg-[#0471a6]/3 cursor-pointer' : 'cursor-default',
-                ].join(' ')}
+                className={['min-h-[90px] p-1.5 text-left transition-all', dayCellCls].join(' ')}
               >
                 <span className={[
                   'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold',
-                  isToday ? 'bg-[#0471a6] text-white' : isWE ? 'text-slate-300' : 'text-slate-500',
+                  dayNumCls,
                 ].join(' ')}>
                   {day.getUTCDate()}
                 </span>
 
                 {info && (
                   <div className="mt-1 space-y-0.5">
-                    {info.draft.slice(0, 3).map((s, j) => {
+                    {info.draft.slice(0, 3).map((s) => {
                       const p = PALETTE[hashStr(s.subject_name)];
                       return (
-                        <div key={j} className="truncate rounded px-1 py-0.5 text-[10px] font-semibold leading-tight"
+                        <div key={s.id} className="truncate rounded px-1 py-0.5 text-[10px] font-semibold leading-tight"
                           style={{ backgroundColor: p.bg, color: p.text }}>
                           {s.subject_name}
                         </div>
@@ -514,14 +526,14 @@ function MonthView({ sessions, initialMonday, onDayClick, showConflicts }: {
 
 // ─── Vue hebdomadaire ─────────────────────────────────────────────────────────
 
-function WeekView({ sessions, currentMonday, showConflicts, showFilters, classColorMap, onSessionClick }: {
+function WeekView({ sessions, currentMonday, showConflicts, showFilters, classColorMap, onSessionClick }: Readonly<{
   sessions: SessionEvent[];
   currentMonday: Date;
   showConflicts: boolean;
   showFilters: boolean;
   classColorMap: Map<string, number>;
   onSessionClick: (s: SessionEvent) => void;
-}) {
+}>) {
   const [filterClass,   setFilterClass]   = useState('all');
   const [filterTeacher, setFilterTeacher] = useState('all');
 
@@ -581,7 +593,6 @@ function WeekView({ sessions, currentMonday, showConflicts, showFilters, classCo
               {classOptions.map(([id, nom]) => {
                 const colorIdx = classColorMap.get(id) ?? 0;
                 const wc = WEEK_COLORS[colorIdx];
-                const p  = PALETTE[colorIdx];
                 const isActive = filterClass === id;
                 return (
                   <button
@@ -693,7 +704,7 @@ interface WeekCalendarProps {
   showFilters?: boolean;
 }
 
-export function WeekCalendar({ sessions, showConflicts = true, showFilters = false }: WeekCalendarProps) {
+export function WeekCalendar({ sessions, showConflicts = true, showFilters = false }: Readonly<WeekCalendarProps>) {
   const [viewMode, setViewMode]       = useState<ViewMode>('week');
   const [selectedSession, setSelected] = useState<SessionEvent | null>(null);
 

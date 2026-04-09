@@ -62,11 +62,9 @@ function formatDate(d: string) {
 }
 
 // ─── Thumbnail ────────────────────────────────────────────────────────────────
-function Thumbnail({ material, size }: { material: CourseMaterial; size: 'full' | 'compact' }) {
+function Thumbnail({ material, size }: Readonly<{ material: CourseMaterial; size: 'full' | 'compact' }>) {
   const Icon = TYPE_ICON[material.type];
   const grad = gradientFor(material.matiere);
-  const abbr = material.matiere.slice(0, 5);
-
   return (
     <div className={[
       'relative shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br',
@@ -81,7 +79,7 @@ function Thumbnail({ material, size }: { material: CourseMaterial; size: 'full' 
 }
 
 // ─── Grid Card ────────────────────────────────────────────────────────────────
-function GridCard({ material, onPreview }: { material: CourseMaterial; onPreview: (m: CourseMaterial) => void }) {
+function GridCard({ material, onPreview }: Readonly<{ material: CourseMaterial; onPreview: (m: CourseMaterial) => void }>) {
   const status = STATUS[material.type];
   const canPreview = detectPreviewMode(material.url, null, material.type) !== 'none';
 
@@ -127,7 +125,7 @@ function GridCard({ material, onPreview }: { material: CourseMaterial; onPreview
 }
 
 // ─── List Row ─────────────────────────────────────────────────────────────────
-function ListRow({ material, onPreview }: { material: CourseMaterial; onPreview: (m: CourseMaterial) => void }) {
+function ListRow({ material, onPreview }: Readonly<{ material: CourseMaterial; onPreview: (m: CourseMaterial) => void }>) {
   const status = STATUS[material.type];
   const canPreview = detectPreviewMode(material.url, null, material.type) !== 'none';
 
@@ -210,7 +208,7 @@ export function CourseGrid({
   }, []);
 
   const source = materials.length === 0 ? FALLBACK_MATERIALS : materials;
-  const uniqueMatieres = categoryOptions ?? [...new Set(source.map((m) => m.matiere))].sort();
+  const uniqueMatieres = categoryOptions ?? [...new Set(source.map((m) => m.matiere))].sort((a, b) => a.localeCompare(b));
 
   const displayMaterials = useMemo(() => {
     let result = source.filter((m) => {
@@ -424,18 +422,20 @@ export function CourseGrid({
         <div className="flex h-40 items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white">
           <p className="text-[13px] text-slate-400">Aucun cours trouvé.</p>
         </div>
-      ) : mode === 'grid' ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 transition-all duration-300">
-          {displayMaterials.map((m) => (
-            <GridCard key={m.id} material={m} onPreview={setPreviewMaterial} />
-          ))}
-        </div>
       ) : (
-        <div className="space-y-3 transition-all duration-300">
-          {displayMaterials.map((m) => (
-            <ListRow key={m.id} material={m} onPreview={setPreviewMaterial} />
-          ))}
-        </div>
+        mode === 'grid' ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 transition-all duration-300">
+            {displayMaterials.map((m) => (
+              <GridCard key={m.id} material={m} onPreview={setPreviewMaterial} />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3 transition-all duration-300">
+            {displayMaterials.map((m) => (
+              <ListRow key={m.id} material={m} onPreview={setPreviewMaterial} />
+            ))}
+          </div>
+        )
       )}
     </div>
   );

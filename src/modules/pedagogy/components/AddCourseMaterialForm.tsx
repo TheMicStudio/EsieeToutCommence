@@ -13,7 +13,7 @@ interface AddCourseMaterialFormProps {
 const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
 const labelCls = 'block mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400';
 
-export function AddCourseMaterialForm({ classId, matieres }: AddCourseMaterialFormProps) {
+export function AddCourseMaterialForm({ classId, matieres }: Readonly<AddCourseMaterialFormProps>) {
   const [state, action, pending] = useActionState(addCourseMaterial, null);
   const [mode, setMode] = useState<'fichier' | 'lien'>('fichier');
   const [linkType, setLinkType] = useState<'video' | 'lien'>('lien');

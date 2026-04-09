@@ -6,7 +6,7 @@ interface MessageBubbleProps {
   authorName: string;
 }
 
-export function MessageBubble({ message, isOwn, authorName }: MessageBubbleProps) {
+export function MessageBubble({ message, isOwn, authorName }: Readonly<MessageBubbleProps>) {
   return (
     <div className={`flex flex-col gap-1 ${isOwn ? 'items-end' : 'items-start'}`}>
       {!isOwn && (

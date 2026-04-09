@@ -15,7 +15,7 @@ interface CreatePostFormProps {
   onSuccess?: () => void;
 }
 
-export function CreatePostForm({ isAdmin, onSuccess }: CreatePostFormProps) {
+export function CreatePostForm({ isAdmin, onSuccess }: Readonly<CreatePostFormProps>) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState<PostCategory>('annonce');
@@ -55,7 +55,7 @@ export function CreatePostForm({ isAdmin, onSuccess }: CreatePostFormProps) {
     if (bannerFile) {
       const supabase = createClient();
       const ext = bannerFile.name.split('.').pop();
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const path = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
       const { error: uploadError } = await supabase.storage
         .from('news-banners')
         .upload(path, bannerFile, { upsert: false });
@@ -101,7 +101,7 @@ export function CreatePostForm({ isAdmin, onSuccess }: CreatePostFormProps) {
 
       {/* Bannière */}
       <div>
-        <label className={labelCls}>Bannière (optionnelle)</label>
+        <p className={labelCls}>Bannière (optionnelle)</p>
         {bannerPreview ? (
           <div className="relative w-full overflow-hidden rounded-xl border border-slate-200">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -139,8 +139,9 @@ export function CreatePostForm({ isAdmin, onSuccess }: CreatePostFormProps) {
 
       {/* Titre */}
       <div>
-        <label className={labelCls}>Titre</label>
+        <label htmlFor="post-title" className={labelCls}>Titre</label>
         <input
+          id="post-title"
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -152,8 +153,9 @@ export function CreatePostForm({ isAdmin, onSuccess }: CreatePostFormProps) {
 
       {/* Contenu */}
       <div>
-        <label className={labelCls}>Contenu</label>
+        <label htmlFor="post-content" className={labelCls}>Contenu</label>
         <textarea
+          id="post-content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Décrivez l'actualité, l'annonce ou l'événement…"
@@ -164,10 +166,12 @@ export function CreatePostForm({ isAdmin, onSuccess }: CreatePostFormProps) {
 
       {/* Épingler (admin seulement) */}
       {isAdmin && (
-        <label className="flex cursor-pointer items-center gap-3">
+        <div className="flex cursor-pointer items-center gap-3">
           <button
             type="button"
             onClick={() => setPinned(!pinned)}
+            aria-pressed={pinned}
+            aria-label="Épingler en haut du fil"
             className={[
               'flex h-5 w-9 items-center rounded-full transition-colors',
               pinned ? 'bg-[#0471a6]' : 'bg-slate-200',
@@ -182,7 +186,7 @@ export function CreatePostForm({ isAdmin, onSuccess }: CreatePostFormProps) {
             <Pin className="h-3.5 w-3.5 text-[#0471a6]" />
             Épingler en haut du fil
           </span>
-        </label>
+        </div>
       )}
 
       {error && (

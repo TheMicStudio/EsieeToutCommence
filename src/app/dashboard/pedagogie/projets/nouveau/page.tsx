@@ -8,7 +8,7 @@ interface NouveauPageProps {
   searchParams: Promise<{ classe?: string }>;
 }
 
-export default async function NouveauProjetPage({ searchParams }: NouveauPageProps) {
+export default async function NouveauProjetPage({ searchParams }: Readonly<NouveauPageProps>) {
   const { classe: classeParam } = await searchParams;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;

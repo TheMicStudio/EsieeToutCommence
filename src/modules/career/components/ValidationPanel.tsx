@@ -14,7 +14,7 @@ interface ValidationPanelProps {
   entries: ApprenticeshipEntry[];
 }
 
-export function ValidationPanel({ entries }: ValidationPanelProps) {
+export function ValidationPanel({ entries }: Readonly<ValidationPanelProps>) {
   const router = useRouter();
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<string | null>(null);
@@ -24,8 +24,8 @@ export function ValidationPanel({ entries }: ValidationPanelProps) {
 
   async function handleValidate(entryId: string, statut: 'valide' | 'refuse') {
     setLoading(entryId);
-    const note = statut === 'valide' ? parseFloat(notes[entryId] ?? '') : null;
-    const result = await validateEntry(entryId, isNaN(note as number) ? null : note, statut);
+    const note = statut === 'valide' ? Number.parseFloat(notes[entryId] ?? '') : null;
+    const result = await validateEntry(entryId, Number.isNaN(note as number) ? null : note, statut);
     setFeedback((prev) => ({ ...prev, [entryId]: result.error ?? 'Mis à jour.' }));
     setLoading(null);
     if (!result.error) router.refresh();

@@ -14,7 +14,7 @@ const TYPE_LABELS: Record<string, string> = {
   IDEA: '💡 Idées d\'amélioration',
 };
 
-export function ExportRetroButton({ postits, weekTitle = 'Rétro' }: ExportRetroButtonProps) {
+export function ExportRetroButton({ postits, weekTitle = 'Rétro' }: Readonly<ExportRetroButtonProps>) {
   function handleExport() {
     const date = new Date().toLocaleDateString('fr-FR', {
       day: 'numeric', month: 'long', year: 'numeric',
@@ -30,8 +30,12 @@ export function ExportRetroButton({ postits, weekTitle = 'Rétro' }: ExportRetro
       .map((type) => {
         const items = grouped[type] ?? [];
         if (items.length === 0) return '';
+        let borderColor: string;
+        if (type === 'POSITIVE') { borderColor = '#10b981'; }
+        else if (type === 'NEGATIVE') { borderColor = '#f59e0b'; }
+        else { borderColor = '#6366f1'; }
         const rows = items
-          .map((p) => `<li style="margin-bottom:6px;padding:8px 12px;background:#f8fafc;border-radius:8px;border-left:3px solid ${type === 'POSITIVE' ? '#10b981' : type === 'NEGATIVE' ? '#f59e0b' : '#6366f1'}">${p.content}<br><span style="font-size:11px;color:#94a3b8">${p.author_name ?? 'Anonyme'}</span></li>`)
+          .map((p) => `<li style="margin-bottom:6px;padding:8px 12px;background:#f8fafc;border-radius:8px;border-left:3px solid ${borderColor}">${p.content}<br><span style="font-size:11px;color:#94a3b8">${p.author_name ?? 'Anonyme'}</span></li>`)
           .join('');
         return `<section style="margin-bottom:28px">
           <h2 style="font-size:14px;font-weight:700;margin-bottom:12px;color:#334155">${TYPE_LABELS[type]} (${items.length})</h2>
@@ -84,7 +88,7 @@ export function ExportRetroButton({ postits, weekTitle = 'Rétro' }: ExportRetro
       // Fallback : téléchargement direct si popup bloqué
       const a = document.createElement('a');
       a.href = url;
-      a.download = `retro-${weekTitle.replace(/\s+/g, '-').toLowerCase()}.html`;
+      a.download = `retro-${weekTitle.replaceAll(/\s+/g, '-').toLowerCase()}.html`;
       a.click();
       URL.revokeObjectURL(url);
     }

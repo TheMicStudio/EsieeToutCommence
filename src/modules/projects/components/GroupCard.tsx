@@ -12,11 +12,13 @@ interface GroupCardProps {
   isProf: boolean;
 }
 
-export function GroupCard({ group, weekId, currentUserId, isProf }: GroupCardProps) {
+export function GroupCard({ group, weekId, currentUserId, isProf }: Readonly<GroupCardProps>) {
   const members = group.members ?? [];
   const isMember = members.some((m) => m.student_id === currentUserId);
   const spots = group.capacite_max - members.length;
   const isFull = spots <= 0;
+  const spotsPlural = spots > 1 ? 's' : '';
+  const memberStatus = isFull ? ' · Complet' : ` · ${spots} place${spotsPlural} libre${spotsPlural}`;
 
   return (
     <div className="rounded-2xl border border-slate-200/60 bg-white shadow-sm overflow-hidden">
@@ -28,7 +30,7 @@ export function GroupCard({ group, weekId, currentUserId, isProf }: GroupCardPro
             <span className={isFull ? 'text-red-500 font-medium' : 'text-emerald-600 font-medium'}>
               {members.length}/{group.capacite_max}
             </span>
-            {' '}membres{isFull ? ' · Complet' : ` · ${spots} place${spots > 1 ? 's' : ''} libre${spots > 1 ? 's' : ''}`}
+            {' '}membres{memberStatus}
           </p>
         </div>
         {group.note !== undefined && group.note !== null && (

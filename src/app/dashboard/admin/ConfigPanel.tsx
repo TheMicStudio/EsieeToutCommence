@@ -27,7 +27,7 @@ function ConfigSection({
   inputPlaceholder,
   inputName = 'nom',
   showSlug = false,
-}: {
+}: Readonly<{
   title: string;
   description: string;
   icon: React.ElementType;
@@ -39,7 +39,7 @@ function ConfigSection({
   inputPlaceholder: string;
   inputName?: string;
   showSlug?: boolean;
-}) {
+}>) {
   const [state, action, pending] = useActionState(createAction, null);
   const [, startTransition] = useTransition();
   const router = useRouter();
@@ -134,7 +134,7 @@ interface ConfigPanelProps {
   secondaryRoles: (RoleItem | CategoryItem)[];
 }
 
-export function ConfigPanel({ subjects, adminFunctions, ticketCategories, secondaryRoles }: ConfigPanelProps) {
+export function ConfigPanel({ subjects, adminFunctions, ticketCategories, secondaryRoles }: Readonly<ConfigPanelProps>) {
   return (
     <div className="space-y-5">
       <div className="rounded-2xl border border-[#89aae6]/30 bg-[#89aae6]/5 px-5 py-4 flex items-start gap-3">

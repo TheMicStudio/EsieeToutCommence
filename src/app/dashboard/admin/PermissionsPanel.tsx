@@ -43,7 +43,7 @@ interface Props {
   matrix: RolePermissionMap;
 }
 
-export function PermissionsPanel({ permissions, matrix: initialMatrix }: Props) {
+export function PermissionsPanel({ permissions, matrix: initialMatrix }: Readonly<Props>) {
   const [matrix, setMatrix] = useState<RolePermissionMap>(initialMatrix);
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
@@ -160,6 +160,10 @@ export function PermissionsPanel({ permissions, matrix: initialMatrix }: Props) 
                       const enabled = matrix[role.id]?.[perm.key] ?? false;
                       const k = loadingKey(role.id, perm.key);
                       const isProtected = role.id === 'admin' && perm.key === 'permission.manage';
+                      let toggleTitle: string;
+                      if (isProtected) { toggleTitle = 'Permission protégée'; }
+                      else if (enabled) { toggleTitle = 'Désactiver'; }
+                      else { toggleTitle = 'Activer'; }
                       return (
                         <td key={role.id} className="px-2 py-2 text-center">
                           {loading[k] ? (
@@ -169,7 +173,7 @@ export function PermissionsPanel({ permissions, matrix: initialMatrix }: Props) 
                               type="button"
                               disabled={isProtected}
                               onClick={() => handleToggle(role.id, perm.key, enabled)}
-                              title={isProtected ? 'Permission protégée' : enabled ? 'Désactiver' : 'Activer'}
+                              title={toggleTitle}
                               className={[
                                 'mx-auto flex h-5 w-9 items-center rounded-full transition-colors duration-150',
                                 enabled ? 'bg-[#0471a6]' : 'bg-slate-200',

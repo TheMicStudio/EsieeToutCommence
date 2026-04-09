@@ -15,7 +15,7 @@ interface AdminTabsProps {
   visibleTabs: ReadonlyArray<typeof ALL_TABS[number]['id']>;
 }
 
-export function AdminTabs({ activeTab, visibleTabs }: AdminTabsProps) {
+export function AdminTabs({ activeTab, visibleTabs }: Readonly<AdminTabsProps>) {
   const tabs = ALL_TABS.filter((t) => visibleTabs.includes(t.id));
 
   return (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import {
   Zap, CheckCircle2, XCircle, Loader2, Trash2, Send,
   AlertTriangle, ChevronDown, RefreshCw, PlusCircle, LayoutList,
@@ -39,7 +39,7 @@ function RunCard({
   onRetryDone,
   onClassAdded,
   onNewVersion,
-}: {
+}: Readonly<{
   run: PlanningRun;
   allClasses: ClassWithCalendar[];
   replacingLabel?: string;  // label du run validé que ce draft remplacera
@@ -48,7 +48,7 @@ function RunCard({
   onRetryDone: (id: string, totalSessions: number, conflictCount: number) => void;
   onClassAdded: (id: string, newClassIds: string[], totalSessions: number, conflictCount: number) => void;
   onNewVersion?: (classIds: string[], fromLabel: string) => void;
-}) {
+}>) {
   const [expanded, setExpanded] = useState(run.status === 'DRAFT');
   const [isPublishing, startPublish] = useTransition();
   const [isDeleting, startDelete] = useTransition();
@@ -125,6 +125,28 @@ function RunCard({
     });
   }
 
+  const retryConflictSuffix = retryResult && retryResult.conflicts > 0
+    ? `, ${retryResult.conflicts} conflit${retryResult.conflicts > 1 ? 's' : ''} restant${retryResult.conflicts > 1 ? 's' : ''}`
+    : ' · Tous les conflits résolus !';
+  let retryBtnLabel: React.ReactNode;
+  if (isRetrying) { retryBtnLabel = <><Loader2 className="h-4 w-4 animate-spin" /> Recalcul en cours…</>; }
+  else { retryBtnLabel = <><RefreshCw className="h-4 w-4" /> Relancer les {run.conflict_count} conflit{run.conflict_count > 1 ? 's' : ''}</>; }
+  let publishBtnLabel: React.ReactNode;
+  if (isPublishing) { publishBtnLabel = <><Loader2 className="h-4 w-4 animate-spin" /> Publication…</>; }
+  else if (replacingLabel) { publishBtnLabel = <><RefreshCw className="h-4 w-4" /> Remplacer le planning actif</>; }
+  else { publishBtnLabel = <><Send className="h-4 w-4" /> Publier ce planning</>; }
+  const addClassConflicts = addClassResult && addClassResult.conflicts > 0
+    ? ` · ${addClassResult.conflicts} conflit${addClassResult.conflicts > 1 ? 's' : ''}`
+    : '';
+  let toggleSessionsIcon: React.ReactNode;
+  if (isLoadingSessions) { toggleSessionsIcon = <Loader2 className="h-4 w-4 animate-spin" />; }
+  else if (showSessions) { toggleSessionsIcon = <ChevronDown className="h-4 w-4" />; }
+  else { toggleSessionsIcon = <ChevronRight className="h-4 w-4" />; }
+  let toggleSessionsLabel: string;
+  if (isLoadingSessions) { toggleSessionsLabel = 'Chargement…'; }
+  else if (showSessions) { toggleSessionsLabel = 'Masquer les sessions'; }
+  else { toggleSessionsLabel = `Voir les ${run.total_sessions} sessions`; }
+
   return (
     <div className={[
       'rounded-2xl border bg-white overflow-hidden transition-all',
@@ -184,10 +206,8 @@ function RunCard({
                   </p>
                   {retryResult && (
                     <p className="text-xs text-slate-600">
-                      Résultat : {retryResult.placed} session{retryResult.placed !== 1 ? 's' : ''} placée{retryResult.placed !== 1 ? 's' : ''}
-                      {retryResult.conflicts > 0
-                        ? `, ${retryResult.conflicts} conflit${retryResult.conflicts > 1 ? 's' : ''} restant${retryResult.conflicts > 1 ? 's' : ''}`
-                        : ' · Tous les conflits résolus !'}
+                      Résultat : {retryResult.placed} session{retryResult.placed === 1 ? '' : 's'} placée{retryResult.placed === 1 ? '' : 's'}
+                      {retryConflictSuffix}
                     </p>
                   )}
                   <button
@@ -195,9 +215,7 @@ function RunCard({
                     disabled={isRetrying || isDeleting || isPublishing}
                     className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 disabled:opacity-50 transition-all"
                   >
-                    {isRetrying
-                      ? <><Loader2 className="h-4 w-4 animate-spin" /> Recalcul en cours…</>
-                      : <><RefreshCw className="h-4 w-4" /> Relancer les {run.conflict_count} conflit{run.conflict_count > 1 ? 's' : ''}</>}
+                    {retryBtnLabel}
                   </button>
                 </div>
               )}
@@ -223,11 +241,7 @@ function RunCard({
                   disabled={isPublishing || isDeleting || isRetrying}
                   className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50 transition-all shadow-sm"
                 >
-                  {isPublishing
-                    ? <><Loader2 className="h-4 w-4 animate-spin" /> Publication…</>
-                    : replacingLabel
-                    ? <><RefreshCw className="h-4 w-4" /> Remplacer le planning actif</>
-                    : <><Send className="h-4 w-4" /> Publier ce planning</>}
+                  {publishBtnLabel}
                 </button>
               </div>
             </div>
@@ -332,8 +346,8 @@ function RunCard({
                   </button>
                   {addClassResult && (
                     <p className="text-xs text-slate-500">
-                      {addClassResult.placed} session{addClassResult.placed !== 1 ? 's' : ''} ajoutée{addClassResult.placed !== 1 ? 's' : ''}
-                      {addClassResult.conflicts > 0 ? ` · ${addClassResult.conflicts} conflit${addClassResult.conflicts > 1 ? 's' : ''}` : ''}
+                      {addClassResult.placed} session{addClassResult.placed === 1 ? '' : 's'} ajoutée{addClassResult.placed === 1 ? '' : 's'}
+                      {addClassConflicts}
                     </p>
                   )}
                 </div>
@@ -395,18 +409,8 @@ function RunCard({
                 disabled={isLoadingSessions}
                 className="flex items-center gap-2 text-sm font-semibold text-[#0471a6] hover:text-[#0471a6]/80 disabled:opacity-50 transition-colors"
               >
-                {isLoadingSessions
-                  ? <Loader2 className="h-4 w-4 animate-spin" />
-                  : showSessions
-                  ? <ChevronDown className="h-4 w-4" />
-                  : <ChevronRight className="h-4 w-4" />
-                }
-                {isLoadingSessions
-                  ? 'Chargement…'
-                  : showSessions
-                  ? 'Masquer les sessions'
-                  : `Voir les ${run.total_sessions} sessions`
-                }
+                {toggleSessionsIcon}
+                {toggleSessionsLabel}
               </button>
 
               {showSessions && runSessions && (
@@ -456,12 +460,12 @@ function GenerateForm({
   onGenerated,
   preset,
   onPresetConsumed,
-}: {
+}: Readonly<{
   classes: ClassWithCalendar[];
   onGenerated: (run: PlanningRun) => void;
   preset?: { classIds: string[]; fromLabel: string } | null;
   onPresetConsumed?: () => void;
-}) {
+}>) {
   const [open, setOpen] = useState(false);
   const [isGenerating, startGenerate] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -576,9 +580,15 @@ function GenerateForm({
 
       {/* Sélection des classes */}
       <div>
-        <label className={labelCls}>Classes concernées</label>
+        <p className={labelCls}>Classes concernées</p>
         <div className="space-y-1.5 max-h-40 overflow-y-auto">
-          {classes.map((cls) => (
+          {classes.map((cls) => {
+            let modeBadgeCls: string;
+            let modeLabel: string;
+            if (cls.calendar_mode === 'FULL_TIME') { modeBadgeCls = 'bg-emerald-100 text-emerald-700'; modeLabel = 'TP'; }
+            else if (cls.calendar_mode === 'FIXED_PATTERN') { modeBadgeCls = 'bg-blue-100 text-blue-700'; modeLabel = 'Pattern'; }
+            else { modeBadgeCls = 'bg-amber-100 text-amber-700'; modeLabel = 'Manuel'; }
+            return (
             <label key={cls.id} className="flex items-center gap-3 rounded-xl border border-slate-200 px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
               <input
                 type="checkbox"
@@ -589,17 +599,12 @@ function GenerateForm({
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <GraduationCap className="h-4 w-4 text-slate-400 shrink-0" />
                 <span className="text-sm font-medium text-[#061826] truncate">{cls.nom}</span>
-                <span className={[
-                  'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold',
-                  cls.calendar_mode === 'FULL_TIME' ? 'bg-emerald-100 text-emerald-700' :
-                  cls.calendar_mode === 'FIXED_PATTERN' ? 'bg-blue-100 text-blue-700' :
-                  'bg-amber-100 text-amber-700',
-                ].join(' ')}>
-                  {cls.calendar_mode === 'FULL_TIME' ? 'TP' : cls.calendar_mode === 'FIXED_PATTERN' ? 'Pattern' : 'Manuel'}
+                <span className={['shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold', modeBadgeCls].join(' ')}>
+                  {modeLabel}
                 </span>
               </div>
               {/* Raccourcis config */}
-              <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.preventDefault()}>
+              <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.preventDefault()} aria-hidden="true">
                 <a
                   href="/dashboard/planning?tab=calendrier"
                   title="Configurer le calendrier"
@@ -626,7 +631,8 @@ function GenerateForm({
                 </a>
               </div>
             </label>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -662,10 +668,10 @@ function GenerateForm({
 export function PlanningEnginePanel({
   initialRuns,
   classes,
-}: {
+}: Readonly<{
   initialRuns: PlanningRun[];
   classes: ClassWithCalendar[];
-}) {
+}>) {
   const [runs, setRuns] = useState(initialRuns);
 
   function handleGenerated(run: PlanningRun) {
@@ -674,7 +680,11 @@ export function PlanningEnginePanel({
 
   function handlePublish(id: string) {
     setRuns((prev) =>
-      prev.map((r) => r.id === id ? { ...r, status: 'VALIDATED' } : r.status === 'VALIDATED' ? { ...r, status: 'ARCHIVED' } : r)
+      prev.map((r) => {
+        if (r.id === id) return { ...r, status: 'VALIDATED' };
+        if (r.status === 'VALIDATED') return { ...r, status: 'ARCHIVED' };
+        return r;
+      })
     );
   }
 

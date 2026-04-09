@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { bookSlot, releaseSlot, updateSlot } from '../actions';
 import type { SoutenanceSlot } from '../types';
@@ -54,7 +54,7 @@ interface SlotRowProps {
 
 const inputCls = 'h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] transition-all';
 
-function SlotRow({ slot, weekId, myGroupId, isProf, canRelease, onBooked, onReleased, onUpdated }: SlotRowProps) {
+function SlotRow({ slot, weekId, myGroupId, isProf, canRelease, onBooked, onReleased, onUpdated }: Readonly<SlotRowProps>) {
   const [editing, setEditing] = useState(false);
   const [date, setDate] = useState(toLocalDateInput(slot.heure_debut));
   const [startTime, setStartTime] = useState(toLocalTimeInput(slot.heure_debut));
@@ -141,47 +141,57 @@ function SlotRow({ slot, weekId, myGroupId, isProf, canRelease, onBooked, onRele
   const timeRange = `${formatTime(slot.heure_debut)} → ${formatTime(slot.heure_fin)}`;
   const dateStr   = formatSlotDate(slot.heure_debut);
 
-  const badge = isMySlot
-    ? { label: 'Votre créneau', type: 'cyan' as const, hasIcon: true }
-    : isTaken
-      ? { label: 'Réservé', type: 'slate' as const }
-      : { label: 'Disponible', type: 'emerald' as const };
+  let badge: { label: string; type: 'cyan' | 'slate' | 'emerald'; hasIcon?: boolean };
+  if (isMySlot) {
+    badge = { label: 'Votre créneau', type: 'cyan', hasIcon: true };
+  } else if (isTaken) {
+    badge = { label: 'Réservé', type: 'slate' };
+  } else {
+    badge = { label: 'Disponible', type: 'emerald' };
+  }
 
   const description = isTaken
     ? (slot.group_name ?? 'Groupe réservé')
     : 'Créneau libre — Réserve pour assurer ton passage';
 
-  const reserveActions = isProf ? (
-    <button
-      type="button"
-      onClick={() => setEditing(true)}
-      className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-semibold text-slate-800 hover:bg-slate-50 transition-colors"
-    >
-      Modifier
-    </button>
-  ) : isMySlot ? (
-    <div className="flex items-center gap-2">
-      <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#0471a6]">
-        <CheckCircle2 className="h-4 w-4" />
-        Confirmé
-      </span>
-      {canRelease && (
-        <button
-          type="button"
-          onClick={handleRelease}
-          disabled={releasing}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-[12px] font-semibold text-rose-600 hover:bg-rose-100 disabled:opacity-50 transition-colors"
-        >
-          <Undo2 className="h-3.5 w-3.5" />
-          {releasing ? '…' : 'Se désinscrire'}
-        </button>
-      )}
-    </div>
-  ) : !isTaken && myGroupId ? undefined : isTaken ? (
-    <span className="text-[13px] font-semibold text-slate-400">Réservé</span>
-  ) : (
-    <span className="text-[13px] font-semibold text-emerald-600">Libre</span>
-  );
+  let reserveActions: React.ReactNode;
+  if (isProf) {
+    reserveActions = (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-semibold text-slate-800 hover:bg-slate-50 transition-colors"
+      >
+        Modifier
+      </button>
+    );
+  } else if (isMySlot) {
+    reserveActions = (
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#0471a6]">
+          <CheckCircle2 className="h-4 w-4" />
+          Confirmé
+        </span>
+        {canRelease && (
+          <button
+            type="button"
+            onClick={handleRelease}
+            disabled={releasing}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-[12px] font-semibold text-rose-600 hover:bg-rose-100 disabled:opacity-50 transition-colors"
+          >
+            <Undo2 className="h-3.5 w-3.5" />
+            {releasing ? '…' : 'Se désinscrire'}
+          </button>
+        )}
+      </div>
+    );
+  } else if (!isTaken && myGroupId) {
+    reserveActions = undefined;
+  } else if (isTaken) {
+    reserveActions = <span className="text-[13px] font-semibold text-slate-400">Réservé</span>;
+  } else {
+    reserveActions = <span className="text-[13px] font-semibold text-emerald-600">Libre</span>;
+  }
 
   return (
     <div>

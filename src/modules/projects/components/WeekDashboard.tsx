@@ -66,7 +66,7 @@ function getInitials(prenom?: string, nom?: string) {
 }
 
 /* ── Modal livraisons ──────────────────────────────────────────────── */
-function LivraisonsModal({ group, onClose }: { group: ProjectGroup; onClose: () => void }) {
+function LivraisonsModal({ group, onClose }: Readonly<{ group: ProjectGroup; onClose: () => void }>) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
@@ -105,7 +105,7 @@ export function WeekDashboard({
   const [activeTab, setActiveTab] = useState<TabId>('groupes');
 
   useEffect(() => {
-    const t = new URLSearchParams(window.location.search).get('tab') as TabId;
+    const t = new URLSearchParams(globalThis.window.location.search).get('tab') as TabId;
     if (TABS.some((tab) => tab.id === t)) setActiveTab(t);
   }, []);
   const [search, setSearch] = useState('');
@@ -120,32 +120,32 @@ export function WeekDashboard({
     if (!newGroupName.trim()) return;
     setIsCreatingGroup(true);
     setCreateGroupError(null);
-    const res = await createGroup(weekId, newGroupName.trim(), parseInt(newGroupCap) || 4);
+    const res = await createGroup(weekId, newGroupName.trim(), Number.parseInt(newGroupCap) || 4);
     setIsCreatingGroup(false);
     if (res.error) { setCreateGroupError(res.error); return; }
     setShowCreateGroup(false);
     setNewGroupName('');
     setNewGroupCap('4');
-    window.location.reload();
+    globalThis.window.location.reload();
   }
 
   async function handleDeleteGroup(groupId: string) {
     if (!confirm('Supprimer ce groupe ? Cette action est irréversible.')) return;
     await deleteGroup(groupId, weekId);
-    window.location.reload();
+    globalThis.window.location.reload();
   }
 
   async function handleLeaveGroup(groupId: string) {
     if (!confirm('Quitter ce groupe ?')) return;
     await leaveGroup(groupId, weekId);
-    window.location.reload();
+    globalThis.window.location.reload();
   }
 
   function handleTabChange(id: TabId) {
     setActiveTab(id);
-    const url = new URL(window.location.href);
+    const url = new URL(globalThis.window.location.href);
     url.searchParams.set('tab', id);
-    window.history.replaceState(null, '', url.toString());
+    globalThis.window.history.replaceState(null, '', url.toString());
   }
 
   const filteredGroups = groups.filter((g) =>
@@ -248,8 +248,9 @@ export function WeekDashboard({
                         onKeyDown={(e) => e.key === 'Enter' && handleCreateGroup()}
                       />
                       <div className="flex items-center gap-2">
-                        <label className="text-[12px] text-slate-500 whitespace-nowrap">Capacité max</label>
+                        <label htmlFor="wd-newGroupCap" className="text-[12px] text-slate-500 whitespace-nowrap">Capacité max</label>
                         <input
+                          id="wd-newGroupCap"
                           type="number"
                           min="1" max="20"
                           value={newGroupCap}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { sendMessage, getChannelMessages } from '../actions';
 import { MessageBubble } from './MessageBubble';
@@ -21,7 +21,7 @@ export function ClassChat({
   currentUserId,
   currentUserName,
   authorNames,
-}: ClassChatProps) {
+}: Readonly<ClassChatProps>) {
   const [activeChannel, setActiveChannel] = useState<ClassChannel>(channels[0]);
   const [messages, setMessages] = useState<ClassMessage[]>(initialMessages);
   const [loading, setLoading] = useState(false);
@@ -112,6 +112,45 @@ export function ClassChat({
     setSending(false);
   }
 
+  let realtimeTitle: string;
+  if (realtimeStatus === 'connected') { realtimeTitle = 'Temps réel actif'; }
+  else if (realtimeStatus === 'error') { realtimeTitle = 'Erreur Realtime — voir doc Supabase'; }
+  else { realtimeTitle = 'Connexion…'; }
+  let realtimeDotCls: string;
+  if (realtimeStatus === 'connected') { realtimeDotCls = 'bg-emerald-400'; }
+  else if (realtimeStatus === 'error') { realtimeDotCls = 'bg-red-400'; }
+  else { realtimeDotCls = 'bg-amber-400 animate-pulse'; }
+
+  let messagesContent: React.ReactNode;
+  if (loading) {
+    messagesContent = (
+      <div className="flex h-full items-center justify-center">
+        <p className="text-sm text-slate-400">Chargement…</p>
+      </div>
+    );
+  } else if (messages.length === 0) {
+    messagesContent = (
+      <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
+        <span className="text-3xl">💬</span>
+        <p className="text-sm text-slate-500">Aucun message pour l&apos;instant.</p>
+        <p className="text-xs text-slate-400">Soyez le premier à écrire !</p>
+      </div>
+    );
+  } else {
+    messagesContent = messages.map((msg) => (
+      <MessageBubble
+        key={msg.id}
+        message={msg}
+        isOwn={msg.author_id === currentUserId}
+        authorName={
+          msg.author_id === currentUserId
+            ? currentUserName
+            : (authorNames[msg.author_id] ?? 'Utilisateur')
+        }
+      />
+    ));
+  }
+
   return (
     <div className="flex h-full overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
       {/* Sidebar canaux */}
@@ -145,17 +184,8 @@ export function ClassChat({
           <span className="ml-auto flex items-center gap-2 text-xs text-slate-400">
             {messages.length} message{messages.length > 1 ? 's' : ''}
             <span
-              title={
-                realtimeStatus === 'connected' ? 'Temps réel actif'
-                  : realtimeStatus === 'error' ? 'Erreur Realtime — voir doc Supabase'
-                  : 'Connexion…'
-              }
-              className={[
-                'inline-flex h-2 w-2 rounded-full',
-                realtimeStatus === 'connected' ? 'bg-emerald-400'
-                  : realtimeStatus === 'error' ? 'bg-red-400'
-                  : 'bg-amber-400 animate-pulse',
-              ].join(' ')}
+              title={realtimeTitle}
+              className={['inline-flex h-2 w-2 rounded-full', realtimeDotCls].join(' ')}
             />
           </span>
         </div>
@@ -165,30 +195,7 @@ export function ClassChat({
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-4 space-y-3"
         >
-          {loading ? (
-            <div className="flex h-full items-center justify-center">
-              <p className="text-sm text-slate-400">Chargement…</p>
-            </div>
-          ) : messages.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-              <span className="text-3xl">💬</span>
-              <p className="text-sm text-slate-500">Aucun message pour l&apos;instant.</p>
-              <p className="text-xs text-slate-400">Soyez le premier à écrire !</p>
-            </div>
-          ) : (
-            messages.map((msg) => (
-              <MessageBubble
-                key={msg.id}
-                message={msg}
-                isOwn={msg.author_id === currentUserId}
-                authorName={
-                  msg.author_id === currentUserId
-                    ? currentUserName
-                    : (authorNames[msg.author_id] ?? 'Utilisateur')
-                }
-              />
-            ))
-          )}
+          {messagesContent}
         </div>
 
         {/* Input envoi */}

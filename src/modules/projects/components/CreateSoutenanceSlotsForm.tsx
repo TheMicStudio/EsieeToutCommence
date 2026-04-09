@@ -42,7 +42,7 @@ function generateSlots(date: string, startTime: string, durationMin: number, cou
   return slots;
 }
 
-export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: CreateSoutenanceSlotsFormProps) {
+export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Readonly<CreateSoutenanceSlotsFormProps>) {
   const router = useRouter();
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('09:00');
@@ -55,6 +55,10 @@ export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Crea
   const [success, setSuccess] = useState('');
 
   const preview = generateSlots(date, startTime, duration, count);
+  let generateLabel: string;
+  if (loading) { generateLabel = 'Génération…'; }
+  else if (hasSlots) { generateLabel = 'Regénérer les créneaux'; }
+  else { generateLabel = 'Générer les créneaux'; }
 
   async function handleGenerate() {
     if (!date || preview.length === 0) { setError('Remplissez la date et l\'heure'); return; }
@@ -96,23 +100,23 @@ export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Crea
     <div className="rounded-2xl border border-slate-200/60 bg-white shadow-sm overflow-hidden">
       <div className="border-b border-slate-100 bg-slate-50/60 px-5 py-4">
         <p className="font-semibold text-[#061826]">Configurer les passages oraux</p>
-        <p className="mt-0.5 text-xs text-slate-400">{groupCount} groupe{groupCount !== 1 ? 's' : ''} dans cette semaine</p>
+        <p className="mt-0.5 text-xs text-slate-400">{groupCount} groupe{groupCount === 1 ? '' : 's'} dans cette semaine</p>
       </div>
 
       <div className="p-5 space-y-5">
         {/* Paramètres */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="sm:col-span-2">
-            <label className={labelCls}>Date des oraux</label>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
+            <label htmlFor="ss-date" className={labelCls}>Date des oraux</label>
+            <input id="ss-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>Début</label>
-            <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputCls} />
+            <label htmlFor="ss-startTime" className={labelCls}>Début</label>
+            <input id="ss-startTime" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>Durée / groupe</label>
-            <select value={duration} onChange={(e) => setDuration(Number(e.target.value))} className={inputCls}>
+            <label htmlFor="ss-duration" className={labelCls}>Durée / groupe</label>
+            <select id="ss-duration" value={duration} onChange={(e) => setDuration(Number(e.target.value))} className={inputCls}>
               <option value={5}>5 min</option>
               <option value={8}>8 min</option>
               <option value={10}>10 min</option>
@@ -136,7 +140,7 @@ export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Crea
         </div>
 
         <div className="flex items-center gap-3">
-          <label className={labelCls + ' mb-0'}>Nombre de créneaux</label>
+          <p className={labelCls + ' mb-0'}>Nombre de créneaux</p>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setCount(Math.max(1, count - 1))} className="h-8 w-8 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 flex items-center justify-center font-bold">−</button>
             <span className="w-8 text-center text-sm font-semibold text-slate-700">{count}</span>
@@ -181,7 +185,7 @@ export function CreateSoutenanceSlotsForm({ weekId, groupCount, hasSlots }: Crea
             className="inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 disabled:opacity-50 transition-all"
           >
             <Plus className="h-4 w-4" />
-            {loading ? 'Génération…' : hasSlots ? 'Regénérer les créneaux' : 'Générer les créneaux'}
+            {generateLabel}
           </button>
 
           {hasSlots && (

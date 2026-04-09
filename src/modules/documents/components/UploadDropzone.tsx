@@ -9,7 +9,7 @@ interface UploadDropzoneProps {
   onSuccess?: () => void;
 }
 
-export function UploadDropzone({ folderId, onSuccess }: UploadDropzoneProps) {
+export function UploadDropzone({ folderId, onSuccess }: Readonly<UploadDropzoneProps>) {
   const [state, action, pending] = useActionState(uploadFile, null);
   const [dragging, setDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -54,6 +54,9 @@ export function UploadDropzone({ folderId, onSuccess }: UploadDropzoneProps) {
 
       {/* Zone drag & drop */}
       <div
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === 'Enter' || e.key === ' ' ? inputRef.current?.click() : undefined}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}

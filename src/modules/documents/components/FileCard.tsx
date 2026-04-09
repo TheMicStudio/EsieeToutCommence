@@ -53,7 +53,7 @@ interface FileCardProps {
   onShare?: (file: DocFile) => void;
 }
 
-export function FileCard({ file, onShare }: FileCardProps) {
+export function FileCard({ file, onShare }: Readonly<FileCardProps>) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -79,7 +79,7 @@ export function FileCard({ file, onShare }: FileCardProps) {
 
   async function handlePreview() {
     setMenuOpen(false);
-    if (previewUrl) { setPreviewUrl(previewUrl); return; } // déjà chargée
+    if (previewUrl) return; // déjà chargée
     setLoadingPreview(true);
     const { url, error } = await getSignedDownloadUrl(file.id);
     setLoadingPreview(false);
@@ -168,7 +168,7 @@ export function FileCard({ file, onShare }: FileCardProps) {
 
             {menuOpen && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} aria-hidden="true" />
                 <div className="absolute right-0 top-8 z-20 w-44 rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
                   {canPreview && (
                     <button

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { joinGroup, leaveGroup } from '../actions';
 import { UserPlus, UserMinus } from 'lucide-react';
@@ -12,7 +12,7 @@ interface JoinGroupButtonProps {
   isFull: boolean;
 }
 
-export function JoinGroupButton({ groupId, weekId, isMember, isFull }: JoinGroupButtonProps) {
+export function JoinGroupButton({ groupId, weekId, isMember, isFull }: Readonly<JoinGroupButtonProps>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [optimisticMember, setOptimisticMember] = useState(isMember);
@@ -36,6 +36,14 @@ export function JoinGroupButton({ groupId, weekId, isMember, isFull }: JoinGroup
     }
   }
 
+  let btnContent: React.ReactNode;
+  if (optimisticMember) {
+    btnContent = <><UserMinus className="h-4 w-4" />{loading ? '…' : 'Quitter le groupe'}</>;
+  } else {
+    const joinLabel = isFull ? 'Groupe complet' : 'Rejoindre';
+    btnContent = <><UserPlus className="h-4 w-4" />{loading ? '…' : joinLabel}</>;
+  }
+
   return (
     <div className="space-y-1.5">
       <button
@@ -50,10 +58,7 @@ export function JoinGroupButton({ groupId, weekId, isMember, isFull }: JoinGroup
           (loading || (!optimisticMember && isFull)) ? 'opacity-50 cursor-not-allowed' : '',
         ].join(' ')}
       >
-        {optimisticMember
-          ? <><UserMinus className="h-4 w-4" />{loading ? '…' : 'Quitter le groupe'}</>
-          : <><UserPlus className="h-4 w-4" />{loading ? '…' : isFull ? 'Groupe complet' : 'Rejoindre'}</>
-        }
+        {btnContent}
       </button>
       {error && <p className="text-xs text-red-500 text-center">{error}</p>}
     </div>

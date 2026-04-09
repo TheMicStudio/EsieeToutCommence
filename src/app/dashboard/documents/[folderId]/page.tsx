@@ -12,7 +12,7 @@ interface Props {
   params: Promise<{ folderId: string }>;
 }
 
-export default async function FolderPage({ params }: Props) {
+export default async function FolderPage({ params }: Readonly<Props>) {
   await requirePermission('doc.access');
 
   const { folderId } = await params;

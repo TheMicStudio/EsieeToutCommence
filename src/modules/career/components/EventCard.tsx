@@ -13,7 +13,7 @@ interface EventCardProps {
   canDelete?: boolean;
 }
 
-export function EventCard({ event, isRegistered, canParticipate, canDelete }: EventCardProps) {
+export function EventCard({ event, isRegistered, canParticipate, canDelete }: Readonly<EventCardProps>) {
   const router = useRouter();
   const [deleted, setDeleted] = useState(false);
   const [deleting, setDeleting] = useState(false);

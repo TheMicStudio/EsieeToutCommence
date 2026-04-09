@@ -36,11 +36,11 @@ type TabId = typeof TABS[number]['id'];
 
 export default async function PlanningPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ tab?: string }>;
-}) {
+}>) {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'admin') redirect('/dashboard');
+  if (userProfile?.role !== 'admin') redirect('/dashboard');
 
   const { tab: rawTab = 'import' } = await searchParams;
   const tab: TabId = TABS.some((t) => t.id === rawTab)
@@ -52,7 +52,7 @@ export default async function PlanningPage({
     tab === 'salles'     ? getRooms()                : Promise.resolve([]),
     tab === 'fermetures' ? getClosures()             : Promise.resolve([]),
     (tab === 'calendrier' || tab === 'matieres' || tab === 'moteur') ? getClassesWithCalendar() : Promise.resolve([]),
-    (tab === 'dispos'    || tab === 'matieres')  ? getTeachersForPlanning() : Promise.resolve([]),
+    (tab === 'dispos' || tab === 'matieres') ? getTeachersForPlanning() : Promise.resolve([]),
     tab === 'moteur' ? getPlanningRuns()         : Promise.resolve([]),
   ]);
 

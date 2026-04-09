@@ -1,5 +1,4 @@
 import { getCurrentUserProfile } from '@/modules/auth/actions';
-import { ROLE_LABELS } from '@/modules/auth/types';
 import Link from 'next/link';
 import {
   ArrowUpRight,
@@ -9,8 +8,6 @@ import {
   GraduationCap,
   MessageSquare,
   Newspaper,
-  QrCode,
-  Settings,
   Sparkles,
   Users,
 } from 'lucide-react';
@@ -20,7 +17,6 @@ import {
   computeAverage,
   getCourseMaterials,
   getMyClass,
-  getMyGrades,
   getMyTeacherClasses,
 } from '@/modules/pedagogy/actions';
 
@@ -45,7 +41,7 @@ export const metadata = { title: 'Tableau de bord — EsieeToutCommence' };
 
 const BAR_HEIGHTS = [40, 55, 35, 70, 50, 80, 60];
 
-function BarVisual({ heights = BAR_HEIGHTS }: { heights?: number[] }) {
+function BarVisual({ heights = BAR_HEIGHTS }: Readonly<{ heights?: number[] }>) {
   return (
     <div className="flex items-end gap-1 h-12">
       {heights.map((h, i) => (
@@ -59,7 +55,7 @@ function BarVisual({ heights = BAR_HEIGHTS }: { heights?: number[] }) {
   );
 }
 
-function CircleVisual({ value }: { value: number }) {
+function CircleVisual({ value }: Readonly<{ value: number }>) {
   const r = 18;
   const circ = 2 * Math.PI * r;
   const offset = circ - (value / 100) * circ;
@@ -133,9 +129,11 @@ export default async function DashboardPage() {
     const materials = classe ? await getCourseMaterials(classe.id) : [];
 
     // Hero
+    const avgSPlural = averages.length > 1 ? 's' : '';
+    const matSPlural = materials.length > 1 ? 's' : '';
     heroLabel = 'Moyenne générale';
     heroValue = globalMoy !== null ? `${globalMoy.toFixed(2)} / 20` : 'Aucune note';
-    heroTrend = averages.length > 0 ? `${averages.length} matière${averages.length > 1 ? 's' : ''}` : 'Pas encore de notes';
+    heroTrend = averages.length > 0 ? `${averages.length} matière${avgSPlural}` : 'Pas encore de notes';
     heroTrendUp = true;
     heroSub = classe ? `${classe.nom} — Promotion ${classe.annee}` : 'Aucune classe assignée';
     heroCtaHref = '/dashboard/pedagogie/notes';
@@ -161,7 +159,7 @@ export default async function DashboardPage() {
       },
       {
         label: 'Supports de cours',
-        value: materials.length > 0 ? `${materials.length} document${materials.length > 1 ? 's' : ''}` : '—',
+        value: materials.length > 0 ? `${materials.length} document${matSPlural}` : '—',
         sub: classe ? `${classe.nom}` : 'Aucune classe',
         icon: BookOpen,
         iconBg: 'bg-purple-100 text-purple-500',
@@ -173,7 +171,7 @@ export default async function DashboardPage() {
       },
       {
         label: 'Matières notées',
-        value: averages.length > 0 ? `${averages.length} matière${averages.length > 1 ? 's' : ''}` : '—',
+        value: averages.length > 0 ? `${averages.length} matière${avgSPlural}` : '—',
         sub: globalMoy !== null ? `Moy. ${globalMoy.toFixed(2)}/20` : 'Pas de notes',
         icon: Briefcase,
         iconBg: 'bg-amber-100 text-amber-500',
@@ -194,6 +192,7 @@ export default async function DashboardPage() {
     ).then((res) => res.flat().length);
 
     const closedSessions = sessions.filter((s) => s.statut === 'ferme');
+    const totalMatDocPlural = totalMaterials > 1 ? 's' : '';
 
     heroLabel = 'Classes actives';
     heroValue = `${teacherClasses.length} classe${teacherClasses.length > 1 ? 's' : ''}`;
@@ -215,7 +214,7 @@ export default async function DashboardPage() {
       },
       {
         label: 'Supports déposés',
-        value: totalMaterials > 0 ? `${totalMaterials} document${totalMaterials > 1 ? 's' : ''}` : '—',
+        value: totalMaterials > 0 ? `${totalMaterials} document${totalMatDocPlural}` : '—',
         sub: 'Toutes classes',
         icon: BookOpen,
         iconBg: 'bg-purple-100 text-purple-500',
@@ -244,6 +243,13 @@ export default async function DashboardPage() {
 
     const openTickets = tickets.filter((t) => t.statut === 'ouvert').length;
     const inProgressTickets = tickets.filter((t) => t.statut === 'en_cours').length;
+    const openTicketPlural = openTickets > 1 ? 's' : '';
+    const eleveCount = users.filter((u) => u.role === 'eleve').length;
+    const elevePlural = eleveCount > 1 ? 's' : '';
+    const profCount = users.filter((u) => u.role === 'professeur').length;
+    const profPlural = profCount > 1 ? 's' : '';
+    const entrepriseCount = users.filter((u) => u.role === 'entreprise').length;
+    const entreprisePlural = entrepriseCount > 1 ? 's' : '';
 
     heroLabel = 'Plateforme';
     heroValue = `${users.length} utilisateur${users.length > 1 ? 's' : ''}`;
@@ -256,7 +262,7 @@ export default async function DashboardPage() {
     stats = [
       {
         label: 'Tickets ouverts',
-        value: openTickets > 0 ? `${openTickets} ticket${openTickets > 1 ? 's' : ''}` : '—',
+        value: openTickets > 0 ? `${openTickets} ticket${openTicketPlural}` : '—',
         sub: inProgressTickets > 0 ? `${inProgressTickets} en cours` : 'Aucun en attente',
         icon: MessageSquare,
         iconBg: openTickets > 0 ? 'bg-rose-100 text-rose-500' : 'bg-slate-100 text-slate-400',
@@ -267,7 +273,7 @@ export default async function DashboardPage() {
       {
         label: 'Classes',
         value: `${classes.length}`,
-        sub: `${users.filter((u) => u.role === 'eleve').length} élève${users.filter((u) => u.role === 'eleve').length > 1 ? 's' : ''}`,
+        sub: `${eleveCount} élève${elevePlural}`,
         icon: GraduationCap,
         iconBg: 'bg-purple-100 text-purple-500',
         href: '/dashboard/admin',
@@ -277,7 +283,7 @@ export default async function DashboardPage() {
       {
         label: 'Utilisateurs',
         value: `${users.length}`,
-        sub: `${users.filter((u) => u.role === 'professeur').length} prof${users.filter((u) => u.role === 'professeur').length > 1 ? 's' : ''} · ${users.filter((u) => u.role === 'entreprise').length} entreprise${users.filter((u) => u.role === 'entreprise').length > 1 ? 's' : ''}`,
+        sub: `${profCount} prof${profPlural} · ${entrepriseCount} entreprise${entreprisePlural}`,
         icon: Users,
         iconBg: 'bg-[#89aae6]/20 text-[#3685b5]',
         href: '/dashboard/admin?tab=users',
@@ -290,6 +296,7 @@ export default async function DashboardPage() {
     const links = await getMyLinks();
     const firstChild = links[0];
 
+    const linkPlural = links.length > 1 ? 's' : '';
     heroLabel = 'Espace parent';
     heroValue = links.length > 0
       ? `${firstChild?.student_prenom} ${firstChild?.student_nom}`
@@ -302,7 +309,7 @@ export default async function DashboardPage() {
     stats = [
       {
         label: 'Mon enfant',
-        value: links.length > 0 ? `${links.length} lié${links.length > 1 ? 's' : ''}` : 'Aucun',
+        value: links.length > 0 ? `${links.length} lié${linkPlural}` : 'Aucun',
         sub: firstChild ? `${firstChild.student_prenom} ${firstChild.student_nom}` : 'Ajoutez votre enfant',
         icon: GraduationCap,
         iconBg: 'bg-[#89aae6]/20 text-[#3685b5]',

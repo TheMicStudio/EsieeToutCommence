@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import React, { useState, useTransition } from 'react';
 import {
   GraduationCap, ChevronDown, ChevronRight, Loader2,
   AlertCircle, CalendarDays, Zap, Settings, CheckCircle2,
@@ -9,7 +9,6 @@ import {
 import {
   updateCalendarMode,
   upsertCalendarWeek,
-  deleteCalendarWeek,
   type ClassWithCalendar,
   type CalendarWeek,
 } from '@/modules/admin/planning-actions';
@@ -77,10 +76,10 @@ function formatWeekLabel(weekStart: string): string {
 function FixedPatternForm({
   classe,
   onSave,
-}: {
+}: Readonly<{
   classe: ClassWithCalendar;
   onSave: () => void;
-}) {
+}>) {
   const [pending, startSave] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -98,12 +97,18 @@ function FixedPatternForm({
     });
   }
 
+  let saveBtnLabel: React.ReactNode;
+  if (success) { saveBtnLabel = <><CheckCircle2 className="h-4 w-4" /> Enregistré</>; }
+  else if (pending) { saveBtnLabel = <><Loader2 className="h-4 w-4 animate-spin" /> Enregistrement…</>; }
+  else { saveBtnLabel = 'Enregistrer le pattern'; }
+
   return (
     <form onSubmit={handleSubmit} className="mt-3 space-y-3 rounded-xl bg-white border border-slate-200 p-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={labelCls}>Semaines école</label>
+          <label htmlFor="pattern_school_weeks" className={labelCls}>Semaines école</label>
           <input
+            id="pattern_school_weeks"
             name="pattern_school_weeks"
             type="number" min={1} max={20}
             defaultValue={classe.pattern_school_weeks ?? 1}
@@ -111,8 +116,9 @@ function FixedPatternForm({
           />
         </div>
         <div>
-          <label className={labelCls}>Semaines entreprise</label>
+          <label htmlFor="pattern_company_weeks" className={labelCls}>Semaines entreprise</label>
           <input
+            id="pattern_company_weeks"
             name="pattern_company_weeks"
             type="number" min={1} max={20}
             defaultValue={classe.pattern_company_weeks ?? 3}
@@ -121,8 +127,9 @@ function FixedPatternForm({
         </div>
       </div>
       <div>
-        <label className={labelCls}>Lundi de référence (première semaine école)</label>
+        <label htmlFor="pattern_reference_date" className={labelCls}>Lundi de référence (première semaine école)</label>
         <input
+          id="pattern_reference_date"
           name="pattern_reference_date"
           type="date"
           defaultValue={classe.pattern_reference_date ?? ''}
@@ -138,9 +145,7 @@ function FixedPatternForm({
         type="submit" disabled={pending || success}
         className="inline-flex items-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 disabled:opacity-50 transition-all"
       >
-        {success ? <><CheckCircle2 className="h-4 w-4" /> Enregistré</> :
-         pending  ? <><Loader2 className="h-4 w-4 animate-spin" /> Enregistrement…</> :
-                    'Enregistrer le pattern'}
+        {saveBtnLabel}
       </button>
     </form>
   );
@@ -151,10 +156,10 @@ function FixedPatternForm({
 function ManualCalendarGrid({
   classe,
   initialWeeks,
-}: {
+}: Readonly<{
   classe: ClassWithCalendar;
   initialWeeks: CalendarWeek[];
-}) {
+}>) {
   const [weeks, setWeeks] = useState<Record<string, 'SCHOOL' | 'COMPANY'>>(() => {
     const map: Record<string, 'SCHOOL' | 'COMPANY'> = {};
     for (const w of initialWeeks) map[w.week_start] = w.location;
@@ -206,6 +211,15 @@ function ManualCalendarGrid({
         {mondays.map((monday) => {
           const loc = weeks[monday];
           const isToggling = toggling === monday;
+          let weekBtnCls: string;
+          if (loc === 'SCHOOL') { weekBtnCls = 'border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'; }
+          else if (loc === 'COMPANY') { weekBtnCls = 'border-blue-300 bg-blue-50 text-blue-800 hover:bg-blue-100'; }
+          else { weekBtnCls = 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'; }
+          let weekIcon: React.ReactNode;
+          if (isToggling) { weekIcon = <Loader2 className="h-3 w-3 animate-spin shrink-0" />; }
+          else if (loc === 'SCHOOL') { weekIcon = <School className="h-3 w-3 shrink-0 text-emerald-600" />; }
+          else if (loc === 'COMPANY') { weekIcon = <Building2 className="h-3 w-3 shrink-0 text-blue-600" />; }
+          else { weekIcon = <span className="h-3 w-3 shrink-0 rounded-full border border-slate-300" />; }
           return (
             <button
               key={monday}
@@ -213,23 +227,11 @@ function ManualCalendarGrid({
               disabled={isToggling}
               className={[
                 'flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs font-medium transition-all',
-                loc === 'SCHOOL'
-                  ? 'border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
-                  : loc === 'COMPANY'
-                  ? 'border-blue-300 bg-blue-50 text-blue-800 hover:bg-blue-100'
-                  : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100',
+                weekBtnCls,
                 'disabled:opacity-60',
               ].join(' ')}
             >
-              {isToggling ? (
-                <Loader2 className="h-3 w-3 animate-spin shrink-0" />
-              ) : loc === 'SCHOOL' ? (
-                <School className="h-3 w-3 shrink-0 text-emerald-600" />
-              ) : loc === 'COMPANY' ? (
-                <Building2 className="h-3 w-3 shrink-0 text-blue-600" />
-              ) : (
-                <span className="h-3 w-3 shrink-0 rounded-full border border-slate-300" />
-              )}
+              {weekIcon}
               <span className="truncate">{formatWeekLabel(monday).split('→')[0].trim()}</span>
             </button>
           );
@@ -244,10 +246,10 @@ function ManualCalendarGrid({
 function ClassCalendarCard({
   classe,
   initialWeeks,
-}: {
+}: Readonly<{
   classe: ClassWithCalendar;
   initialWeeks: CalendarWeek[];
-}) {
+}>) {
   const [expanded, setExpanded]   = useState(false);
   const [mode, setMode]           = useState(classe.calendar_mode);
   const [saving, startSave]       = useTransition();
@@ -264,6 +266,11 @@ function ClassCalendarCard({
     });
   }
 
+  let modeBadgeCls: string;
+  if (mode === 'FULL_TIME') { modeBadgeCls = 'bg-emerald-100 text-emerald-700'; }
+  else if (mode === 'FIXED_PATTERN') { modeBadgeCls = 'bg-blue-100 text-blue-700'; }
+  else { modeBadgeCls = 'bg-amber-100 text-amber-700'; }
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
       {/* Header */}
@@ -278,12 +285,7 @@ function ClassCalendarCard({
           <p className="font-semibold text-[#061826] truncate">{classe.nom}</p>
           <p className="text-xs text-slate-400">Promotion {classe.annee}</p>
         </div>
-        <span className={[
-          'shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold',
-          mode === 'FULL_TIME'     ? 'bg-emerald-100 text-emerald-700' :
-          mode === 'FIXED_PATTERN' ? 'bg-blue-100 text-blue-700' :
-                                     'bg-amber-100 text-amber-700',
-        ].join(' ')}>
+        <span className={['shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold', modeBadgeCls].join(' ')}>
           {MODE_CONFIG[mode].label}
         </span>
         {expanded ? <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" /> : <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />}
@@ -360,10 +362,10 @@ function ClassCalendarCard({
 export function CalendarPanel({
   classes,
   weeksByClass,
-}: {
+}: Readonly<{
   classes: ClassWithCalendar[];
   weeksByClass: Record<string, CalendarWeek[]>;
-}) {
+}>) {
   if (classes.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 py-12 text-center">

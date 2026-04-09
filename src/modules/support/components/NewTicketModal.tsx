@@ -9,7 +9,7 @@ interface NewTicketModalProps {
   variant?: 'primary' | 'ghost';
 }
 
-export function NewTicketModal({ isDelegue = false, variant = 'primary' }: NewTicketModalProps) {
+export function NewTicketModal({ isDelegue = false, variant = 'primary' }: Readonly<NewTicketModalProps>) {
   const [open, setOpen] = useState(false);
 
   return (

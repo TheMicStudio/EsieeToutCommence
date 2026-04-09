@@ -271,8 +271,8 @@ export async function updateProfile(
   }
 
   const phoneFields = {
-    ...(phone_mobile !== undefined ? { phone_mobile } : {}),
-    ...(phone_fixed !== undefined ? { phone_fixed } : {}),
+    ...(phone_mobile === undefined ? {} : { phone_mobile }),
+    ...(phone_fixed === undefined ? {} : { phone_fixed }),
   };
 
   let error = null;

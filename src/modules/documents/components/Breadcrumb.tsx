@@ -6,7 +6,7 @@ interface BreadcrumbProps {
   crumbs: DocBreadcrumb[];
 }
 
-export function Breadcrumb({ crumbs }: BreadcrumbProps) {
+export function Breadcrumb({ crumbs }: Readonly<BreadcrumbProps>) {
   return (
     <nav className="flex flex-wrap items-center gap-1 text-sm">
       <Link

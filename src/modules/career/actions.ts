@@ -171,7 +171,7 @@ export async function deleteCareerEvent(eventId: string): Promise<ActionState> {
 
 export async function registerToEvent(eventId: string): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'eleve') return { error: 'Accès refusé.' };
+  if (userProfile?.role !== 'eleve') return { error: 'Accès refusé.' };
 
   const supabase = await createClient();
   const { error } = await supabase.from('event_registrations').insert({
@@ -186,7 +186,7 @@ export async function registerToEvent(eventId: string): Promise<ActionState> {
 
 export async function unregisterFromEvent(eventId: string): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'eleve') return { error: 'Accès refusé.' };
+  if (userProfile?.role !== 'eleve') return { error: 'Accès refusé.' };
 
   const supabase = await createClient();
   const { error } = await supabase.from('event_registrations')
@@ -289,7 +289,7 @@ export async function uploadApprenticeshipEntry(
   formData: FormData
 ): Promise<ActionState> {
   const userProfile = await getCurrentUserProfile();
-  if (!userProfile || userProfile.role !== 'eleve') return { error: 'Accès refusé.' };
+  if (userProfile?.role !== 'eleve') return { error: 'Accès refusé.' };
   if (userProfile.profile.type_parcours !== 'alternant') return { error: 'Réservé aux alternants.' };
 
   const chatId = formData.get('chat_id') as string;

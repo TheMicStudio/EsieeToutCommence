@@ -1,4 +1,4 @@
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { requirePermission } from '@/lib/permissions';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
@@ -11,7 +11,7 @@ interface RetroPageProps {
   params: Promise<{ weekId: string }>;
 }
 
-export default async function RetroPage({ params }: RetroPageProps) {
+export default async function RetroPage({ params }: Readonly<RetroPageProps>) {
   const { weekId } = await params;
   const profile = await getCurrentUserProfile();
   if (!profile) return null;

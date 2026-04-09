@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { gradeGroup } from '../actions';
 import { Star, Check, X, ClipboardEdit } from 'lucide-react';
 
-export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedback }: {
+export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedback }: Readonly<{
   groupId: string;
   groupName: string;
   initialNote?: number;
   initialFeedback?: string;
-}) {
+}>) {
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState(String(initialNote ?? ''));
   const [feedback, setFeedback] = useState(initialFeedback ?? '');
@@ -21,8 +21,8 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const n = parseFloat(note);
-    if (isNaN(n) || n < 0 || n > 20) { setError('La note doit être entre 0 et 20'); return; }
+    const n = Number.parseFloat(note);
+    if (Number.isNaN(n) || n < 0 || n > 20) { setError('La note doit être entre 0 et 20'); return; }
     setLoading(true);
     setError('');
     const result = await gradeGroup(groupId, n, feedback);
@@ -39,6 +39,11 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
     }
   }
 
+  let submitLabel: React.ReactNode;
+  if (success) { submitLabel = <><Check className="h-4 w-4" /> Note enregistrée !</>; }
+  else if (loading) { submitLabel = 'Enregistrement…'; }
+  else { submitLabel = 'Enregistrer la note'; }
+
   return (
     <>
       <button
@@ -54,6 +59,7 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
           onClick={() => setOpen(false)}
+          aria-hidden="true"
         >
           <div
             className="w-full max-w-md rounded-3xl border border-slate-200 bg-white shadow-2xl"
@@ -83,11 +89,12 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
             <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
               {/* Note */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+                <label htmlFor="gg-note" className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
                   Note /20 *
                 </label>
                 <div className="flex items-center gap-3">
                   <input
+                    id="gg-note"
                     type="number"
                     min={0} max={20} step={0.5}
                     value={note}
@@ -96,9 +103,9 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
                     className="w-32 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all"
                     required
                   />
-                  {note && !isNaN(parseFloat(note)) && (
+                  {note && !Number.isNaN(Number.parseFloat(note)) && (
                     <span className="text-2xl font-bold text-[#0471a6]">
-                      {parseFloat(note)}/20
+                      {Number.parseFloat(note)}/20
                     </span>
                   )}
                 </div>
@@ -106,10 +113,11 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
 
               {/* Feedback */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+                <label htmlFor="gg-feedback" className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
                   Feedback (optionnel)
                 </label>
                 <textarea
+                  id="gg-feedback"
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
                   rows={4}
@@ -129,11 +137,7 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
                 disabled={loading || success}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 disabled:opacity-60 transition-all"
               >
-                {success
-                  ? <><Check className="h-4 w-4" /> Note enregistrée !</>
-                  : loading
-                    ? 'Enregistrement…'
-                    : 'Enregistrer la note'}
+                {submitLabel}
               </button>
             </form>
           </div>

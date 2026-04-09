@@ -1,4 +1,4 @@
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { requirePermission, getRequestPermissions } from '@/lib/permissions';
@@ -11,7 +11,7 @@ interface ChannelPageProps {
   params: Promise<{ channelId: string }>;
 }
 
-export default async function ChannelPage({ params }: ChannelPageProps) {
+export default async function ChannelPage({ params }: Readonly<ChannelPageProps>) {
   await requirePermission('staff_channel.participate');
   const { channelId } = await params;
   const profile = await getCurrentUserProfile();

@@ -25,11 +25,11 @@ function AddRequirementForm({
   classId,
   teachers,
   onAdded,
-}: {
+}: Readonly<{
   classId: string;
   teachers: TeacherForPlanning[];
   onAdded: (req: SubjectRequirement) => void;
-}) {
+}>) {
   const [open, setOpen] = useState(false);
   const [pending, startAdd] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -52,14 +52,14 @@ function AddRequirementForm({
 
     const teacher_id           = fd.get('teacher_id') as string;
     const subject_name         = fd.get('subject_name') as string;
-    const total_hours_required = parseFloat(fd.get('total_hours_required') as string);
-    const session_duration_h   = parseFloat(fd.get('session_duration_h') as string) || 2;
-    const duration_weeks       = fd.get('duration_weeks') ? parseInt(fd.get('duration_weeks') as string) : null;
-    const preferred_day        = fd.get('preferred_day') ? parseInt(fd.get('preferred_day') as string) : null;
-    const weekly_occurrences   = fd.get('weekly_occurrences') ? parseInt(fd.get('weekly_occurrences') as string) : null;
+    const total_hours_required = Number.parseFloat(fd.get('total_hours_required') as string);
+    const session_duration_h   = Number.parseFloat(fd.get('session_duration_h') as string) || 2;
+    const duration_weeks       = fd.get('duration_weeks') ? Number.parseInt(fd.get('duration_weeks') as string) : null;
+    const preferred_day        = fd.get('preferred_day') ? Number.parseInt(fd.get('preferred_day') as string) : null;
+    const weekly_occurrences   = fd.get('weekly_occurrences') ? Number.parseInt(fd.get('weekly_occurrences') as string) : null;
 
     if (!teacher_id || !subject_name) { setError('Sélectionnez un professeur et une matière.'); return; }
-    if (isNaN(total_hours_required) || total_hours_required <= 0) { setError('Le volume horaire doit être positif.'); return; }
+    if (Number.isNaN(total_hours_required) || total_hours_required <= 0) { setError('Le volume horaire doit être positif.'); return; }
 
     const input: CreateSubjectRequirementInput = {
       class_id: classId,
@@ -107,7 +107,7 @@ function AddRequirementForm({
     <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
       {/* Type de session */}
       <div>
-        <label className={labelCls}>Type de session</label>
+        <p className={labelCls}>Type de session</p>
         <div className="grid grid-cols-3 gap-2">
           {(Object.keys(SESSION_TYPE_LABELS) as (keyof typeof SESSION_TYPE_LABELS)[]).map((type) => (
             <button
@@ -132,8 +132,9 @@ function AddRequirementForm({
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={labelCls}>Professeur</label>
+          <label htmlFor="sr-teacher_id" className={labelCls}>Professeur</label>
           <select
+            id="sr-teacher_id"
             name="teacher_id"
             required
             value={selectedTeacherId}
@@ -148,15 +149,15 @@ function AddRequirementForm({
           </select>
         </div>
         <div>
-          <label className={labelCls}>Matière</label>
+          <label htmlFor="sr-subject_name" className={labelCls}>Matière</label>
           {matieres.length > 0 ? (
-            <select name="subject_name" required className={inputCls}>
+            <select id="sr-subject_name" name="subject_name" required className={inputCls}>
               {matieres.map((m) => (
                 <option key={m} value={m}>{m}</option>
               ))}
             </select>
           ) : (
-            <input name="subject_name" placeholder="Ex: Projet intégré" required className={inputCls} />
+            <input id="sr-subject_name" name="subject_name" placeholder="Ex: Projet intégré" required className={inputCls} />
           )}
         </div>
       </div>
@@ -165,12 +166,12 @@ function AddRequirementForm({
       {sessionType === 'CLASSIC' && (
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={labelCls}>Volume horaire total (h)</label>
-            <input name="total_hours_required" type="number" min={1} max={500} step={0.5} placeholder="Ex: 40" required className={inputCls} />
+            <label htmlFor="sr-total_hours_required" className={labelCls}>Volume horaire total (h)</label>
+            <input id="sr-total_hours_required" name="total_hours_required" type="number" min={1} max={500} step={0.5} placeholder="Ex: 40" required className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>Durée d&apos;une séance</label>
-            <select name="session_duration_h" className={inputCls} defaultValue="2">
+            <label htmlFor="sr-session_duration_h-classic" className={labelCls}>Durée d&apos;une séance</label>
+            <select id="sr-session_duration_h-classic" name="session_duration_h" className={inputCls} defaultValue="2">
               <option value="1">1h</option>
               <option value="1.5">1h30</option>
               <option value="2">2h</option>
@@ -184,18 +185,17 @@ function AddRequirementForm({
       {sessionType === 'INTENSIVE_BLOCK' && (
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={labelCls}>Nombre de semaines bloquées</label>
-            <select name="duration_weeks" className={inputCls} defaultValue="1">
+            <label htmlFor="sr-duration_weeks" className={labelCls}>Nombre de semaines bloquées</label>
+            <select id="sr-duration_weeks" name="duration_weeks" className={inputCls} defaultValue="1">
               {[1,2,3,4].map((w) => (
                 <option key={w} value={w}>{w} semaine{w > 1 ? 's' : ''} complète{w > 1 ? 's' : ''}</option>
               ))}
             </select>
-            {/* Champs requis mais non utilisés pour ce type */}
             <input type="hidden" name="total_hours_required" value="40" />
             <input type="hidden" name="session_duration_h" value="8" />
           </div>
           <div>
-            <label className={labelCls}>Info</label>
+            <p className={labelCls}>Info</p>
             <div className="flex h-10 items-center rounded-xl border border-blue-200 bg-blue-50 px-3 text-xs text-blue-700">
               Bloque lundi→vendredi, journée complète
             </div>
@@ -206,20 +206,20 @@ function AddRequirementForm({
       {sessionType === 'WEEKLY_DAY' && (
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className={labelCls}>Jour préféré</label>
-            <select name="preferred_day" className={inputCls} defaultValue="1">
+            <label htmlFor="sr-preferred_day" className={labelCls}>Jour préféré</label>
+            <select id="sr-preferred_day" name="preferred_day" className={inputCls} defaultValue="1">
               {['Lundi','Mardi','Mercredi','Jeudi','Vendredi'].map((d, i) => (
                 <option key={d} value={i + 1}>{d}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className={labelCls}>Nb de semaines</label>
-            <input name="weekly_occurrences" type="number" min={1} max={52} placeholder="Ex: 12" required className={inputCls} />
+            <label htmlFor="sr-weekly_occurrences" className={labelCls}>Nb de semaines</label>
+            <input id="sr-weekly_occurrences" name="weekly_occurrences" type="number" min={1} max={52} placeholder="Ex: 12" required className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>Durée de la séance</label>
-            <select name="session_duration_h" className={inputCls} defaultValue="2">
+            <label htmlFor="sr-session_duration_h-weekly" className={labelCls}>Durée de la séance</label>
+            <select id="sr-session_duration_h-weekly" name="session_duration_h" className={inputCls} defaultValue="2">
               <option value="1">1h</option>
               <option value="1.5">1h30</option>
               <option value="2">2h</option>
@@ -230,6 +230,7 @@ function AddRequirementForm({
           </div>
         </div>
       )}
+
       {error && (
         <div className="flex items-center gap-2 rounded-lg bg-rose-50 border border-rose-200 px-3 py-2 text-xs text-rose-700">
           <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {error}
@@ -261,11 +262,11 @@ function ClassRequirementsCard({
   classe,
   teachers,
   initialRequirements,
-}: {
+}: Readonly<{
   classe: ClassWithCalendar;
   teachers: TeacherForPlanning[];
   initialRequirements: SubjectRequirement[];
-}) {
+}>) {
   const [expanded, setExpanded] = useState(false);
   const [requirements, setRequirements] = useState(initialRequirements);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -402,11 +403,11 @@ export function SubjectRequirementsPanel({
   classes,
   teachers,
   requirementsByClass,
-}: {
+}: Readonly<{
   classes: ClassWithCalendar[];
   teachers: TeacherForPlanning[];
   requirementsByClass: Record<string, SubjectRequirement[]>;
-}) {
+}>) {
   if (classes.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 py-12 text-center">
@@ -425,6 +426,9 @@ export function SubjectRequirementsPanel({
     <div className="space-y-3">
       <p className="text-sm font-semibold text-[#061826]">
         {classes.length} classe{classes.length > 1 ? 's' : ''} — définissez les volumes horaires par matière et professeur
+      </p>
+      <p className="text-xs text-slate-400">
+        Assigner un professeur ici lui donne automatiquement accès à la classe (chat, notes, émargement…).
       </p>
       {classes.map((classe) => (
         <ClassRequirementsCard

@@ -8,7 +8,7 @@ interface GroupWorkspaceTabsProps {
   whiteboardContent: ReactNode;
 }
 
-export function GroupWorkspaceTabs({ chatContent, whiteboardContent }: GroupWorkspaceTabsProps) {
+export function GroupWorkspaceTabs({ chatContent, whiteboardContent }: Readonly<GroupWorkspaceTabsProps>) {
   const [activeTab, setActiveTab] = useState<'chat' | 'whiteboard'>('chat');
 
   return (

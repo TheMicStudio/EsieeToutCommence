@@ -28,10 +28,11 @@ export function LinkChildForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+        <label htmlFor="lc-email" className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
           Email de l&apos;élève
         </label>
         <input
+          id="lc-email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}

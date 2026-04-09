@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { updateGroupLinks } from '../actions';
@@ -8,13 +8,13 @@ import { Check, GitBranch, Link2, Paperclip, Presentation, Upload, X } from 'luc
 
 const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
 
-export function SubmitLinksForm({ groupId, initialRepo, initialSlides, initialSlidesFileUrl, initialSlidesFileName }: {
+export function SubmitLinksForm({ groupId, initialRepo, initialSlides, initialSlidesFileUrl, initialSlidesFileName }: Readonly<{
   groupId: string;
   initialRepo?: string | null;
   initialSlides?: string | null;
   initialSlidesFileUrl?: string | null;
   initialSlidesFileName?: string | null;
-}) {
+}>) {
   const [repo, setRepo] = useState(initialRepo ?? '');
   const [slidesMode, setSlidesMode] = useState<'link' | 'file'>(
     initialSlidesFileUrl ? 'file' : 'link'
@@ -72,14 +72,47 @@ export function SubmitLinksForm({ groupId, initialRepo, initialSlides, initialSl
     setTimeout(() => setSuccess(false), 3000);
   }
 
+  let slidesInput: React.ReactNode;
+  if (slidesMode === 'link') {
+    slidesInput = (
+      <input
+        value={slidesUrl}
+        onChange={(e) => setSlidesUrl(e.target.value)}
+        placeholder="https://docs.google.com/…"
+        className={inputCls}
+      />
+    );
+  } else if (slidesFileName) {
+    slidesInput = (
+      <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+        <Paperclip className="h-4 w-4 shrink-0 text-[#0471a6]" />
+        <span className="flex-1 truncate text-sm text-slate-700">{slidesFileName}</span>
+        <button
+          type="button"
+          onClick={removeFile}
+          className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 transition-colors"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    );
+  } else {
+    slidesInput = null; // will be rendered below as upload button
+  }
+  let submitBtnLabel: React.ReactNode;
+  if (success) { submitBtnLabel = <><Check className="h-4 w-4" /> Enregistré !</>; }
+  else if (loading) { submitBtnLabel = 'Enregistrement…'; }
+  else { submitBtnLabel = 'Déposer les livrables'; }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* GitHub */}
       <div>
-        <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <label htmlFor="sl-repo" className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
           <GitBranch className="h-3.5 w-3.5" /> Dépôt GitHub
         </label>
         <input
+          id="sl-repo"
           value={repo}
           onChange={(e) => setRepo(e.target.value)}
           placeholder="https://github.com/…"
@@ -90,9 +123,9 @@ export function SubmitLinksForm({ groupId, initialRepo, initialSlides, initialSl
       {/* Slides — toggle lien / fichier */}
       <div>
         <div className="mb-1.5 flex items-center justify-between">
-          <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
             <Presentation className="h-3.5 w-3.5" /> Slides / Présentation
-          </label>
+          </p>
           <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs">
             <button
               type="button"
@@ -117,26 +150,7 @@ export function SubmitLinksForm({ groupId, initialRepo, initialSlides, initialSl
           </div>
         </div>
 
-        {slidesMode === 'link' ? (
-          <input
-            value={slidesUrl}
-            onChange={(e) => setSlidesUrl(e.target.value)}
-            placeholder="https://docs.google.com/…"
-            className={inputCls}
-          />
-        ) : slidesFileName ? (
-          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <Paperclip className="h-4 w-4 shrink-0 text-[#0471a6]" />
-            <span className="flex-1 truncate text-sm text-slate-700">{slidesFileName}</span>
-            <button
-              type="button"
-              onClick={removeFile}
-              className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 transition-colors"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        ) : (
+        {slidesInput ?? (
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
@@ -164,10 +178,7 @@ export function SubmitLinksForm({ groupId, initialRepo, initialSlides, initialSl
         disabled={loading || uploading}
         className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0471a6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0471a6]/90 disabled:opacity-50 transition-all"
       >
-        {success
-          ? <><Check className="h-4 w-4" /> Enregistré !</>
-          : loading ? 'Enregistrement…'
-          : 'Déposer les livrables'}
+        {submitBtnLabel}
       </button>
     </form>
   );

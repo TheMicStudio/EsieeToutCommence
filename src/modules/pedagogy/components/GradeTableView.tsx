@@ -24,7 +24,7 @@ function avg(notes: number[]) {
   return notes.reduce((a, b) => a + b, 0) / notes.length;
 }
 
-export function GradeTableView({ grades, students, canDelete = false }: GradeTableViewProps) {
+export function GradeTableView({ grades, students, canDelete = false }: Readonly<GradeTableViewProps>) {
   const [localGrades, setLocalGrades] = useState(grades);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
@@ -39,8 +39,8 @@ export function GradeTableView({ grades, students, canDelete = false }: GradeTab
   }
 
   async function handleSaveEdit(gradeId: string) {
-    const val = parseFloat(editRef.current?.value ?? '');
-    if (isNaN(val) || val < 0 || val > 20) return;
+    const val = Number.parseFloat(editRef.current?.value ?? '');
+    if (Number.isNaN(val) || val < 0 || val > 20) return;
     setSaving(true);
     await updateGrade(gradeId, val);
     setLocalGrades((prev) => prev.map((g) => g.id === gradeId ? { ...g, note: val } : g));
@@ -64,7 +64,7 @@ export function GradeTableView({ grades, students, canDelete = false }: GradeTab
     );
   }
 
-  const matieres = [...new Set(localGrades.map((g) => g.matiere))].sort();
+  const matieres = [...new Set(localGrades.map((g) => g.matiere))].sort((a, b) => a.localeCompare(b));
 
   return (
     <div className="space-y-4">
@@ -149,10 +149,16 @@ export function GradeTableView({ grades, students, canDelete = false }: GradeTab
                         </td>
                         {examens.map((e) => {
                           const grade = index.get(s.id)?.get(e.examen);
+                          if (!grade) {
+                            return (
+                              <td key={e.examen} className="px-4 py-3 text-center">
+                                <span className="text-slate-200 text-sm">—</span>
+                              </td>
+                            );
+                          }
                           return (
                             <td key={e.examen} className="px-4 py-3 text-center">
-                              {grade ? (
-                                editing === grade.id ? (
+                              {editing === grade.id ? (
                                   <div className="inline-flex items-center gap-1">
                                     <input
                                       ref={editRef}
@@ -212,9 +218,6 @@ export function GradeTableView({ grades, students, canDelete = false }: GradeTab
                                       </div>
                                     )}
                                   </div>
-                                )
-                              ) : (
-                                <span className="text-slate-200 text-sm">—</span>
                               )}
                             </td>
                           );

@@ -25,7 +25,7 @@ interface TicketFormProps {
   onSuccess?: () => void;
 }
 
-export function TicketForm({ isDelegue = false, onSuccess }: TicketFormProps) {
+export function TicketForm({ isDelegue = false, onSuccess }: Readonly<TicketFormProps>) {
   const [state, action, pending] = useActionState(createTicket, null);
   const [sujet, setSujet] = useState('');
   const [suggestions, setSuggestions] = useState<FaqArticle[]>([]);
@@ -60,7 +60,7 @@ export function TicketForm({ isDelegue = false, onSuccess }: TicketFormProps) {
     setUploadError('');
     const supabase = createClient();
     const ext = file.name.split('.').pop();
-    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const path = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from('support-files').upload(path, file);
     if (error) {
       setUploadError(`Erreur : ${error.message}`);

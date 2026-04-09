@@ -35,12 +35,12 @@ function WarningModal({
   onConfirm,
   onCancel,
   loading,
-}: {
+}: Readonly<{
   preview: ImportPreview;
   onConfirm: () => void;
   onCancel: () => void;
   loading: boolean;
-}) {
+}>) {
   const [confirmed, setConfirmed] = useState(false);
 
   return (
@@ -117,8 +117,8 @@ function WarningModal({
                 {preview.errors.length} ligne(s) ignorée(s) lors du parsing :
               </p>
               <ul className="space-y-0.5 max-h-20 overflow-y-auto">
-                {preview.errors.map((e, i) => (
-                  <li key={i} className="text-xs text-rose-600">• {e}</li>
+                {preview.errors.map((e) => (
+                  <li key={e} className="text-xs text-rose-600">• {e}</li>
                 ))}
               </ul>
             </div>
@@ -170,10 +170,10 @@ function WarningModal({
 function ImportResultView({
   result,
   onReset,
-}: {
+}: Readonly<{
   result: ImportResult;
   onReset: () => void;
-}) {
+}>) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-3">
@@ -210,8 +210,8 @@ function ImportResultView({
         <div className="rounded-xl border border-rose-200 bg-rose-50 p-4">
           <p className="text-sm font-semibold text-rose-700 mb-2">Erreurs rencontrées :</p>
           <ul className="space-y-1 max-h-32 overflow-y-auto">
-            {result.errors.map((e, i) => (
-              <li key={i} className="text-xs text-rose-600">• {e}</li>
+            {result.errors.map((e) => (
+              <li key={e} className="text-xs text-rose-600">• {e}</li>
             ))}
           </ul>
         </div>
@@ -224,7 +224,7 @@ function ImportResultView({
             Rappel : le mot de passe temporaire des nouveaux comptes est{' '}
             <code className="bg-blue-100 px-1.5 py-0.5 rounded text-xs font-mono">
               Prenom.NOM2025
-            </code>
+            </code>{' '}
             . Communiquez-le aux étudiants.
           </p>
         </div>
@@ -344,6 +344,9 @@ export function CsvImportPanel() {
         {!preview ? (
           /* Zone de drop */
           <div
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' || e.key === ' ' ? fileRef.current?.click() : undefined}
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
             onDragLeave={() => setDragging(false)}
             onDrop={handleDrop}
@@ -447,8 +450,8 @@ export function CsvImportPanel() {
                   {preview.errors.length} ligne(s) ignorée(s) :
                 </p>
                 <ul className="space-y-0.5">
-                  {preview.errors.slice(0, 5).map((e, i) => (
-                    <li key={i} className="text-xs text-amber-700">• {e}</li>
+                  {preview.errors.slice(0, 5).map((e) => (
+                    <li key={e} className="text-xs text-amber-700">• {e}</li>
                   ))}
                   {preview.errors.length > 5 && (
                     <li className="text-xs text-amber-500">
@@ -478,8 +481,8 @@ export function CsvImportPanel() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {preview.students.slice(0, 5).map((s, i) => (
-                      <tr key={i} className="hover:bg-slate-50/60 transition-colors">
+                    {preview.students.slice(0, 5).map((s) => (
+                      <tr key={s.email} className="hover:bg-slate-50/60 transition-colors">
                         <td className="px-4 py-2.5 font-medium text-[#061826]">{s.prenom}</td>
                         <td className="px-4 py-2.5 text-slate-600">{s.nom}</td>
                         <td className="px-4 py-2.5 text-slate-500 text-xs">{s.email}</td>
