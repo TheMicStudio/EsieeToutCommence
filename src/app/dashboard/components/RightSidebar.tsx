@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import {
   BookOpen, Cpu, Code2, Database, GraduationCap, LifeBuoy, Settings,
-  X, MessageCircle,
+  X, MessageCircle, FileText, ScrollText, Notebook, FlaskConical,
+  ChevronRight, CalendarPlus, HelpCircle,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { UserProfile } from '@/modules/auth/types';
@@ -399,6 +400,106 @@ function AnnuaireSidebarContent() {
 }
 
 // ─────────────────────────────────────────────────────────
+// Projets-specific right sidebar
+// ─────────────────────────────────────────────────────────
+
+const RECENT_DOCS = [
+  { icon: FileText,   iconBg: 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200',      title: 'Algorithms HW 1 Solutions',       meta: 'Mis à jour il y a 2h' },
+  { icon: ScrollText, iconBg: 'bg-teal-50 text-teal-700 ring-1 ring-teal-200',      title: 'AI Ethics Research Paper Proposal', meta: 'Rendu vendredi' },
+  { icon: Notebook,   iconBg: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200', title: 'DevOps Workshop Notes',          meta: 'Sauvegardé hier' },
+  { icon: FlaskConical, iconBg: 'bg-fuchsia-50 text-fuchsia-700 ring-1 ring-fuchsia-200', title: 'Data Structures Lab Guide',   meta: 'Version 1.3' },
+];
+
+const CAMPUS_CONTACTS = [
+  { initials: 'EA', bg: 'bg-blue-100 text-blue-700',   name: 'Prof. Ethan Anderson', role: 'Professeur — Informatique', ActionIcon: MessageCircle },
+  { initials: 'IL', bg: 'bg-indigo-100 text-indigo-700', name: 'Inès Lefebvre',       role: 'Étudiante — Study Group Lead', ActionIcon: CalendarPlus },
+  { initials: 'MD', bg: 'bg-amber-100 text-amber-700',  name: 'Marcus Dubois',        role: 'Assistant — ML Track',        ActionIcon: HelpCircle },
+];
+
+function ProjetsSidebarContent() {
+  return (
+    <div className="flex h-full flex-col gap-4 overflow-y-auto">
+
+      {/* Documents récents */}
+      <div className="rounded-3xl border border-slate-200/70 bg-white shadow-card p-4">
+        <div className="mb-4 flex items-center justify-between">
+          <p
+            className="text-[14px] font-semibold text-slate-900"
+            style={{ fontFamily: "'Cabinet Grotesk', sans-serif" }}
+          >
+            Documents récents
+          </p>
+          <button type="button" className="text-[13px] font-semibold text-slate-700 hover:text-slate-900 transition-colors">
+            Voir tout
+          </button>
+        </div>
+        <div className="space-y-2">
+          {RECENT_DOCS.map((doc) => {
+            const Icon = doc.icon;
+            return (
+              <div
+                key={doc.title}
+                className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                <div className={['flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl', doc.iconBg].join(' ')}>
+                  <Icon className="h-4 w-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="truncate text-[13px] font-semibold text-slate-900">{doc.title}</p>
+                  <p className="text-[12px] font-medium text-slate-500">{doc.meta}</p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Contacts & encadrants */}
+      <div className="rounded-3xl border border-slate-200/70 bg-white shadow-card p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <p
+            className="text-[14px] font-semibold text-slate-900"
+            style={{ fontFamily: "'Cabinet Grotesk', sans-serif" }}
+          >
+            Contacts & encadrants
+          </p>
+          <button type="button" className="text-[13px] font-semibold text-slate-700 hover:text-slate-900 transition-colors">
+            Voir tout
+          </button>
+        </div>
+        <div className="space-y-2">
+          {CAMPUS_CONTACTS.map((c) => {
+            const ActionIcon = c.ActionIcon;
+            return (
+              <div
+                key={c.name}
+                className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3"
+              >
+                <div className={['flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-[12px] font-bold', c.bg].join(' ')}>
+                  {c.initials}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="truncate text-[13px] font-semibold text-slate-900">{c.name}</p>
+                  <p className="truncate text-[12px] font-medium text-slate-500">{c.role}</p>
+                </div>
+                <button
+                  type="button"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  <ActionIcon className="h-4 w-4" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────
 // Main export
 // ─────────────────────────────────────────────────────────
 
@@ -406,13 +507,15 @@ export function RightSidebar({ userProfile }: RightSidebarProps) {
   const pathname   = usePathname();
   const isAnnuaire = pathname === '/dashboard/annuaire';
   const isNotes    = pathname === '/dashboard/pedagogie/notes';
+  const isProjets  = pathname.startsWith('/dashboard/pedagogie/projets/') ||
+                     pathname.startsWith('/dashboard/projets/');
+
+  const noWrapper  = isAnnuaire || isNotes || isProjets;
 
   return (
     <aside className={[
       'hidden xl:flex xl:flex-col w-[220px] shrink-0',
-      isAnnuaire || isNotes
-        ? ''
-        : 'rounded-3xl bg-white shadow-card border border-slate-200/70 overflow-hidden p-4',
+      noWrapper ? '' : 'rounded-3xl bg-white shadow-card border border-slate-200/70 overflow-hidden p-4',
     ].join(' ')}>
       {isAnnuaire ? (
         <Suspense fallback={<div className="flex-1 animate-pulse rounded-2xl bg-slate-100" />}>
@@ -420,6 +523,8 @@ export function RightSidebar({ userProfile }: RightSidebarProps) {
         </Suspense>
       ) : isNotes && userProfile.role === 'eleve' ? (
         <GradesWidget studentId={userProfile.profile.id} />
+      ) : isProjets ? (
+        <ProjetsSidebarContent />
       ) : (
         <DefaultSidebar userProfile={userProfile} />
       )}
