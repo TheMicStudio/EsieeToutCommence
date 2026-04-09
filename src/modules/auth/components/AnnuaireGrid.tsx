@@ -4,31 +4,30 @@ import { useState, useMemo, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
   Search,
-  UserPlus,
-  Download,
-  ArrowUpDown,
   List,
   GraduationCap,
   Briefcase,
-  Sparkles,
+  BookOpen,
   ShieldCheck,
+  ClipboardList,
   Phone,
+  PhoneCall,
+  Mail,
   Star,
-  Lightbulb,
-  ArrowUpRight,
-  Copy,
   Check,
 } from 'lucide-react';
-import type { StudentProfile, TeacherProfile } from '../types';
+import type { StudentProfile, TeacherProfile, AdminProfile } from '../types';
 
 type ClassInfo = { id: string; nom: string };
-type Tab = 'tous' | 'eleves' | 'profs' | 'assistants' | 'admin';
-type Status = 'online' | 'offline' | 'meeting';
-type MemberRole = 'eleve' | 'professeur' | 'assistant' | 'admin';
+type Tab = 'tous' | 'eleves' | 'profs' | 'coordinateurs' | 'direction' | 'secretariat';
+type MemberRole = 'eleve' | 'professeur' | 'coordinateur' | 'direction' | 'secretariat';
 
 interface AnnuaireGridProps {
   eleves: StudentProfile[];
   professeurs: TeacherProfile[];
+  coordinateurs?: TeacherProfile[];
+  admins?: AdminProfile[];
+  staff?: AdminProfile[];
   classes?: ClassInfo[];
 }
 
@@ -39,16 +38,10 @@ interface MemberEntry {
   role: MemberRole;
   department: string;
   promo?: string;
-  description: string;
+  tag?: string;
   email?: string;
   phone?: string;
-}
-
-function getStatus(id: string): Status {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
-  const v = Math.abs(hash) % 3;
-  return v === 0 ? 'online' : v === 1 ? 'offline' : 'meeting';
+  phone_fixed?: string;
 }
 
 function getInitials(prenom: string, nom: string) {
@@ -71,35 +64,29 @@ function getAvatarPalette(id: string) {
 }
 
 const ROLE_BADGE: Record<MemberRole, { label: string; className: string }> = {
-  eleve:      { label: 'Élève',     className: 'bg-cyan-50 border border-cyan-100 text-cyan-700' },
-  professeur: { label: 'Prof',      className: 'bg-indigo-50 border border-indigo-100 text-indigo-700' },
-  assistant:  { label: 'Assistant', className: 'bg-amber-50 border border-amber-100 text-amber-700' },
-  admin:      { label: 'Admin',     className: 'bg-rose-50 border border-rose-100 text-rose-700' },
+  eleve:        { label: 'Élève',          className: 'bg-cyan-50 border border-cyan-100 text-cyan-700' },
+  professeur:   { label: 'Prof',           className: 'bg-indigo-50 border border-indigo-100 text-indigo-700' },
+  coordinateur: { label: 'Resp. péda.',    className: 'bg-amber-50 border border-amber-100 text-amber-700' },
+  direction:    { label: 'Direction',      className: 'bg-rose-50 border border-rose-100 text-rose-700' },
+  secretariat:  { label: 'Secrétariat',   className: 'bg-violet-50 border border-violet-100 text-violet-700' },
 };
 
-
 const TABS: { id: Tab; label: string; Icon: React.ElementType }[] = [
-  { id: 'tous',       label: 'Tous',       Icon: List },
-  { id: 'eleves',     label: 'Élèves',     Icon: GraduationCap },
-  { id: 'profs',      label: 'Profs',      Icon: Briefcase },
-  { id: 'assistants', label: 'Assistants', Icon: Sparkles },
-  { id: 'admin',      label: 'Admin',      Icon: ShieldCheck },
+  { id: 'tous',          label: 'Tous',               Icon: List },
+  { id: 'eleves',        label: 'Élèves',             Icon: GraduationCap },
+  { id: 'profs',         label: 'Profs',              Icon: Briefcase },
+  { id: 'coordinateurs', label: 'Resp. pédagogique',  Icon: BookOpen },
+  { id: 'secretariat',   label: 'Secrétariat',        Icon: ClipboardList },
+  { id: 'direction',     label: 'Direction',          Icon: ShieldCheck },
 ];
 
-export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGridProps) {
+export function AnnuaireGrid({ eleves, professeurs, coordinateurs = [], admins = [], staff = [], classes = [] }: AnnuaireGridProps) {
   const searchParams  = useSearchParams();
   const router        = useRouter();
   const pathname      = usePathname();
 
-  // Filter state — deptFilter & promoFilter live in URL so the layout sidebar can read them
-  const deptFilter  = searchParams.get('dept')  ?? '';
+  // Filter state — promoFilter lives in URL so the layout sidebar can read it
   const promoFilter = searchParams.get('promo') ?? '';
-
-  const setDeptFilter = useCallback((val: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (val) params.set('dept', val); else params.delete('dept');
-    router.replace(`${pathname}?${params.toString()}`);
-  }, [searchParams, router, pathname]);
 
   const setPromoFilter = useCallback((val: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -110,18 +97,32 @@ export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGrid
   // Local-only state
   const [filterSearch, setFilterSearch] = useState('');
   const [activeTab, setActiveTab]       = useState<Tab>('tous');
-  const [favorites, setFavorites]       = useState<Set<string>>(new Set());
-  const [copiedId, setCopiedId]         = useState<string | null>(null);
+  const [favorites, setFavorites]           = useState<Set<string>>(new Set());
+  const [copiedPhoneId, setCopiedPhoneId]   = useState<string | null>(null);
+  const [copiedFixedId, setCopiedFixedId]   = useState<string | null>(null);
+  const [copiedEmailId, setCopiedEmailId]   = useState<string | null>(null);
 
-  const handlePhone = useCallback((member: MemberEntry) => {
-    if (!member.phone) return;
+  const handlePhone = useCallback((number: string, key: string, setter: (v: string | null) => void) => {
     const isTouchDevice = typeof window !== 'undefined' && navigator.maxTouchPoints > 0;
     if (isTouchDevice) {
-      window.location.href = `tel:${member.phone}`;
+      window.location.href = `tel:${number}`;
     } else {
-      navigator.clipboard.writeText(member.phone).then(() => {
-        setCopiedId(member.id);
-        setTimeout(() => setCopiedId(null), 2000);
+      navigator.clipboard.writeText(number).then(() => {
+        setter(key);
+        setTimeout(() => setter(null), 2000);
+      });
+    }
+  }, []);
+
+  const handleEmail = useCallback((member: MemberEntry) => {
+    if (!member.email) return;
+    const isTouchDevice = typeof window !== 'undefined' && navigator.maxTouchPoints > 0;
+    if (isTouchDevice) {
+      window.location.href = `mailto:${member.email}`;
+    } else {
+      navigator.clipboard.writeText(member.email).then(() => {
+        setCopiedEmailId(member.id);
+        setTimeout(() => setCopiedEmailId(null), 2000);
       });
     }
   }, []);
@@ -136,12 +137,10 @@ export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGrid
         role: 'eleve',
         department: classeNom ?? 'N/A',
         promo: classeNom,
-        description:
-          e.type_parcours === 'alternant'
-            ? `Étudiant alternant${classeNom ? ' en ' + classeNom : ''}. Combine formation et entreprise.`
-            : `Étudiant${classeNom ? ' en ' + classeNom : ''}. Inscrit à temps plein sur la plateforme.`,
+        tag: e.type_parcours === 'alternant' ? 'Alternant' : 'Formation initiale',
         email: e.email,
         phone: e.phone_mobile,
+        phone_fixed: e.phone_fixed,
       };
     });
 
@@ -149,18 +148,54 @@ export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGrid
       id: p.id,
       prenom: p.prenom,
       nom: p.nom,
-      role: 'professeur',
+      role: 'professeur' as MemberRole,
       department: p.matieres_enseignees[0] ?? 'N/A',
-      description:
-        p.matieres_enseignees.length > 0
-          ? `Enseigne ${p.matieres_enseignees.slice(0, 2).join(' et ')}. Disponible pour accompagnement.`
-          : 'Professeur sur la plateforme.',
+      tag: p.matieres_enseignees.length > 0
+        ? p.matieres_enseignees.slice(0, 2).join(' · ')
+        : undefined,
       email: p.email,
       phone: p.phone_mobile,
+      phone_fixed: p.phone_fixed,
     }));
 
-    return [...elevesEntries, ...profsEntries];
-  }, [eleves, professeurs, classes]);
+    const coordEntries: MemberEntry[] = coordinateurs.map((p) => ({
+      id: p.id,
+      prenom: p.prenom,
+      nom: p.nom,
+      role: 'coordinateur' as MemberRole,
+      department: p.matieres_enseignees[0] ?? 'Pédagogie',
+      tag: p.matieres_enseignees.length > 0
+        ? p.matieres_enseignees.slice(0, 2).join(' · ')
+        : undefined,
+      email: p.email,
+      phone: p.phone_mobile,
+      phone_fixed: p.phone_fixed,
+    }));
+
+    const adminEntries: MemberEntry[] = admins.map((a) => ({
+      id: a.id,
+      prenom: a.prenom,
+      nom: a.nom,
+      role: 'direction' as MemberRole,
+      department: a.fonction ?? 'Direction',
+      email: a.email,
+      phone: a.phone_mobile,
+      phone_fixed: a.phone_fixed,
+    }));
+
+    const staffEntries: MemberEntry[] = staff.map((s) => ({
+      id: s.id,
+      prenom: s.prenom,
+      nom: s.nom,
+      role: 'secretariat' as MemberRole,
+      department: s.fonction ?? 'Secrétariat',
+      email: s.email,
+      phone: s.phone_mobile,
+      phone_fixed: s.phone_fixed,
+    }));
+
+    return [...elevesEntries, ...profsEntries, ...coordEntries, ...adminEntries, ...staffEntries];
+  }, [eleves, professeurs, coordinateurs, admins, staff, classes]);
 
   const filtered = useMemo(() => {
     return allMembers.filter((m) => {
@@ -173,17 +208,21 @@ export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGrid
 
       const matchTab =
         activeTab === 'tous' ||
-        (activeTab === 'eleves'     && m.role === 'eleve') ||
-        (activeTab === 'profs'      && m.role === 'professeur') ||
-        (activeTab === 'assistants' && m.role === 'assistant') ||
-        (activeTab === 'admin'      && m.role === 'admin');
+        (activeTab === 'eleves'        && m.role === 'eleve') ||
+        (activeTab === 'profs'         && m.role === 'professeur') ||
+        (activeTab === 'coordinateurs' && m.role === 'coordinateur') ||
+        (activeTab === 'direction'     && m.role === 'direction') ||
+        (activeTab === 'secretariat'   && m.role === 'secretariat');
 
-      const matchDept  = !deptFilter  || m.department === deptFilter;
       const matchPromo = !promoFilter || m.promo === promoFilter;
 
-      return matchSearch && matchTab && matchDept && matchPromo;
+      return matchSearch && matchTab && matchPromo;
+    }).sort((a, b) => {
+      const aFav = favorites.has(a.id) ? 0 : 1;
+      const bFav = favorites.has(b.id) ? 0 : 1;
+      return aFav - bFav;
     });
-  }, [allMembers, filterSearch, activeTab, deptFilter, promoFilter]);
+  }, [allMembers, filterSearch, activeTab, promoFilter, favorites]);
 
   const toggleFavorite = (id: string) => {
     setFavorites((prev) => {
@@ -203,29 +242,11 @@ export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGrid
     <div className="space-y-4 pb-4">
 
       {/* TITLE SECTION */}
-      <div className="flex items-center gap-4 flex-wrap">
-        <div className="flex-1 min-w-0">
-          <h1 className="text-[20px] font-bold text-slate-900 leading-tight">Annuaire des Membres</h1>
-          <p className="text-[12px] font-medium text-slate-500">
-            Connectez-vous avec les élèves, professeurs et assistants de la plateforme.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            className="flex items-center gap-2 rounded-2xl bg-slate-900 px-3.5 py-2 text-[12px] font-bold text-white hover:bg-slate-800 transition-colors"
-          >
-            <UserPlus className="h-3.5 w-3.5" />
-            Inviter membres
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3.5 py-2 text-[12px] font-bold text-slate-700 hover:bg-slate-50 transition-colors"
-          >
-            <Download className="h-3.5 w-3.5" />
-            Exporter
-          </button>
-        </div>
+      <div className="flex-1 min-w-0">
+        <h1 className="text-[20px] font-bold text-slate-900 leading-tight">Annuaire des Membres</h1>
+        <p className="text-[12px] font-medium text-slate-500">
+          Connectez-vous avec les élèves, professeurs et responsables de la plateforme.
+        </p>
       </div>
 
       {/* FILTER SECTION */}
@@ -242,33 +263,15 @@ export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGrid
             />
           </div>
           <select
-            value={deptFilter}
-            onChange={(e) => setDeptFilter(e.target.value)}
-            className="rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 text-[12px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0471a6]/20 cursor-pointer"
-          >
-            <option value="">Tous les départements</option>
-            <option value="Computer Science">Computer Science</option>
-            <option value="Mathematics">Mathematics</option>
-            <option value="Physics">Physics</option>
-            <option value="Data Science">Data Science</option>
-          </select>
-          <select
             value={promoFilter}
             onChange={(e) => setPromoFilter(e.target.value)}
             className="rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 text-[12px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0471a6]/20 cursor-pointer"
           >
-            <option value="">Toutes les promotions</option>
-            <option value="Promo 24">Promo 24</option>
-            <option value="Promo 25">Promo 25</option>
-            <option value="Promo 26">Promo 26</option>
+            <option value="">Toutes les classes</option>
+            {classes.map((c) => (
+              <option key={c.id} value={c.nom}>{c.nom}</option>
+            ))}
           </select>
-          <button
-            type="button"
-            className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 text-[12px] font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-          >
-            <ArrowUpDown className="h-3.5 w-3.5" />
-            Tri
-          </button>
           <button
             type="button"
             onClick={clearAllFilters}
@@ -311,84 +314,118 @@ export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGrid
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((member) => {
-            const status    = getStatus(member.id);
             const palette   = getAvatarPalette(member.id);
             const badge     = ROLE_BADGE[member.role];
             const isFav     = favorites.has(member.id);
             const initials  = getInitials(member.prenom, member.nom);
-            const isOffline = status === 'offline';
 
             return (
               <div
                 key={member.id}
                 className="flex flex-col gap-3 rounded-3xl border border-slate-200/70 bg-white p-5 shadow-card"
               >
+                {/* Header : avatar + badge + étoile */}
                 <div className="flex items-start justify-between">
                   <div
                     className={[
                       'flex h-14 w-14 items-center justify-center rounded-2xl text-[15px] font-bold ring-2 ring-white',
                       palette.bg, palette.text,
-                      isOffline ? 'grayscale' : '',
                     ].join(' ')}
                   >
                     {initials}
                   </div>
-                  <span className={['rounded-full px-2.5 py-1 text-[11px] font-bold uppercase', badge.className].join(' ')}>
-                    {badge.label}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className={['rounded-full px-2.5 py-1 text-[11px] font-bold uppercase', badge.className].join(' ')}>
+                      {badge.label}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => toggleFavorite(member.id)}
+                      className={[
+                        'flex h-7 w-7 items-center justify-center rounded-xl border transition-colors',
+                        isFav
+                          ? 'border-amber-100 bg-amber-50 text-amber-500'
+                          : 'border-slate-200 bg-white text-slate-300 hover:border-amber-100 hover:bg-amber-50 hover:text-amber-500',
+                      ].join(' ')}
+                    >
+                      <Star className={['h-3.5 w-3.5', isFav ? 'fill-amber-500' : ''].join(' ')} />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex-1">
-                  <h3 className="text-[15px] font-bold text-slate-900">
+                {/* Identité */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-[15px] font-bold text-slate-900 truncate">
                     {member.prenom} {member.nom}
                   </h3>
-                  <div className="mt-1 flex gap-2 text-[12px] font-medium text-slate-500">
-                    <span>{member.department}</span>
-                    {member.promo && member.promo !== member.department && (
-                      <span>· {member.promo}</span>
-                    )}
-                  </div>
-                  <p className="mt-1.5 text-[13px] font-medium text-slate-600 line-clamp-2">
-                    {member.description}
+                  <p className="mt-0.5 text-[12px] font-medium text-slate-500 truncate">
+                    {member.department}
+                    {member.tag && <span className="ml-2 text-slate-400">· {member.tag}</span>}
                   </p>
                 </div>
 
-                <div className="border-t border-slate-50" />
+                <div className="border-t border-slate-100" />
 
-                <div className="flex gap-2">
+                {/* Contacts — une ligne par info */}
+                <div className="space-y-1.5">
+                  {/* Email */}
                   <button
                     type="button"
-                    onClick={() => handlePhone(member)}
-                    disabled={!member.phone}
-                    title={member.phone ? member.phone : 'Numéro non renseigné'}
+                    onClick={() => handleEmail(member)}
+                    disabled={!member.email}
+                    title={member.email ?? 'Email non renseigné'}
                     className={[
-                      'flex flex-1 items-center justify-center gap-1.5 rounded-xl border py-2 text-[12px] font-bold transition-colors',
+                      'flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-[12px] font-medium transition-colors text-left',
+                      member.email
+                        ? 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                        : 'border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed',
+                    ].join(' ')}
+                  >
+                    {copiedEmailId === member.id
+                      ? <Check className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                      : <Mail className="h-3.5 w-3.5 shrink-0" />}
+                    <span className="truncate">
+                      {copiedEmailId === member.id ? 'Copié !' : (member.email ?? 'Email non renseigné')}
+                    </span>
+                  </button>
+
+                  {/* Mobile */}
+                  <button
+                    type="button"
+                    onClick={() => member.phone && handlePhone(member.phone, member.id + '-mob', setCopiedPhoneId)}
+                    disabled={!member.phone}
+                    title={member.phone ? `Mobile : ${member.phone}` : 'Mobile non renseigné'}
+                    className={[
+                      'flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-[12px] font-medium transition-colors text-left',
                       member.phone
                         ? 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                         : 'border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed',
                     ].join(' ')}
                   >
-                    {copiedId === member.id
-                      ? <Check className="h-3.5 w-3.5 text-emerald-500" />
-                      : <Phone className="h-3.5 w-3.5" />}
-                    <span className="truncate max-w-[100px]">
-                      {copiedId === member.id
-                        ? 'Copié !'
-                        : (member.phone ?? 'Non renseigné')}
+                    {copiedPhoneId === member.id + '-mob'
+                      ? <Check className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                      : <Phone className="h-3.5 w-3.5 shrink-0" />}
+                    <span className="truncate">
+                      {copiedPhoneId === member.id + '-mob' ? 'Copié !' : (member.phone ?? 'Mobile non renseigné')}
                     </span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => toggleFavorite(member.id)}
-                    className={[
-                      'flex h-10 w-10 items-center justify-center rounded-xl border transition-colors',
-                      isFav
-                        ? 'border-amber-100 bg-amber-50 text-amber-500'
-                        : 'border-slate-200 bg-white text-slate-400 hover:border-amber-100 hover:bg-amber-50 hover:text-amber-500',
-                    ].join(' ')}
-                  >
-                    <Star className={['h-4 w-4', isFav ? 'fill-amber-500' : ''].join(' ')} />
-                  </button>
+
+                  {/* Fixe (conditionnel) */}
+                  {member.phone_fixed && (
+                    <button
+                      type="button"
+                      onClick={() => handlePhone(member.phone_fixed!, member.id + '-fix', setCopiedFixedId)}
+                      title={`Fixe : ${member.phone_fixed}`}
+                      className="flex w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[12px] font-medium text-slate-700 hover:bg-slate-50 transition-colors text-left"
+                    >
+                      {copiedFixedId === member.id + '-fix'
+                        ? <Check className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                        : <PhoneCall className="h-3.5 w-3.5 shrink-0" />}
+                      <span className="truncate">
+                        {copiedFixedId === member.id + '-fix' ? 'Copié !' : member.phone_fixed}
+                      </span>
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -396,27 +433,6 @@ export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGrid
         </div>
       )}
 
-      {/* FOOTER HINT */}
-      <div className="flex items-center justify-between gap-4 rounded-3xl border border-slate-200/70 bg-white p-4 shadow-card">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-amber-50">
-            <Lightbulb className="h-4 w-4 text-amber-500" />
-          </div>
-          <div>
-            <p className="text-[13px] font-bold text-slate-800">Astuce Directory</p>
-            <p className="text-[12px] font-medium text-slate-500">
-              Utilisez les filtres pour trouver rapidement des profils spécifiques.
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          className="flex shrink-0 items-center gap-1.5 rounded-2xl border border-slate-200 bg-white px-3.5 py-2 text-[12px] font-bold text-slate-600 hover:bg-slate-50 transition-colors whitespace-nowrap"
-        >
-          Besoin d&apos;aide ?
-          <ArrowUpRight className="h-3.5 w-3.5" />
-        </button>
-      </div>
     </div>
   );
 }
