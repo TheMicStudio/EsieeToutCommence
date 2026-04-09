@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getRequestPermissions } from '@/lib/permissions';
 import {
-  computeAverage,
   getAllClasses,
   getClassGrades,
   getClassStudents,
@@ -12,7 +11,6 @@ import {
   getMyGrades,
   getMyTeacherClasses,
 } from '@/modules/pedagogy/actions';
-import { AverageWidget } from '@/modules/pedagogy/components/AverageWidget';
 import { GradeBook } from '@/modules/pedagogy/components/GradeBook';
 import { BulkGradeForm } from '@/modules/pedagogy/components/BulkGradeForm';
 import { GradeTableView } from '@/modules/pedagogy/components/GradeTableView';
@@ -39,7 +37,6 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
   if (userProfile.role === 'eleve') {
     const classe = await getMyClass();
     const grades = await getMyGrades();
-    const averages = classe ? await computeAverage(userProfile.profile.id, classe.id) : [];
 
     return (
       <div className="space-y-6">
@@ -55,14 +52,7 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
             {classe && <p className="mt-1 text-sm text-slate-500">{classe.nom} — Promo {classe.annee}</p>}
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <GradeBook grades={grades} />
-          </div>
-          <div>
-            <AverageWidget averages={averages} />
-          </div>
-        </div>
+        <GradeBook grades={grades} />
       </div>
     );
   }
@@ -109,6 +99,24 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
     })
   );
 
+  // Stats classe pour la sidebar droite
+  const matieresWithGrades = [...new Set(grades.map((g) => g.matiere))].sort();
+  const classMoyByMatiere = matieresWithGrades.map((m) => {
+    const items = grades.filter((g) => g.matiere === m);
+    const totalCoeff = items.reduce((s, g) => s + g.coefficient, 0);
+    return {
+      matiere: m,
+      moyenne: totalCoeff > 0
+        ? items.reduce((s, g) => s + g.note * g.coefficient, 0) / totalCoeff
+        : 0,
+      total_coefficients: totalCoeff,
+    };
+  });
+  const generalClassAvg = classMoyByMatiere.length > 0
+    ? classMoyByMatiere.reduce((s, m) => s + m.moyenne * m.total_coefficients, 0) /
+      classMoyByMatiere.reduce((s, m) => s + m.total_coefficients, 0)
+    : null;
+
   const tabs = [
     { key: 'saisie', label: 'Saisir des notes' },
     { key: 'tableau', label: 'Tableau des notes' },
@@ -125,9 +133,9 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-[#061826]">Notes</h1>
+          <h1 className="text-2xl font-bold text-[#0f1a2e]">Notes</h1>
           <p className="mt-1 text-sm text-slate-500">
-            {activeClass.nom} · {students.length} élève{students.length > 1 ? 's' : ''}
+            {activeClass.nom} — Promo {activeClass.annee} · {students.length} élève{students.length > 1 ? 's' : ''}
           </p>
         </div>
       </div>
@@ -150,26 +158,93 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
         ))}
       </div>
 
-      {/* Contenu */}
-      {tab === 'saisie' && (
-        <div className="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-          <p className="mb-5 text-xs font-semibold uppercase tracking-widest text-slate-400">Nouveau devoir</p>
-          <BulkGradeForm
-            classId={activeClass.id}
-            students={students}
-            matieres={matieres}
-            projectWeeks={projectWeeks}
-          />
-        </div>
-      )}
+      {/* Layout : centre + sidebar droite */}
+      <div className="flex gap-6 items-start">
+        {/* Centre */}
+        <div className="flex-1 min-w-0">
+          {tab === 'saisie' && (
+            <div className="border border-slate-200/50 rounded-xl bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
+              <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.07em] text-slate-400">
+                Nouveau devoir
+              </p>
+              <BulkGradeForm
+                classId={activeClass.id}
+                students={students}
+                matieres={matieres}
+                projectWeeks={projectWeeks}
+              />
+            </div>
+          )}
 
-      {tab === 'tableau' && (
-        <GradeTableView
-          grades={grades}
-          students={students}
-          canDelete
-        />
-      )}
+          {tab === 'tableau' && (
+            <GradeTableView
+              grades={grades}
+              students={students}
+              canDelete
+            />
+          )}
+        </div>
+
+        {/* Sidebar droite 280px */}
+        <div className="w-[280px] shrink-0 space-y-4">
+          {/* Classe info */}
+          <div className="bg-white border border-slate-200/50 rounded-xl p-6 shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
+            <p className="text-[14px] font-bold text-[#0f1a2e] mb-4">Informations</p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] text-slate-500">Classe</span>
+                <span className="text-[13px] font-semibold text-[#0f1a2e]">{activeClass.nom}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] text-slate-500">Promo</span>
+                <span className="text-[13px] font-semibold text-[#0f1a2e]">{activeClass.annee}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] text-slate-500">Élèves</span>
+                <span className="text-[13px] font-bold text-[#0471a6]">{students.length}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] text-slate-500">Notes saisies</span>
+                <span className="text-[13px] font-bold text-[#0471a6]">{grades.length}</span>
+              </div>
+              {generalClassAvg !== null && (
+                <div className="pt-3 border-t border-slate-100">
+                  <p className="text-[11px] text-slate-400 mb-1">Moyenne générale classe</p>
+                  <p className="text-[28px] font-bold text-[#0471a6] tracking-tight leading-none">
+                    {generalClassAvg.toFixed(2)}/20
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Moyennes par matière */}
+          {classMoyByMatiere.length > 0 && (
+            <div className="bg-white border border-slate-200/50 rounded-xl p-4 shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
+              <p className="text-[14px] font-bold text-[#0f1a2e] mb-4">Moyennes par matière</p>
+              <div className="space-y-3">
+                {classMoyByMatiere.map((m) => (
+                  <div
+                    key={m.matiere}
+                    className="p-3 rounded-xl border border-transparent hover:border-slate-200 hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[13px] font-medium text-[#0f1a2e] truncate pr-2">{m.matiere}</span>
+                      <span className="text-[13px] font-bold text-[#0471a6] shrink-0">{m.moyenne.toFixed(2)}/20</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-100 rounded-full">
+                      <div
+                        className="h-full bg-[#0471a6] rounded-full"
+                        style={{ width: `${(m.moyenne / 20) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

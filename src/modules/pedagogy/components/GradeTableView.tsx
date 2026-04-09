@@ -13,10 +13,10 @@ interface GradeTableViewProps {
   canDelete?: boolean;
 }
 
-function noteColor(n: number) {
-  if (n >= 14) return 'text-emerald-600 bg-emerald-50';
-  if (n >= 10) return 'text-amber-600 bg-amber-50';
-  return 'text-red-600 bg-red-50';
+function badgeCls(n: number) {
+  if (n >= 14) return 'bg-emerald-50 border border-emerald-400 text-emerald-600';
+  if (n >= 10) return 'bg-amber-50 border border-amber-400 text-amber-600';
+  return 'bg-red-50 border border-red-400 text-red-600';
 }
 
 function avg(notes: number[]) {
@@ -50,7 +50,7 @@ export function GradeTableView({ grades, students, canDelete = false }: GradeTab
 
   if (students.length === 0) {
     return (
-      <div className="flex h-32 items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60">
+      <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/60">
         <p className="text-sm text-slate-400">Aucun élève dans cette classe.</p>
       </div>
     );
@@ -58,35 +58,31 @@ export function GradeTableView({ grades, students, canDelete = false }: GradeTab
 
   if (localGrades.length === 0) {
     return (
-      <div className="flex h-32 items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60">
+      <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/60">
         <p className="text-sm text-slate-400">Aucune note pour le moment.</p>
       </div>
     );
   }
 
-  // Grouper par matière
   const matieres = [...new Set(localGrades.map((g) => g.matiere))].sort();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {matieres.map((matiere) => {
         const matiereGrades = localGrades.filter((g) => g.matiere === matiere);
-        // Examens uniques pour cette matière (triés par date)
+
         const examens = [...new Map(
           matiereGrades.map((g) => [g.examen, { examen: g.examen, coefficient: g.coefficient, date: g.created_at }])
         ).values()].sort((a, b) => a.date.localeCompare(b.date));
 
-        // Index: student_id → examen → grade
         const index = new Map<string, Map<string, Grade>>();
         for (const g of matiereGrades) {
           if (!index.has(g.student_id)) index.set(g.student_id, new Map());
           index.get(g.student_id)!.set(g.examen, g);
         }
 
-        // Étudiants ayant au moins une note dans cette matière
         const activeStudents = students.filter((s) => index.has(s.id));
 
-        // Moyenne de classe par examen
         const examAvgs = examens.map((e) => {
           const notes = activeStudents
             .map((s) => index.get(s.id)?.get(e.examen)?.note)
@@ -94,48 +90,67 @@ export function GradeTableView({ grades, students, canDelete = false }: GradeTab
           return { examen: e.examen, avg: avg(notes) };
         });
 
+        // Moyenne pondérée de la classe pour cette matière
+        const allNotes = matiereGrades;
+        const totalCoeff = allNotes.reduce((s, g) => s + g.coefficient, 0);
+        const classMoy = totalCoeff > 0
+          ? allNotes.reduce((s, g) => s + g.note * g.coefficient, 0) / totalCoeff
+          : null;
+
         return (
-          <div key={matiere} className="rounded-2xl border border-slate-200/60 bg-white shadow-sm overflow-hidden">
+          <div key={matiere} className="border border-slate-200/50 rounded-xl overflow-hidden bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
             {/* Header matière */}
-            <div className="border-b border-slate-100 bg-slate-50/60 px-5 py-3 flex items-center justify-between">
-              <p className="font-semibold text-[#061826]">{matiere}</p>
-              <span className="text-xs text-slate-400">{activeStudents.length} élève{activeStudents.length > 1 ? 's' : ''} · {examens.length} examen{examens.length > 1 ? 's' : ''}</span>
+            <div className="border-b border-slate-200/50 bg-slate-50/50 px-6 py-4 flex items-center justify-between">
+              <span className="font-semibold text-[#0f1a2e] text-[15px]">{matiere}</span>
+              <div className="flex items-center gap-4">
+                <span className="text-[12px] text-slate-400">
+                  {activeStudents.length} élève{activeStudents.length > 1 ? 's' : ''} · {examens.length} examen{examens.length > 1 ? 's' : ''}
+                </span>
+                {classMoy !== null && (
+                  <span className="text-[13px] font-bold text-[#0471a6]">
+                    Moy. classe : {classMoy.toFixed(2)}/20
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-100">
-                    <th className="sticky left-0 bg-white px-4 py-2.5 text-left text-xs font-semibold text-slate-400 min-w-[140px]">Élève</th>
+                  <tr className="bg-slate-50/50 border-b border-slate-200/50">
+                    <th className="sticky left-0 bg-slate-50/50 px-6 py-3 text-left text-[11px] font-bold uppercase tracking-[0.07em] text-slate-500 min-w-[160px]">
+                      Élève
+                    </th>
                     {examens.map((e) => (
-                      <th key={e.examen} className="px-3 py-2.5 text-center text-xs font-semibold text-slate-400 min-w-[100px]">
-                        <div className="truncate max-w-[100px]">{e.examen}</div>
-                        <div className="mt-0.5 text-[10px] font-normal text-slate-300">coeff {e.coefficient}</div>
+                      <th key={e.examen} className="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-[0.07em] text-slate-500 min-w-[110px]">
+                        <div className="truncate max-w-[110px]">{e.examen}</div>
+                        <div className="mt-0.5 text-[10px] font-normal normal-case tracking-normal text-slate-400">coeff {e.coefficient}</div>
                       </th>
                     ))}
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-slate-400 min-w-[80px]">Moyenne</th>
+                    <th className="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-[0.07em] text-slate-500 min-w-[90px]">
+                      Moyenne
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-100">
                   {activeStudents.map((s) => {
                     const studentGrades = examens.map((e) => index.get(s.id)?.get(e.examen));
                     const notedGrades = studentGrades.filter((g): g is Grade => g !== undefined);
-                    // Moyenne pondérée
                     const moyNum = notedGrades.length > 0
                       ? notedGrades.reduce((sum, g) => sum + g.note * g.coefficient, 0) /
                         notedGrades.reduce((sum, g) => sum + g.coefficient, 0)
                       : null;
 
                     return (
-                      <tr key={s.id} className="hover:bg-slate-50/60 transition-colors group">
-                        <td className="sticky left-0 bg-white px-4 py-2.5 font-medium text-[#061826] group-hover:bg-slate-50/60">
+                      <tr key={s.id} className="hover:bg-slate-50/50 transition-colors group">
+                        <td className="sticky left-0 bg-white px-6 py-3 text-[13px] font-medium text-[#0f1a2e] group-hover:bg-slate-50/50">
                           {s.prenom} {s.nom}
                         </td>
                         {examens.map((e) => {
                           const grade = index.get(s.id)?.get(e.examen);
                           return (
-                            <td key={e.examen} className="px-3 py-2 text-center">
+                            <td key={e.examen} className="px-4 py-3 text-center">
                               {grade ? (
                                 editing === grade.id ? (
                                   <div className="inline-flex items-center gap-1">
@@ -146,24 +161,39 @@ export function GradeTableView({ grades, students, canDelete = false }: GradeTab
                                       max={20}
                                       step={0.5}
                                       defaultValue={grade.note}
-                                      className="w-16 rounded-lg border border-[#89aae6] bg-white px-2 py-1 text-center text-sm font-bold focus:outline-none"
-                                      onKeyDown={(e) => { if (e.key === 'Enter') handleSaveEdit(grade.id); if (e.key === 'Escape') setEditing(null); }}
+                                      className="w-16 rounded-lg border border-[#0471a6] bg-white px-2 py-1 text-center text-sm font-bold focus:outline-none"
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') handleSaveEdit(grade.id);
+                                        if (e.key === 'Escape') setEditing(null);
+                                      }}
                                       autoFocus
                                     />
-                                    <button type="button" onClick={() => handleSaveEdit(grade.id)} disabled={saving} className="flex h-5 w-5 items-center justify-center rounded text-emerald-500 hover:text-emerald-700 disabled:opacity-50">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSaveEdit(grade.id)}
+                                      disabled={saving}
+                                      className="flex h-5 w-5 items-center justify-center rounded text-emerald-500 hover:text-emerald-700 disabled:opacity-50"
+                                    >
                                       <Check className="h-3 w-3" />
                                     </button>
-                                    <button type="button" onClick={() => setEditing(null)} className="flex h-5 w-5 items-center justify-center rounded text-slate-400 hover:text-slate-600">
+                                    <button
+                                      type="button"
+                                      onClick={() => setEditing(null)}
+                                      className="flex h-5 w-5 items-center justify-center rounded text-slate-400 hover:text-slate-600"
+                                    >
                                       <X className="h-3 w-3" />
                                     </button>
                                   </div>
                                 ) : (
                                   <div className="relative inline-flex items-center gap-1 group/cell">
-                                    <span className={['rounded-lg px-2.5 py-1 text-sm font-bold cursor-default', noteColor(grade.note)].join(' ')}>
-                                      {grade.note}
+                                    <span className={[
+                                      'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold cursor-default',
+                                      badgeCls(grade.note),
+                                    ].join(' ')}>
+                                      {grade.note}/20
                                     </span>
                                     {canDelete && (
-                                      <div className="absolute -right-9 opacity-0 group-hover/cell:opacity-100 flex items-center gap-0.5 transition-all">
+                                      <div className="absolute -right-10 opacity-0 group-hover/cell:opacity-100 flex items-center gap-0.5 transition-all">
                                         <button
                                           type="button"
                                           onClick={() => setEditing(grade.id)}
@@ -184,33 +214,41 @@ export function GradeTableView({ grades, students, canDelete = false }: GradeTab
                                   </div>
                                 )
                               ) : (
-                                <span className="text-slate-200">—</span>
+                                <span className="text-slate-200 text-sm">—</span>
                               )}
                             </td>
                           );
                         })}
-                        <td className="px-3 py-2 text-center">
+                        <td className="px-4 py-3 text-center">
                           {moyNum !== null ? (
-                            <span className={['rounded-lg px-2.5 py-1 text-sm font-bold', noteColor(moyNum)].join(' ')}>
-                              {moyNum.toFixed(1)}
+                            <span className={[
+                              'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold',
+                              badgeCls(moyNum),
+                            ].join(' ')}>
+                              {moyNum.toFixed(1)}/20
                             </span>
                           ) : (
-                            <span className="text-slate-200">—</span>
+                            <span className="text-slate-200 text-sm">—</span>
                           )}
                         </td>
                       </tr>
                     );
                   })}
                 </tbody>
-                {/* Footer : moyennes de classe */}
+                {/* Footer : moyennes de classe par examen */}
                 <tfoot>
-                  <tr className="border-t border-slate-100 bg-slate-50/60">
-                    <td className="sticky left-0 bg-slate-50/60 px-4 py-2.5 text-xs font-semibold text-slate-400">Moy. classe</td>
+                  <tr className="border-t border-slate-200/50 bg-slate-50/50">
+                    <td className="sticky left-0 bg-slate-50/50 px-6 py-3 text-[11px] font-bold uppercase tracking-[0.07em] text-slate-400">
+                      Moy. classe
+                    </td>
                     {examAvgs.map((e) => (
-                      <td key={e.examen} className="px-3 py-2 text-center">
+                      <td key={e.examen} className="px-4 py-3 text-center">
                         {e.avg !== null ? (
-                          <span className={['rounded-lg px-2 py-0.5 text-xs font-semibold', noteColor(e.avg)].join(' ')}>
-                            {e.avg.toFixed(1)}
+                          <span className={[
+                            'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold',
+                            badgeCls(e.avg),
+                          ].join(' ')}>
+                            {e.avg.toFixed(1)}/20
                           </span>
                         ) : (
                           <span className="text-slate-200 text-xs">—</span>
