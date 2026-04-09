@@ -91,7 +91,7 @@ export function GradeBook({ grades }: GradeBookProps) {
                           {g.examen}
                         </td>
                         <td className="px-4 py-4 text-center">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#0471a6]/10 border border-[#0471a6] text-[#0471a6]">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#0471a6]/10 text-[#0471a6]">
                             {g.note}/20
                           </span>
                         </td>

@@ -31,7 +31,7 @@ export function AverageWidget({ averages }: AverageWidgetProps) {
         <p className="mt-3 text-[42px] font-bold text-[#0471a6] tracking-tight leading-none">
           {generaleMoyenne.toFixed(2)}/20
         </p>
-        <p className="mt-2 text-[12px] text-slate-500">Global Average</p>
+        <p className="mt-2 text-[12px] text-slate-500">Moyenne pondérée</p>
       </div>
 
       {/* Section 2 — Notes par matière */}

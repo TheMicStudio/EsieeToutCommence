@@ -4,14 +4,12 @@ import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { getRequestPermissions } from '@/lib/permissions';
 import {
-  computeAverage,
   getClassGrades,
   getClassStudents,
   getMyClass,
   getMyGrades,
   getMyTeacherClasses,
 } from '@/modules/pedagogy/actions';
-import { AverageWidget } from '@/modules/pedagogy/components/AverageWidget';
 import { GradeBook } from '@/modules/pedagogy/components/GradeBook';
 import { BulkGradeForm } from '@/modules/pedagogy/components/BulkGradeForm';
 import { GradeTableView } from '@/modules/pedagogy/components/GradeTableView';
@@ -38,7 +36,6 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
   if (userProfile.role === 'eleve') {
     const classe = await getMyClass();
     const grades = await getMyGrades();
-    const averages = classe ? await computeAverage(userProfile.profile.id, classe.id) : [];
 
     return (
       <div className="space-y-6">
@@ -54,14 +51,7 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
             {classe && <p className="mt-1 text-sm text-slate-500">{classe.nom} — Promo {classe.annee}</p>}
           </div>
         </div>
-        <div className="flex gap-6 items-start">
-          <div className="flex-1 min-w-0">
-            <GradeBook grades={grades} />
-          </div>
-          <div className="w-[280px] shrink-0">
-            <AverageWidget averages={averages} />
-          </div>
-        </div>
+        <GradeBook grades={grades} />
       </div>
     );
   }

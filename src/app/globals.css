@@ -54,6 +54,15 @@ input, button, textarea, select, label {
   font-family: inherit;
 }
 
+/* Masquer la scrollbar visuellement tout en conservant le scroll */
+main {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE / Edge */
+}
+main::-webkit-scrollbar {
+  display: none;               /* Chrome / Safari */
+}
+
 /* Palette
    Dusty Mauve:      #ac80a0
    Wisteria Blue:    #89aae6

@@ -12,7 +12,6 @@ import {
   X,
   Search,
   Tag,
-  BarChart2,
   CircleDot,
   ArrowUpDown,
   ChevronDown,
@@ -51,9 +50,9 @@ function gradientFor(str: string): string {
 const TYPE_ICON = { video: Video, pdf: FileText, lien: LinkIcon };
 
 const STATUS: Record<CourseMaterial['type'], { label: string; cls: string }> = {
-  video: { label: 'En ligne', cls: 'bg-blue-50 border border-blue-200 text-blue-700' },
-  pdf: { label: 'Publié', cls: 'bg-emerald-50 border border-emerald-200 text-emerald-700' },
-  lien: { label: 'Brouillon', cls: 'bg-white border border-slate-200 text-slate-700' },
+  video: { label: 'Ouvert', cls: 'bg-emerald-50 border border-emerald-200 text-emerald-700' },
+  pdf:   { label: 'Ouvert', cls: 'bg-emerald-50 border border-emerald-200 text-emerald-700' },
+  lien:  { label: 'Fermé',  cls: 'bg-slate-50 border border-slate-200 text-slate-500' },
 };
 
 function formatDate(d: string) {
@@ -75,10 +74,6 @@ function Thumbnail({ material, size }: { material: CourseMaterial; size: 'full' 
       <div className="absolute inset-0 flex items-center justify-center opacity-20">
         <Icon className="h-8 w-8 text-white" />
       </div>
-      {/* Category badge overlaid top-left */}
-      <span className="absolute left-2 top-2 rounded-lg bg-[#0471a6]/90 px-2 py-1 text-[10px] font-bold text-white">
-        {abbr}
-      </span>
     </div>
   );
 }
@@ -95,7 +90,7 @@ function GridCard({ material }: { material: CourseMaterial }) {
         {material.titre}
       </p>
 
-      <div className="mt-3 flex items-center justify-between">
+      <div className="mt-3 flex items-center justify-between mb-4 ">
         <span className="text-[12px] font-medium text-slate-500">{formatDate(material.created_at)}</span>
         <span className={['rounded-xl px-2 py-0.5 text-[11px] font-semibold', status.cls].join(' ')}>
           {status.label}
@@ -106,7 +101,7 @@ function GridCard({ material }: { material: CourseMaterial }) {
         href={material.url === '#' ? undefined : material.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-4 block w-full rounded-xl border border-slate-200 bg-white py-2 text-center text-[12px] font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+        className="mt-auto block w-full rounded-xl border border-slate-200 bg-white py-2 text-center text-[12px] font-bold text-slate-700 hover:bg-slate-50 transition-colors"
       >
         Accéder →
       </a>
@@ -119,7 +114,7 @@ function ListRow({ material }: { material: CourseMaterial }) {
   const status = STATUS[material.type];
 
   return (
-    <div className="rounded-3xl border border-slate-200/70 bg-white p-5 shadow-[0_1px_0_rgba(15,23,42,0.06),0_10px_30px_rgba(15,23,42,0.06)] hover:shadow-[0_1px_0_rgba(15,23,42,0.08),0_14px_40px_rgba(15,23,42,0.1)] transition-all duration-200 flex items-center gap-4">
+    <div className="rounded-3xl border border-slate-200/70 bg-white p-3 shadow-[0_1px_0_rgba(15,23,42,0.06),0_10px_30px_rgba(15,23,42,0.06)] hover:shadow-[0_1px_0_rgba(15,23,42,0.08),0_14px_40px_rgba(15,23,42,0.1)] transition-all duration-200 flex items-center gap-4">
       <Thumbnail material={material} size="compact" />
 
       <p className="flex-1 min-w-0 text-[15px] font-semibold text-slate-900 truncate">
@@ -287,13 +282,6 @@ export function CourseGrid({
               )}
             </div>
 
-            {/* Difficulty pill — cosmetic */}
-            <button className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[13px] font-medium text-slate-600 hover:border-slate-300 transition-colors">
-              <BarChart2 className="h-3.5 w-3.5" />
-              Niveau
-              <ChevronDown className="h-3 w-3 opacity-60" />
-            </button>
-
             {/* Status pill */}
             <div className="relative">
               <button
@@ -311,7 +299,7 @@ export function CourseGrid({
               </button>
               {openDropdown === 'status' && (
                 <div className="absolute left-0 top-full mt-1.5 z-20 min-w-[160px] rounded-2xl border border-slate-200 bg-white py-1.5 shadow-lg">
-                  {([null, 'Publié', 'En ligne', 'Brouillon'] as const).map((s) => (
+                  {([null, 'Ouvert', 'Fermé'] as const).map((s) => (
                     <button
                       key={s ?? 'all'}
                       onClick={() => { setStatusFilter(s); setOpenDropdown(null); }}

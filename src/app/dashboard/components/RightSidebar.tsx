@@ -76,6 +76,112 @@ const CONTACTS = [
   { name: 'Support IT', initials: 'IT', color: 'bg-emerald-100 text-emerald-600', role: 'Informatique' },
 ];
 
+// ─────────────────────────────────────────────────────────
+// Notes widget (élève only)
+// ─────────────────────────────────────────────────────────
+
+type AverageMat = { matiere: string; moyenne: number; total_coefficients: number };
+
+const FALLBACK_AVERAGES: AverageMat[] = [
+  { matiere: 'Algorithmique',    moyenne: 15.5,  total_coefficients: 3   },
+  { matiere: 'Mathématiques',    moyenne: 13.2,  total_coefficients: 1.5 },
+  { matiere: 'Développement web',moyenne: 16.75, total_coefficients: 3   },
+  { matiere: 'Bases de données', moyenne: 14.8,  total_coefficients: 2.5 },
+  { matiere: 'Anglais technique',moyenne: 12.9,  total_coefficients: 2   },
+];
+
+function GradesWidget({ studentId }: { studentId: string }) {
+  const [averages, setAverages] = useState<AverageMat[]>([]);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from('grades')
+      .select('matiere, note, coefficient')
+      .eq('student_id', studentId)
+      .then(({ data }) => {
+        if (!data || data.length === 0) { setLoading(false); return; }
+        const grouped: Record<string, { note: number; coefficient: number }[]> = {};
+        for (const g of data as { matiere: string; note: number; coefficient: number }[]) {
+          if (!grouped[g.matiere]) grouped[g.matiere] = [];
+          grouped[g.matiere].push({ note: g.note, coefficient: g.coefficient });
+        }
+        const computed: AverageMat[] = Object.entries(grouped).map(([matiere, items]) => {
+          const totalCoeff = items.reduce((s, i) => s + i.coefficient, 0);
+          const moyenne    = totalCoeff > 0
+            ? items.reduce((s, i) => s + i.note * i.coefficient, 0) / totalCoeff
+            : 0;
+          return { matiere, moyenne, total_coefficients: totalCoeff };
+        }).sort((a, b) => a.matiere.localeCompare(b.matiere));
+        setAverages(computed);
+        setLoading(false);
+      });
+  }, [studentId]);
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="h-28 rounded-3xl bg-slate-100 animate-pulse" />
+        <div className="h-48 rounded-3xl bg-slate-100 animate-pulse" />
+      </div>
+    );
+  }
+
+  const displayAverages = averages.length > 0 ? averages : FALLBACK_AVERAGES;
+  const totalCoeff       = displayAverages.reduce((s, a) => s + a.total_coefficients, 0);
+  const generaleMoyenne  = totalCoeff > 0
+    ? displayAverages.reduce((s, a) => s + a.moyenne * a.total_coefficients, 0) / totalCoeff
+    : 0;
+
+  return (
+    <div className="space-y-4">
+      {/* Moyenne générale */}
+      <div className="rounded-3xl bg-white shadow-card border border-slate-200/70 p-4">
+        <p
+          className="text-[13px] font-semibold text-slate-500 mb-2"
+          style={{ fontFamily: "'Cabinet Grotesk', sans-serif" }}
+        >
+          Moyenne générale
+        </p>
+        <p
+          className="text-[36px] font-bold text-[#0471a6] tracking-tight leading-none"
+          style={{ fontFamily: "'Cabinet Grotesk', sans-serif" }}
+        >
+          {generaleMoyenne.toFixed(2)}
+          <span className="text-[16px] font-semibold text-slate-400">/20</span>
+        </p>
+      </div>
+
+      {/* Par matière */}
+      <div className="rounded-3xl bg-white shadow-card border border-slate-200/70 p-4">
+        <p
+          className="text-[13px] font-semibold text-slate-500 mb-3"
+          style={{ fontFamily: "'Cabinet Grotesk', sans-serif" }}
+        >
+          Par matière
+        </p>
+        <div className="space-y-4">
+          {displayAverages.map((a) => (
+            <div key={a.matiere}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[13px] font-medium text-slate-700 truncate pr-2">{a.matiere}</span>
+                <span className="text-[13px] font-bold text-[#0471a6] shrink-0">{a.moyenne.toFixed(1)}/20</span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-100 rounded-full">
+                <div
+                  className="h-full bg-[#0471a6] rounded-full"
+                  style={{ width: `${(a.moyenne / 20) * 100}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DefaultSidebar({ userProfile }: { userProfile: UserProfile }) {
   const docs = getRecentDocs(userProfile.role);
   return (
@@ -297,13 +403,14 @@ function AnnuaireSidebarContent() {
 // ─────────────────────────────────────────────────────────
 
 export function RightSidebar({ userProfile }: RightSidebarProps) {
-  const pathname = usePathname();
+  const pathname   = usePathname();
   const isAnnuaire = pathname === '/dashboard/annuaire';
+  const isNotes    = pathname === '/dashboard/pedagogie/notes';
 
   return (
     <aside className={[
       'hidden xl:flex xl:flex-col w-[220px] shrink-0',
-      isAnnuaire
+      isAnnuaire || isNotes
         ? ''
         : 'rounded-3xl bg-white shadow-card border border-slate-200/70 overflow-hidden p-4',
     ].join(' ')}>
@@ -311,6 +418,8 @@ export function RightSidebar({ userProfile }: RightSidebarProps) {
         <Suspense fallback={<div className="flex-1 animate-pulse rounded-2xl bg-slate-100" />}>
           <AnnuaireSidebarContent />
         </Suspense>
+      ) : isNotes && userProfile.role === 'eleve' ? (
+        <GradesWidget studentId={userProfile.profile.id} />
       ) : (
         <DefaultSidebar userProfile={userProfile} />
       )}

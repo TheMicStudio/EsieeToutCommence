@@ -4,7 +4,6 @@ import { useState, useMemo, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
   Search,
-  Users2,
   UserPlus,
   Download,
   ArrowUpDown,
@@ -13,10 +12,12 @@ import {
   Briefcase,
   Sparkles,
   ShieldCheck,
-  MessageCircle,
+  Phone,
   Star,
   Lightbulb,
   ArrowUpRight,
+  Copy,
+  Check,
 } from 'lucide-react';
 import type { StudentProfile, TeacherProfile } from '../types';
 
@@ -40,6 +41,7 @@ interface MemberEntry {
   promo?: string;
   description: string;
   email?: string;
+  phone?: string;
 }
 
 function getStatus(id: string): Status {
@@ -75,11 +77,6 @@ const ROLE_BADGE: Record<MemberRole, { label: string; className: string }> = {
   admin:      { label: 'Admin',     className: 'bg-rose-50 border border-rose-100 text-rose-700' },
 };
 
-const STATUS_DOT: Record<Status, string> = {
-  online:  'bg-emerald-500',
-  offline: 'bg-slate-300',
-  meeting: 'bg-amber-500',
-};
 
 const TABS: { id: Tab; label: string; Icon: React.ElementType }[] = [
   { id: 'tous',       label: 'Tous',       Icon: List },
@@ -114,6 +111,20 @@ export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGrid
   const [filterSearch, setFilterSearch] = useState('');
   const [activeTab, setActiveTab]       = useState<Tab>('tous');
   const [favorites, setFavorites]       = useState<Set<string>>(new Set());
+  const [copiedId, setCopiedId]         = useState<string | null>(null);
+
+  const handlePhone = useCallback((member: MemberEntry) => {
+    if (!member.phone) return;
+    const isTouchDevice = typeof window !== 'undefined' && navigator.maxTouchPoints > 0;
+    if (isTouchDevice) {
+      window.location.href = `tel:${member.phone}`;
+    } else {
+      navigator.clipboard.writeText(member.phone).then(() => {
+        setCopiedId(member.id);
+        setTimeout(() => setCopiedId(null), 2000);
+      });
+    }
+  }, []);
 
   const allMembers = useMemo<MemberEntry[]>(() => {
     const elevesEntries: MemberEntry[] = eleves.map((e) => {
@@ -130,6 +141,7 @@ export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGrid
             ? `Étudiant alternant${classeNom ? ' en ' + classeNom : ''}. Combine formation et entreprise.`
             : `Étudiant${classeNom ? ' en ' + classeNom : ''}. Inscrit à temps plein sur la plateforme.`,
         email: e.email,
+        phone: e.phone_mobile,
       };
     });
 
@@ -144,6 +156,7 @@ export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGrid
           ? `Enseigne ${p.matieres_enseignees.slice(0, 2).join(' et ')}. Disponible pour accompagnement.`
           : 'Professeur sur la plateforme.',
       email: p.email,
+      phone: p.phone_mobile,
     }));
 
     return [...elevesEntries, ...profsEntries];
@@ -311,22 +324,14 @@ export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGrid
                 className="flex flex-col gap-3 rounded-3xl border border-slate-200/70 bg-white p-5 shadow-card"
               >
                 <div className="flex items-start justify-between">
-                  <div className="relative">
-                    <div
-                      className={[
-                        'flex h-14 w-14 items-center justify-center rounded-2xl text-[15px] font-bold ring-2 ring-white',
-                        palette.bg, palette.text,
-                        isOffline ? 'grayscale' : '',
-                      ].join(' ')}
-                    >
-                      {initials}
-                    </div>
-                    <span
-                      className={[
-                        'absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-white',
-                        STATUS_DOT[status],
-                      ].join(' ')}
-                    />
+                  <div
+                    className={[
+                      'flex h-14 w-14 items-center justify-center rounded-2xl text-[15px] font-bold ring-2 ring-white',
+                      palette.bg, palette.text,
+                      isOffline ? 'grayscale' : '',
+                    ].join(' ')}
+                  >
+                    {initials}
                   </div>
                   <span className={['rounded-full px-2.5 py-1 text-[11px] font-bold uppercase', badge.className].join(' ')}>
                     {badge.label}
@@ -353,10 +358,24 @@ export function AnnuaireGrid({ eleves, professeurs, classes = [] }: AnnuaireGrid
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white py-2 text-[12px] font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+                    onClick={() => handlePhone(member)}
+                    disabled={!member.phone}
+                    title={member.phone ? member.phone : 'Numéro non renseigné'}
+                    className={[
+                      'flex flex-1 items-center justify-center gap-1.5 rounded-xl border py-2 text-[12px] font-bold transition-colors',
+                      member.phone
+                        ? 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                        : 'border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed',
+                    ].join(' ')}
                   >
-                    <MessageCircle className="h-3.5 w-3.5" />
-                    Message
+                    {copiedId === member.id
+                      ? <Check className="h-3.5 w-3.5 text-emerald-500" />
+                      : <Phone className="h-3.5 w-3.5" />}
+                    <span className="truncate max-w-[100px]">
+                      {copiedId === member.id
+                        ? 'Copié !'
+                        : (member.phone ?? 'Non renseigné')}
+                    </span>
                   </button>
                   <button
                     type="button"
