@@ -33,8 +33,8 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}
     - name: Scan the image and upload dependency results
-      uses: anchore/sbom-action@bb716408e75840bbb01e839347cd213767269d4a
+      uses: anchore/sbom-action@v0
       with:
         image: ${{ env.IMAGE_NAME }}
-        artifact-name: sbom.spdx.json
+        artifact-name: sbom-spdx
         dependency-snapshot: true
