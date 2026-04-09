@@ -22,9 +22,10 @@ function useDebounce<T>(value: T, delay: number): T {
 
 interface TicketFormProps {
   isDelegue?: boolean;
+  onSuccess?: () => void;
 }
 
-export function TicketForm({ isDelegue = false }: TicketFormProps) {
+export function TicketForm({ isDelegue = false, onSuccess }: TicketFormProps) {
   const [state, action, pending] = useActionState(createTicket, null);
   const [sujet, setSujet] = useState('');
   const [suggestions, setSuggestions] = useState<FaqArticle[]>([]);
@@ -42,7 +43,14 @@ export function TicketForm({ isDelegue = false }: TicketFormProps) {
   }, [debouncedSujet]);
 
   useEffect(() => {
-    if (state?.success) router.push('/dashboard/support');
+    if (state?.success) {
+      if (onSuccess) {
+        router.refresh();
+        onSuccess();
+      } else {
+        router.push('/dashboard/support');
+      }
+    }
   }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
