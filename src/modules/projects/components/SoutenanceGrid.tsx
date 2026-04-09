@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { bookSlot, updateSlot } from '../actions';
+import { bookSlot, releaseSlot, updateSlot } from '../actions';
 import type { SoutenanceSlot } from '../types';
-import { Clock, Check, X, CheckCircle2 } from 'lucide-react';
+import { Clock, Check, X, CheckCircle2, Undo2 } from 'lucide-react';
 import { SlotCard } from './SlotCard';
 
 interface SoutenanceGridProps {
@@ -12,6 +12,7 @@ interface SoutenanceGridProps {
   weekId: string;
   myGroupId?: string;
   isProf?: boolean;
+  canRelease?: boolean;
 }
 
 function toLocalTimeInput(iso: string) {
@@ -45,19 +46,22 @@ interface SlotRowProps {
   weekId: string;
   myGroupId?: string;
   isProf: boolean;
+  canRelease: boolean;
   onBooked: (slotId: string, groupId: string) => void;
+  onReleased: (slotId: string) => void;
   onUpdated: (slotId: string, debut: string, fin: string) => void;
 }
 
 const inputCls = 'h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] transition-all';
 
-function SlotRow({ slot, weekId, myGroupId, isProf, onBooked, onUpdated }: SlotRowProps) {
+function SlotRow({ slot, weekId, myGroupId, isProf, canRelease, onBooked, onReleased, onUpdated }: SlotRowProps) {
   const [editing, setEditing] = useState(false);
   const [date, setDate] = useState(toLocalDateInput(slot.heure_debut));
   const [startTime, setStartTime] = useState(toLocalTimeInput(slot.heure_debut));
   const [endTime, setEndTime] = useState(toLocalTimeInput(slot.heure_fin));
   const [saving, setSaving] = useState(false);
   const [booking, setBooking] = useState(false);
+  const [releasing, setReleasing] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -83,6 +87,17 @@ function SlotRow({ slot, weekId, myGroupId, isProf, onBooked, onUpdated }: SlotR
     setBooking(false);
     if (result.error) { setError(result.error); return; }
     onBooked(slot.id, myGroupId);
+    router.refresh();
+  }
+
+  async function handleRelease() {
+    if (!myGroupId) return;
+    setReleasing(true);
+    setError('');
+    const result = await releaseSlot(slot.id, myGroupId, weekId);
+    setReleasing(false);
+    if (result.error) { setError(result.error); return; }
+    onReleased(slot.id);
     router.refresh();
   }
 
@@ -145,10 +160,23 @@ function SlotRow({ slot, weekId, myGroupId, isProf, onBooked, onUpdated }: SlotR
       Modifier
     </button>
   ) : isMySlot ? (
-    <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#0471a6]">
-      <CheckCircle2 className="h-4 w-4" />
-      Confirmé
-    </span>
+    <div className="flex items-center gap-2">
+      <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#0471a6]">
+        <CheckCircle2 className="h-4 w-4" />
+        Confirmé
+      </span>
+      {canRelease && (
+        <button
+          type="button"
+          onClick={handleRelease}
+          disabled={releasing}
+          className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-[12px] font-semibold text-rose-600 hover:bg-rose-100 disabled:opacity-50 transition-colors"
+        >
+          <Undo2 className="h-3.5 w-3.5" />
+          {releasing ? '…' : 'Se désinscrire'}
+        </button>
+      )}
+    </div>
   ) : !isTaken && myGroupId ? undefined : isTaken ? (
     <span className="text-[13px] font-semibold text-slate-400">Réservé</span>
   ) : (
@@ -175,11 +203,15 @@ function SlotRow({ slot, weekId, myGroupId, isProf, onBooked, onUpdated }: SlotR
   );
 }
 
-export function SoutenanceGrid({ slots, weekId, myGroupId, isProf }: SoutenanceGridProps) {
+export function SoutenanceGrid({ slots, weekId, myGroupId, isProf, canRelease = false }: SoutenanceGridProps) {
   const [localSlots, setLocalSlots] = useState(slots);
 
   function handleBooked(slotId: string, groupId: string) {
     setLocalSlots((prev) => prev.map((s) => s.id === slotId ? { ...s, group_id: groupId } : s));
+  }
+
+  function handleReleased(slotId: string) {
+    setLocalSlots((prev) => prev.map((s) => s.id === slotId ? { ...s, group_id: undefined, group_name: undefined } : s));
   }
 
   function handleUpdated(slotId: string, debut: string, fin: string) {
@@ -203,7 +235,9 @@ export function SoutenanceGrid({ slots, weekId, myGroupId, isProf }: SoutenanceG
           weekId={weekId}
           myGroupId={myGroupId}
           isProf={!!isProf}
+          canRelease={canRelease}
           onBooked={handleBooked}
+          onReleased={handleReleased}
           onUpdated={handleUpdated}
         />
       ))}

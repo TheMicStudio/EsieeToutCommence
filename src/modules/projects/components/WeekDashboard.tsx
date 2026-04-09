@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  ArrowLeft, Settings, Users, CalendarClock, StickyNote,
-  MessageSquare, Palette, FileText, Search, ArrowUpDown,
+  ArrowLeft, Users, CalendarClock, StickyNote,
+  MessageSquare, Palette, FileText, Search,
   Lock, UserPlus, Star, GitBranch, Presentation,
-  Sparkles, ClipboardList, CalendarPlus, Download,
-  Plus, X, ChevronDown, Filter,
+  Plus, X, Trash2, LogOut,
 } from 'lucide-react';
+import { createGroup, deleteGroup, leaveGroup } from '../actions';
+import { ExportRetroButton } from './ExportRetroButton';
 import { GroupChat } from './GroupChat';
 import { GroupWhiteboardView } from './GroupWhiteboardView';
 import { WeekCourseMaterialsPanel } from './WeekCourseMaterialsPanel';
@@ -101,15 +102,44 @@ export function WeekDashboard({
   materials, slots, retroBoard, retroPostits,
   currentUserId, currentUserName, isProf,
 }: WeekDashboardProps) {
-  function getInitialTab(): TabId {
-    if (typeof window === 'undefined') return 'groupes';
-    const t = new URLSearchParams(window.location.search).get('tab') as TabId;
-    return TABS.some((tab) => tab.id === t) ? t : 'groupes';
-  }
+  const [activeTab, setActiveTab] = useState<TabId>('groupes');
 
-  const [activeTab, setActiveTab] = useState<TabId>(getInitialTab);
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get('tab') as TabId;
+    if (TABS.some((tab) => tab.id === t)) setActiveTab(t);
+  }, []);
   const [search, setSearch] = useState('');
   const [livraisonsGroup, setLivraisonsGroup] = useState<ProjectGroup | null>(null);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [newGroupCap, setNewGroupCap] = useState('4');
+  const [isCreatingGroup, setIsCreatingGroup] = useState(false);
+  const [createGroupError, setCreateGroupError] = useState<string | null>(null);
+
+  async function handleCreateGroup() {
+    if (!newGroupName.trim()) return;
+    setIsCreatingGroup(true);
+    setCreateGroupError(null);
+    const res = await createGroup(weekId, newGroupName.trim(), parseInt(newGroupCap) || 4);
+    setIsCreatingGroup(false);
+    if (res.error) { setCreateGroupError(res.error); return; }
+    setShowCreateGroup(false);
+    setNewGroupName('');
+    setNewGroupCap('4');
+    window.location.reload();
+  }
+
+  async function handleDeleteGroup(groupId: string) {
+    if (!confirm('Supprimer ce groupe ? Cette action est irréversible.')) return;
+    await deleteGroup(groupId, weekId);
+    window.location.reload();
+  }
+
+  async function handleLeaveGroup(groupId: string) {
+    if (!confirm('Quitter ce groupe ?')) return;
+    await leaveGroup(groupId, weekId);
+    window.location.reload();
+  }
 
   function handleTabChange(id: TabId) {
     setActiveTab(id);
@@ -154,15 +184,7 @@ export function WeekDashboard({
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0 mt-1">
-              <button
-                type="button"
-                className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-semibold text-slate-800 hover:bg-slate-50 transition-colors"
-              >
-                <Settings className="h-4 w-4" />
-                Paramètres
-              </button>
-            </div>
+            <div className="flex items-center gap-2 shrink-0 mt-1" />
           </div>
 
           {/* Tabs — full-width underline style */}
@@ -204,12 +226,51 @@ export function WeekDashboard({
                   </div>
                   <button
                     type="button"
-                    className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-slate-700 hover:bg-slate-50 transition-colors"
+                    onClick={() => setShowCreateGroup((v) => !v)}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-[#0471a6] px-3 py-2.5 text-[13px] font-semibold text-white hover:bg-[#0471a6]/90 transition-colors"
                   >
-                    <ArrowUpDown className="h-3.5 w-3.5" />
-                    Trier
+                    {showCreateGroup ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                    {showCreateGroup ? 'Annuler' : 'Ajouter un groupe'}
                   </button>
                 </div>
+
+                {/* Formulaire création groupe */}
+                {showCreateGroup && (
+                  <div className="rounded-2xl border border-[#0471a6]/30 bg-[#0471a6]/5 p-4 space-y-3">
+                    <p className="text-[13px] font-semibold text-[#061826]">Nouveau groupe</p>
+                    <div className="flex gap-3 flex-wrap">
+                      <input
+                        type="text"
+                        placeholder="Nom du groupe"
+                        value={newGroupName}
+                        onChange={(e) => setNewGroupName(e.target.value)}
+                        className="flex-1 min-w-[180px] h-9 rounded-xl border border-slate-200 bg-white px-3 text-[13px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0471a6]/20"
+                        onKeyDown={(e) => e.key === 'Enter' && handleCreateGroup()}
+                      />
+                      <div className="flex items-center gap-2">
+                        <label className="text-[12px] text-slate-500 whitespace-nowrap">Capacité max</label>
+                        <input
+                          type="number"
+                          min="1" max="20"
+                          value={newGroupCap}
+                          onChange={(e) => setNewGroupCap(e.target.value)}
+                          className="w-16 h-9 rounded-xl border border-slate-200 bg-white px-2 text-[13px] text-slate-700 text-center focus:outline-none focus:ring-2 focus:ring-[#0471a6]/20"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleCreateGroup}
+                        disabled={isCreatingGroup || !newGroupName.trim()}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-[#0471a6] px-4 py-2 text-[13px] font-semibold text-white hover:bg-[#0471a6]/90 disabled:opacity-50 transition-colors"
+                      >
+                        {isCreatingGroup ? 'Création…' : 'Créer'}
+                      </button>
+                    </div>
+                    {createGroupError && (
+                      <p className="text-[12px] text-rose-600">{createGroupError}</p>
+                    )}
+                  </div>
+                )}
 
                 {filteredGroups.length === 0 ? (
                   <div className="flex h-32 items-center justify-center rounded-3xl border border-dashed border-slate-200">
@@ -308,7 +369,7 @@ export function WeekDashboard({
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center gap-2 shrink-0 md:mt-1">
+                            <div className="flex items-center gap-2 shrink-0 md:mt-1 flex-wrap">
                               {!isProf && !myGroup && (
                                 <JoinGroupButton groupId={group.id} weekId={weekId} isMember={isMember} isFull={isFull} />
                               )}
@@ -320,6 +381,28 @@ export function WeekDashboard({
                                 >
                                   <FileText className="h-4 w-4" />
                                   Livrables
+                                </button>
+                              )}
+                              {/* Quitter le groupe (élève membre) */}
+                              {isMember && !isProf && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleLeaveGroup(group.id)}
+                                  className="inline-flex items-center gap-1.5 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-[13px] font-semibold text-rose-600 hover:bg-rose-100 transition-colors"
+                                >
+                                  <LogOut className="h-4 w-4" />
+                                  Quitter
+                                </button>
+                              )}
+                              {/* Supprimer (prof = tous, élève = seulement créateur) */}
+                              {(isProf || group.created_by === currentUserId) && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteGroup(group.id)}
+                                  className="flex h-9 w-9 items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 text-rose-500 hover:bg-rose-100 transition-colors"
+                                  title="Supprimer le groupe"
+                                >
+                                  <Trash2 className="h-4 w-4" />
                                 </button>
                               )}
                               {isProf && (
@@ -338,87 +421,17 @@ export function WeekDashboard({
             {/* ── Créneaux ─────────────────────────────────────────── */}
             {activeTab === 'creneaux' && (
               <div className="space-y-5">
-                {/* Sub-card: header */}
-                <div className="rounded-2xl border border-slate-200/60 bg-slate-50/60 p-4">
-                  <div className="flex items-start justify-between gap-4 flex-wrap">
-                    <div>
-                      <h2
-                        className="text-[16px] font-semibold text-slate-900"
-                        style={{ fontFamily: "'Cabinet Grotesk', sans-serif" }}
-                      >
-                        Créneaux disponibles
-                      </h2>
-                      <p className="mt-1 text-[13px] font-medium text-slate-500">
-                        Réserve un créneau de soutenance. Confirmation immédiate.
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-                      >
-                        <CalendarClock className="h-4 w-4" />
-                        Cette semaine
-                        <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-                      </button>
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-                      >
-                        <Filter className="h-4 w-4" />
-                        Filtres
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
                 {isProf && (
                   <CreateSoutenanceSlotsForm weekId={weekId} groupCount={groups.length} hasSlots={slots.length > 0} />
                 )}
-                <SoutenanceGrid slots={slots} weekId={weekId} myGroupId={myGroup?.id} />
-
-                {/* Conseil card */}
-                <div className="rounded-2xl border border-slate-200/60 bg-slate-50/60 p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <h3
-                        className="text-[15px] font-semibold text-slate-900 mb-1.5"
-                        style={{ fontFamily: "'Cabinet Grotesk', sans-serif" }}
-                      >
-                        Conseil
-                      </h3>
-                      <p className="text-[13px] font-medium text-slate-500">
-                        Aie une question précise + un extrait de code/notes. Tu gagneras du temps (et nous aussi).
-                      </p>
-                    </div>
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white">
-                      <Sparkles className="h-4 w-4 text-slate-400" />
-                    </div>
-                  </div>
-                  <div className="mt-4 flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-                    >
-                      <ClipboardList className="h-4 w-4" />
-                      Modèle de question
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-2 rounded-2xl bg-[#0471a6] px-3 py-2 text-[13px] font-semibold text-white hover:bg-[#0471a6]/90 transition-colors"
-                    >
-                      <CalendarPlus className="h-4 w-4" />
-                      Ajouter au calendrier
-                    </button>
-                  </div>
-                </div>
+                <SoutenanceGrid slots={slots} weekId={weekId} myGroupId={myGroup?.id} canRelease={!isProf} />
               </div>
             )}
 
             {/* ── Rétro ────────────────────────────────────────────── */}
             {activeTab === 'retro' && (
               <div className="space-y-5">
-                {/* Sub-card: header */}
+                {/* Sub-card: header — export visible uniquement pour les profs */}
                 <div className="rounded-2xl border border-slate-200/60 bg-slate-50/60 p-4">
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div>
@@ -432,15 +445,11 @@ export function WeekDashboard({
                         Partage ton feedback. Les notes sont anonymisées côté affichage.
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-                      >
-                        <Download className="h-4 w-4" />
-                        Exporter
-                      </button>
-                    </div>
+                    {isProf && (
+                      <div className="shrink-0">
+                        <ExportRetroButton postits={retroPostits} weekTitle={week.title} />
+                      </div>
+                    )}
                   </div>
                 </div>
 

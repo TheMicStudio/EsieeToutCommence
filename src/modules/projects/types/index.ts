@@ -28,6 +28,7 @@ export interface ProjectGroup {
   note?: number;
   feedback_prof?: string;
   note_par?: string;
+  created_by?: string;
   members?: GroupMember[];
 }
 

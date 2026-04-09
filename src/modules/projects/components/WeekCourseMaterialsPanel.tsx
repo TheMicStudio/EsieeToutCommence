@@ -1,12 +1,13 @@
 'use client';
 
-import { useActionState, useEffect, useTransition } from 'react';
+import { useActionState, useEffect, useTransition, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { addWeekCourseMaterial, deleteWeekCourseMaterial } from '../actions';
 import type { WeekCourseMaterial } from '../types';
 import {
-  ExternalLink, FileText, Video, Trash2, Plus, Download, File,
+  ExternalLink, FileText, Video, Trash2, Plus, Download, File, Eye,
 } from 'lucide-react';
+import { DocumentPreviewModal, detectPreviewMode } from '@/components/DocumentPreviewModal';
 
 const inputCls = 'flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#89aae6]/40 focus:border-[#89aae6] focus:bg-white transition-all';
 
@@ -55,6 +56,7 @@ interface WeekCourseMaterialsPanelProps {
 export function WeekCourseMaterialsPanel({ weekId, materials, isProf }: WeekCourseMaterialsPanelProps) {
   const [state, action, pending] = useActionState(addWeekCourseMaterial, null);
   const [isDeleting, startDelete] = useTransition();
+  const [previewMaterial, setPreviewMaterial] = useState<WeekCourseMaterial | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -72,6 +74,14 @@ export function WeekCourseMaterialsPanel({ weekId, materials, isProf }: WeekCour
 
   return (
     <div className="space-y-3">
+      {previewMaterial && (
+        <DocumentPreviewModal
+          url={previewMaterial.url}
+          title={previewMaterial.titre}
+          fileType={previewMaterial.type}
+          onClose={() => setPreviewMaterial(null)}
+        />
+      )}
 
       {/* ── Header row ──────────────────────────────────────────────── */}
       {materials.length > 0 && (
@@ -122,6 +132,15 @@ export function WeekCourseMaterialsPanel({ weekId, materials, isProf }: WeekCour
 
                 {/* Actions */}
                 <div className="flex items-center gap-1 shrink-0">
+                  {detectPreviewMode(m.url, null, m.type) !== 'none' && (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewMaterial(m)}
+                      className="inline-flex h-7 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+                    >
+                      <Eye size={11} /> Aperçu
+                    </button>
+                  )}
                   <a
                     href={m.url}
                     target="_blank"
