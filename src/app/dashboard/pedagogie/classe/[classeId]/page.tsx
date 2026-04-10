@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowLeft, FolderKanban, GraduationCap, History, QrCode, Star, Users } from 'lucide-react';
+import { ArrowLeft, ChevronDown, FolderKanban, GraduationCap, History, QrCode, Star, Users } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { requirePermission } from '@/lib/permissions';
 import { getAllClasses, getMyAllClasses, getMyTeacherClasses, getClassStudents } from '@/modules/pedagogy/actions';
@@ -79,17 +79,20 @@ export default async function ClasseDetailPage({ params }: Readonly<ClasseDetail
         </div>
       </div>
 
-      {/* Liste des élèves (profs et coordinateurs uniquement) */}
+      {/* Liste des élèves — accordéon fermé par défaut (profs et coordinateurs) */}
       {(isProf || isCoord) && (
-        <div>
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400 flex items-center gap-2">
-            <Users className="h-3.5 w-3.5" />
-            Élèves de la classe ({students.length})
-          </p>
+        <details className="group rounded-2xl border border-slate-200/60 bg-slate-50/50 overflow-hidden">
+          <summary className="flex cursor-pointer select-none list-none items-center justify-between px-4 py-3 hover:bg-slate-100/60 transition-colors">
+            <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
+              <Users className="h-3.5 w-3.5" />
+              Élèves de la classe ({students.length})
+            </span>
+            <ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" />
+          </summary>
           {students.length === 0 ? (
-            <p className="text-sm text-slate-400 italic">Aucun élève inscrit dans cette classe.</p>
+            <p className="px-4 pb-4 text-sm text-slate-400 italic">Aucun élève inscrit dans cette classe.</p>
           ) : (
-            <ul className="divide-y divide-slate-100 rounded-2xl border border-slate-200/60 bg-slate-50/50 overflow-hidden">
+            <ul className="divide-y divide-slate-100 border-t border-slate-200/60">
               {students.map((s, i) => (
                 <li key={s.id} className="flex items-center gap-3 px-4 py-2.5">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#0471a6]/10 text-xs font-bold text-[#0471a6]">
@@ -100,7 +103,7 @@ export default async function ClasseDetailPage({ params }: Readonly<ClasseDetail
               ))}
             </ul>
           )}
-        </div>
+        </details>
       )}
 
       {/* Modules */}

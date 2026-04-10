@@ -37,7 +37,10 @@ export async function POST(req: NextRequest) {
       new Date(),
     );
 
-    const { error } = await supabase.from('attendance_records').insert({
+    // Utiliser admin pour l'insert : la policy RLS vérifie attendance_sessions
+    // en subquery mais les élèves n'ont pas de SELECT policy dessus → INSERT bloqué.
+    // La validation a déjà été faite manuellement ci-dessus.
+    const { error } = await admin.from('attendance_records').insert({
       session_id: session.id,
       student_id: user.id,
       device_fingerprint: deviceFingerprint,

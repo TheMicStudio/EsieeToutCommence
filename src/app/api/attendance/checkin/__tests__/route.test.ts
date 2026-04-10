@@ -1,12 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-// Mock Supabase server client
+// Mock Supabase server client (auth + records insert)
 vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(),
 }));
 
+// Mock Supabase admin client (session lookup — bypasse RLS)
+vi.mock('@/lib/supabase/admin', () => ({
+  createAdminClient: vi.fn(),
+}));
+
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { POST } from '../route';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -30,18 +36,24 @@ function makeSession(overrides?: Partial<Record<string, unknown>>) {
   };
 }
 
-function makeSupabaseMock(
-  user: { id: string } | null,
+/** Mock client serveur : gère uniquement auth.getUser */
+function makeServerMock(user: { id: string } | null) {
+  return {
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user } }),
+    },
+    from: vi.fn().mockReturnValue({}),
+  };
+}
+
+/** Mock client admin : gère attendance_sessions (lookup) + attendance_records (insert) */
+function makeAdminMock(
   session: Record<string, unknown> | null,
   insertError: { code?: string; message?: string } | null = null,
 ) {
   const maybeSingle = vi.fn().mockResolvedValue({ data: session });
   const insert = vi.fn().mockResolvedValue({ error: insertError });
-
   return {
-    auth: {
-      getUser: vi.fn().mockResolvedValue({ data: { user } }),
-    },
     from: vi.fn().mockImplementation((table: string) => {
       if (table === 'attendance_sessions') {
         return {
@@ -51,12 +63,20 @@ function makeSupabaseMock(
           maybeSingle,
         };
       }
-      if (table === 'attendance_records') {
-        return { insert };
-      }
+      if (table === 'attendance_records') return { insert };
       return {};
     }),
   };
+}
+
+/** Helper : configure les deux mocks en une fois */
+function mockClients(
+  user: { id: string } | null,
+  session: Record<string, unknown> | null,
+  insertError: { code?: string; message?: string } | null = null,
+) {
+  (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(makeServerMock(user));
+  (createAdminClient as ReturnType<typeof vi.fn>).mockReturnValue(makeAdminMock(session, insertError));
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -67,9 +87,7 @@ describe('POST /api/attendance/checkin', () => {
   // ── Validation des entrées ──────────────────────────────────────────────────
 
   it('renvoie 400 si codeUnique manquant', async () => {
-    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(
-      makeSupabaseMock({ id: 'user-1' }, null),
-    );
+    mockClients({ id: 'user-1' }, null);
     const res = await POST(makeRequest({ deviceFingerprint: 'fp-abc' }));
     expect(res.status).toBe(400);
     const json = await res.json();
@@ -77,9 +95,7 @@ describe('POST /api/attendance/checkin', () => {
   });
 
   it('renvoie 400 si deviceFingerprint manquant', async () => {
-    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(
-      makeSupabaseMock({ id: 'user-1' }, null),
-    );
+    mockClients({ id: 'user-1' }, null);
     const res = await POST(makeRequest({ codeUnique: 'ABC123' }));
     expect(res.status).toBe(400);
   });
@@ -87,9 +103,7 @@ describe('POST /api/attendance/checkin', () => {
   // ── Authentification ────────────────────────────────────────────────────────
 
   it('renvoie 401 si non authentifié', async () => {
-    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(
-      makeSupabaseMock(null, null),
-    );
+    mockClients(null, null);
     const res = await POST(makeRequest({ codeUnique: 'ABC123', deviceFingerprint: 'fp-abc' }));
     expect(res.status).toBe(401);
     const json = await res.json();
@@ -99,9 +113,7 @@ describe('POST /api/attendance/checkin', () => {
   // ── Session ─────────────────────────────────────────────────────────────────
 
   it('renvoie 404 si la session est introuvable ou expirée', async () => {
-    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(
-      makeSupabaseMock({ id: 'user-1' }, null),
-    );
+    mockClients({ id: 'user-1' }, null);
     const res = await POST(makeRequest({ codeUnique: 'INVALID', deviceFingerprint: 'fp-abc' }));
     expect(res.status).toBe(404);
   });
@@ -110,9 +122,7 @@ describe('POST /api/attendance/checkin', () => {
 
   it('renvoie 200 avec statut "present" pour un scan dans les 50 premières %', async () => {
     // Session 60 min, ouverte il y a 5 min → dans la première moitié → present
-    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(
-      makeSupabaseMock({ id: 'user-1' }, makeSession(), null),
-    );
+    mockClients({ id: 'user-1' }, makeSession());
     const res = await POST(makeRequest({ codeUnique: 'ABC123', deviceFingerprint: 'fp-abc' }));
     expect(res.status).toBe(200);
     const json = await res.json();
@@ -128,9 +138,7 @@ describe('POST /api/attendance/checkin', () => {
       created_at: new Date(now - 40 * 60_000).toISOString(),
       expiration: new Date(now + 20 * 60_000).toISOString(),
     };
-    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(
-      makeSupabaseMock({ id: 'user-1' }, lateSession, null),
-    );
+    mockClients({ id: 'user-1' }, lateSession);
     const res = await POST(makeRequest({ codeUnique: 'ABC123', deviceFingerprint: 'fp-abc' }));
     expect(res.status).toBe(200);
     const json = await res.json();
@@ -140,9 +148,7 @@ describe('POST /api/attendance/checkin', () => {
   // ── Cas d'erreur métier ─────────────────────────────────────────────────────
 
   it('renvoie 409 si l\'étudiant a déjà pointé (contrainte unique)', async () => {
-    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(
-      makeSupabaseMock({ id: 'user-1' }, makeSession(), { code: '23505', message: 'duplicate' }),
-    );
+    mockClients({ id: 'user-1' }, makeSession(), { code: '23505', message: 'duplicate' });
     const res = await POST(makeRequest({ codeUnique: 'ABC123', deviceFingerprint: 'fp-abc' }));
     expect(res.status).toBe(409);
     const json = await res.json();
@@ -150,9 +156,7 @@ describe('POST /api/attendance/checkin', () => {
   });
 
   it('renvoie 500 si l\'insertion échoue pour une raison inconnue', async () => {
-    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(
-      makeSupabaseMock({ id: 'user-1' }, makeSession(), { code: '99999', message: 'unexpected' }),
-    );
+    mockClients({ id: 'user-1' }, makeSession(), { code: '99999', message: 'unexpected' });
     const res = await POST(makeRequest({ codeUnique: 'ABC123', deviceFingerprint: 'fp-abc' }));
     expect(res.status).toBe(500);
   });
