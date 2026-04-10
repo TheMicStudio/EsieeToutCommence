@@ -59,16 +59,21 @@ export function TopNavbar({ userProfile }: Readonly<TopNavbarProps>) {
   }, [open]);
 
   return (
-    <div className="flex items-center gap-4 rounded-3xl bg-white px-5 py-3 shadow-card border border-slate-200/70">
+    <div className="flex items-center gap-2 sm:gap-4 rounded-3xl bg-white px-4 sm:px-5 py-3 shadow-card border border-slate-200/70">
       {/* Breadcrumb */}
-      <div className="flex shrink-0 items-center gap-1.5 text-sm">
-        <span className="text-slate-400">Dashboard</span>
-        <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
-        <span className="font-semibold text-[#061826]">{pageName}</span>
+      <div className="flex shrink-0 items-center gap-1.5 text-sm min-w-0">
+        <span className="hidden sm:inline text-slate-400">Dashboard</span>
+        <ChevronRight className="hidden sm:block h-3.5 w-3.5 text-slate-300" />
+        <span className="font-semibold text-[#061826] truncate">{pageName}</span>
       </div>
 
-      {/* Search */}
-      <SearchBar />
+      {/* Search — masquée sur mobile */}
+      <div className="hidden sm:flex flex-1 min-w-0">
+        <SearchBar />
+      </div>
+
+      {/* Spacer mobile pour pousser les actions à droite */}
+      <div className="flex-1 sm:hidden" />
 
       {/* Actions */}
       <div className="flex shrink-0 items-center gap-1">

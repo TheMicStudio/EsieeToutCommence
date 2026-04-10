@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowLeft, FolderKanban, GraduationCap, History, QrCode, Star } from 'lucide-react';
+import { ArrowLeft, FolderKanban, GraduationCap, History, QrCode, Star, Users } from 'lucide-react';
 import { getCurrentUserProfile } from '@/modules/auth/actions';
 import { requirePermission } from '@/lib/permissions';
-import { getAllClasses, getMyAllClasses, getMyTeacherClasses } from '@/modules/pedagogy/actions';
+import { getAllClasses, getMyAllClasses, getMyTeacherClasses, getClassStudents } from '@/modules/pedagogy/actions';
 
 const MODULE_ITEMS = [
   { key: 'notes',       label: 'Notes & moyennes',    description: 'Résultats et progression des élèves',      icon: Star,         gradient: 'from-amber-50 to-amber-50/30',      iconBg: 'bg-amber-100 text-amber-500',      profOnly: false },
@@ -48,6 +48,8 @@ export default async function ClasseDetailPage({ params }: Readonly<ClasseDetail
 
   const modules = MODULE_ITEMS.filter((m) => !m.profOnly || isProf);
 
+  const students = (isProf || isCoord) ? await getClassStudents(activeClass.id) : [];
+
   return (
     <div className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-[0_1px_0_rgba(15,23,42,0.06),0_10px_30px_rgba(15,23,42,0.06)] space-y-6">
       {/* Header */}
@@ -76,6 +78,30 @@ export default async function ClasseDetailPage({ params }: Readonly<ClasseDetail
           </div>
         </div>
       </div>
+
+      {/* Liste des élèves (profs et coordinateurs uniquement) */}
+      {(isProf || isCoord) && (
+        <div>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400 flex items-center gap-2">
+            <Users className="h-3.5 w-3.5" />
+            Élèves de la classe ({students.length})
+          </p>
+          {students.length === 0 ? (
+            <p className="text-sm text-slate-400 italic">Aucun élève inscrit dans cette classe.</p>
+          ) : (
+            <ul className="divide-y divide-slate-100 rounded-2xl border border-slate-200/60 bg-slate-50/50 overflow-hidden">
+              {students.map((s, i) => (
+                <li key={s.id} className="flex items-center gap-3 px-4 py-2.5">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#0471a6]/10 text-xs font-bold text-[#0471a6]">
+                    {i + 1}
+                  </span>
+                  <span className="text-sm font-medium text-[#061826]">{s.prenom} {s.nom}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       {/* Modules */}
       <div>

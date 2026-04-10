@@ -47,7 +47,7 @@ export default async function DashboardLayout({
       <div className="relative z-10 flex flex-col lg:flex-row h-full lg:gap-4 lg:p-5">
         <DashboardSidebar userProfile={userProfile} permissions={permissionsArray} />
 
-        <div className="flex flex-1 flex-col min-w-0 gap-6 p-4 lg:p-0 lg:overflow-hidden">
+        <div className="flex flex-1 flex-col min-w-0 gap-3 sm:gap-6 p-3 sm:p-4 lg:p-0 lg:overflow-hidden">
           <TopNavbar userProfile={userProfile} />
           <main className="flex-1 overflow-y-auto min-w-0 pb-2">
             {children}

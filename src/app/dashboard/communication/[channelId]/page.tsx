@@ -69,14 +69,6 @@ export default async function ChannelPage({ params }: Readonly<ChannelPageProps>
             <CreateChannelForm />
           </div>
         )}
-        <div className="border-t border-slate-100 p-3">
-          <Link
-            href="/dashboard/communication/annuaire"
-            className="block rounded-xl px-3 py-2 text-sm text-slate-500 hover:bg-white transition-colors"
-          >
-            Annuaire staff
-          </Link>
-        </div>
       </aside>
 
       {/* Thread */}

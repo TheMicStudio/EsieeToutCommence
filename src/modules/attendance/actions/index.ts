@@ -108,7 +108,6 @@ export async function getAbsentees(
   sessionId: string,
 ): Promise<{ student_id: string; nom: string; prenom: string }[]> {
   // Utilise le client admin pour bypasser le RLS sur class_members / student_profiles
-  // (le prof n'est pas membre de la classe, donc le client anon est bloqué par RLS)
   const { createAdminClient } = await import('@/lib/supabase/admin');
   const admin = createAdminClient();
 
@@ -119,30 +118,41 @@ export async function getAbsentees(
     .single();
   if (!session) return [];
 
+  // Récupérer les membres de la classe (class_members.student_id → auth.users.id)
   const { data: members } = await admin
     .from('class_members')
-    .select('student_id, student_profiles(nom, prenom)')
-    .eq('class_id', session.class_id)
-    .eq('is_current', true);
-  if (!members) return [];
+    .select('student_id')
+    .eq('class_id', session.class_id);
+  if (!members || members.length === 0) return [];
 
+  // Récupérer les profils (student_profiles.id = auth.users.id)
+  const memberIds = members.map((m) => m.student_id as string);
+  const { data: profiles } = await admin
+    .from('student_profiles')
+    .select('id, nom, prenom')
+    .in('id', memberIds);
+
+  const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
+
+  // Récupérer les pointages de la session
   const { data: records } = await admin
     .from('attendance_records')
     .select('student_id')
     .eq('session_id', sessionId);
 
-  const presentIds = new Set((records ?? []).map((r) => r.student_id));
+  const presentIds = new Set((records ?? []).map((r) => r.student_id as string));
 
-  return members
-    .filter((m) => !presentIds.has(m.student_id))
-    .map((m) => {
-      const profile = m.student_profiles as unknown as { nom: string; prenom: string } | null;
+  return memberIds
+    .filter((id) => !presentIds.has(id))
+    .map((id) => {
+      const profile = profileMap.get(id);
       return {
-        student_id: m.student_id,
+        student_id: id,
         nom: profile?.nom ?? '',
         prenom: profile?.prenom ?? '',
       };
-    });
+    })
+    .sort((a, b) => a.nom.localeCompare(b.nom));
 }
 
 // ── Rapport complet ──────────────────────────────────────────

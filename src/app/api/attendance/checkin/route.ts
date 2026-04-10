@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { computeAttendanceStatus } from '@/lib/utils/attendance';
 
 export async function POST(req: NextRequest) {
@@ -15,8 +16,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    // Vérifier la session
-    const { data: session } = await supabase
+    // Utiliser le client admin pour la lookup de session (RLS bloque les élèves sur attendance_sessions)
+    const admin = createAdminClient();
+    const { data: session } = await admin
       .from('attendance_sessions')
       .select()
       .eq('code_unique', codeUnique)
