@@ -168,10 +168,29 @@ export async function getAttendanceReport(
     .single();
   if (!session) return null;
 
-  const [presents, absents] = await Promise.all([
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const admin = createAdminClient();
+
+  const [records, absents] = await Promise.all([
     getSessionRecords(sessionId),
     getAbsentees(sessionId),
   ]);
+
+  // Enrichir les présents avec nom/prénom depuis student_profiles
+  let presents: AttendanceReport['presents'] = records;
+  if (records.length > 0) {
+    const ids = records.map((r) => r.student_id);
+    const { data: profiles } = await admin
+      .from('student_profiles')
+      .select('id, nom, prenom')
+      .in('id', ids);
+    const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
+    presents = records.map((r) => ({
+      ...r,
+      nom: profileMap.get(r.student_id)?.nom ?? '',
+      prenom: profileMap.get(r.student_id)?.prenom ?? '',
+    }));
+  }
 
   const total = presents.length + absents.length;
   const taux_presence = total > 0 ? Math.round((presents.length / total) * 100) : 0;
