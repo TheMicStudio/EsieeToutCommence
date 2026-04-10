@@ -64,6 +64,7 @@ export function GradeGroupForm({ groupId, groupName, initialNote, initialFeedbac
           <div
             className="w-full max-w-md rounded-3xl border border-slate-200 bg-white shadow-2xl"
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="flex items-start justify-between border-b border-slate-100 px-6 py-4">

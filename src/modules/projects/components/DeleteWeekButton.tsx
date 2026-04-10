@@ -51,6 +51,7 @@ export function DeleteWeekButton({ weekId, weekTitle, onDeleted }: Readonly<Dele
           <div
             className="w-full max-w-md rounded-3xl border border-slate-200 bg-white shadow-2xl"
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="flex items-start justify-between p-6 pb-4">
