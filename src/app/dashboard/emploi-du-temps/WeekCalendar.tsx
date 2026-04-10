@@ -108,7 +108,7 @@ function SessionTooltip({ session, onClose }: Readonly<{ session: SessionEvent; 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm" onClick={onClose} aria-hidden="true">
-      <div className="w-full max-w-sm rounded-3xl bg-white border border-slate-200/70 shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+      <div className="w-full max-w-sm rounded-3xl bg-white border border-slate-200/70 shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
         <div className={['px-5 py-4', isConflict ? 'bg-rose-50 border-b border-rose-200' : 'bg-[#0471a6]/5 border-b border-[#89aae6]/30'].join(' ')}>
           <div className="flex items-start justify-between gap-3">
             <div>

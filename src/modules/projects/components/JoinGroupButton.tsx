@@ -19,17 +19,18 @@ export function JoinGroupButton({ groupId, weekId, isMember, isFull }: Readonly<
   const router = useRouter();
 
   async function handleToggle() {
+    const wasMember = optimisticMember;
     setLoading(true);
     setError('');
-    setOptimisticMember(!optimisticMember);
+    setOptimisticMember(!wasMember);
 
-    const result = optimisticMember
+    const result = wasMember
       ? await leaveGroup(groupId, weekId)
       : await joinGroup(groupId, weekId);
 
     setLoading(false);
     if (result.error) {
-      setOptimisticMember(optimisticMember);
+      setOptimisticMember(wasMember);
       setError(result.error);
     } else {
       router.refresh();
