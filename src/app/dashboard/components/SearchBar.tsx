@@ -86,7 +86,7 @@ export function SearchBar() {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative flex flex-1 mx-2">
+    <div ref={containerRef} className="relative flex flex-1 min-w-0">
       <div className="flex flex-1 items-center gap-2 rounded-full bg-slate-100 px-4 py-2">
         <Search className="h-4 w-4 shrink-0 text-slate-400" />
         <input

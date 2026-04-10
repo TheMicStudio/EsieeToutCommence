@@ -19,10 +19,10 @@ const CHART_BARS = [
 
 export default function LoginPage() {
   return (
-    <main className="h-screen overflow-hidden bg-[#F1F5F9] flex p-6 gap-6 font-sans">
+    <main className="min-h-screen bg-[#F1F5F9] flex flex-col md:flex-row md:h-screen md:overflow-hidden p-4 md:p-6 gap-4 md:gap-6 font-sans">
 
-      {/* ── LEFT PANEL (50%) ─────────────────────────────────────── */}
-      <div className="w-1/2 flex flex-col gap-6">
+      {/* ── LEFT PANEL (full on mobile, 50% on desktop) ──────────── */}
+      <div className="w-full md:w-1/2 flex flex-col gap-4 md:gap-6">
 
         {/* Login Card */}
         <div
@@ -77,8 +77,8 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* ── RIGHT PANEL (50%) ────────────────────────────────────── */}
-      <div className="w-1/2 bg-[#0F172A] rounded-[28px] relative overflow-hidden">
+      {/* ── RIGHT PANEL (hidden on mobile, 50% on desktop) ──────── */}
+      <div className="hidden md:block md:w-1/2 bg-[#0F172A] rounded-[28px] relative overflow-hidden">
 
         {/* Dot grid pattern */}
         <div
