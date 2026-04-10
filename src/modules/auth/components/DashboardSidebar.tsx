@@ -278,15 +278,22 @@ export function DashboardSidebar({ userProfile, permissions }: Readonly<Dashboar
   const sidebarContent = (
     <div className="flex h-full flex-col">
       {/* Brand + toggle */}
-      <div className={[
-        'flex items-center py-4 border-b border-slate-100',
-        collapsed ? 'justify-center px-3' : 'justify-between px-4 gap-3',
-      ].join(' ')}>
-        {collapsed ? (
+      {collapsed ? (
+        <div className="flex flex-col items-center gap-2 py-3 px-2 border-b border-slate-100">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#0471a6]">
             <GraduationCap className="h-[18px] w-[18px] text-white" />
           </div>
-        ) : (
+          <button
+            type="button"
+            onClick={toggleCollapse}
+            title="Développer"
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between px-4 py-4 gap-3 border-b border-slate-100">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#0471a6]">
               <GraduationCap className="h-[18px] w-[18px] text-white" />
@@ -296,16 +303,16 @@ export function DashboardSidebar({ userProfile, permissions }: Readonly<Dashboar
               <p className="text-[11px] text-slate-400 leading-tight truncate">{ROLE_LABELS[role]}</p>
             </div>
           </div>
-        )}
-        <button
-          type="button"
-          onClick={toggleCollapse}
-          title={collapsed ? 'Développer' : 'Réduire'}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-        >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={toggleCollapse}
+            title="Réduire"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Nav scrollable */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden py-3 space-y-1">
