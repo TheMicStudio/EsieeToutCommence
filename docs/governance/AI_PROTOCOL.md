@@ -66,6 +66,46 @@ git log --oneline --all -- src/modules/<nom_du_module>/
 
 ---
 
+## Règle de synchronisation mobile (OBLIGATOIRE)
+
+Le projet `/volume1/docker/sites/EsieeToutCommence-mobile/` est la version React Native (Expo) de ce site.
+Il partage la même base Supabase et consomme les mêmes API Routes.
+
+**À chaque ajout ou modification de fonctionnalité sur le web :**
+
+1. **Évaluer l'impact mobile** — déterminer si la fonctionnalité doit exister dans l'app mobile.
+2. **Si oui → implémenter dans le mobile** immédiatement dans la même session.
+3. **Si non → justifier** pourquoi la fonctionnalité est web-only (ex : admin backoffice, gestion fichiers).
+
+### Correspondance modules web ↔ écrans mobile
+
+| Module web (`src/modules/`) | Écran mobile (`app/(app)/`) | Priorité |
+|-----------------------------|-----------------------------|----------|
+| `auth` | `(auth)/login.tsx` + `AuthProvider` | ✅ MVP |
+| `attendance` | `attendance/scan.tsx`, `attendance/session.tsx`, `attendance/history.tsx` | ✅ MVP |
+| `pedagogy` | À créer : `pedagogy/` | Phase 3 |
+| `career` | À créer : `career/` | Phase 3 |
+| `support` | À créer : `support/` | Phase 3 |
+| `communication` | À créer : `communication/` | Phase 3 |
+| `news` | À créer : `news/` | Phase 3 |
+| `admin` | ❌ Web-only (backoffice) | — |
+| `documents` | À créer : `documents/` | Phase 3 |
+| `projects` | À créer : `projects/` | Phase 3 |
+
+### Règles de portage
+
+- **Appels Supabase directs** (lectures) → répliquer tel quel avec le client `lib/supabase.ts`.
+- **Server Actions web** → appeler la route API correspondante via `lib/api.ts` avec Bearer token.
+- **Composants UI** → pas de copier-coller HTML. Utiliser les primitives React Native (`View`, `Text`, `Pressable`, `ScrollView`).
+- **Types** → copier dans `types/index.ts` du mobile si non déjà présents.
+- **Variables d'env** → préfixer `EXPO_PUBLIC_` au lieu de `NEXT_PUBLIC_`.
+
+### Nouvelles API Routes web → déclarer dans le mobile
+
+Quand une nouvelle API Route est créée dans `src/app/api/`, l'ajouter dans `lib/api.ts` du mobile si elle est utile côté app.
+
+---
+
 ## Convention de commits
 
 ```
